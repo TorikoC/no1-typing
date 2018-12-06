@@ -5,12 +5,16 @@ const Record = mongoose.model(
   mongoose.Schema({
     user: {
       type: String,
+      default: 'annoymous',
     },
     speed: {
       type: Number,
     },
     time: {
       type: Number,
+    },
+    snippetId: {
+      type: String,
     },
     accurate: {
       type: Number,

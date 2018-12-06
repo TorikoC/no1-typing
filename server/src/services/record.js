@@ -15,7 +15,7 @@ const service = {
         },
       },
     ];
-    return Promise.resolve(Snippet.aggregate(option));
+    return Promise.resolve(Record.aggregate(option));
   },
   create(body) {
     return Promise.resolve(Record.create(body));
