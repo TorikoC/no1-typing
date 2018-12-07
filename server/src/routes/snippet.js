@@ -4,7 +4,8 @@ const snippetService = require('../services/snippet');
 
 router.get('/api/snippets', (req, res) => {
   snippetService
-    .getOne({ _id: '5c08b2f3ddb06454dc53f902' })
+    // .getOne({ _id: '5c08b2f3ddb06454dc53f902' })
+    .getOneRandom()
     .then(result => {
       console.log(result);
       if (result instanceof Array) {

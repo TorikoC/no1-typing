@@ -4,6 +4,9 @@ const service = {
   get(where) {
     return Promise.resolve(Book.find(where));
   },
+  getUniq(where) {
+    return Promise.resolve(Book.distinct('name'));
+  },
   getOne(where) {
     return Promise.resolve(Book.findOne(where));
   },
@@ -15,7 +18,7 @@ const service = {
         },
       },
     ];
-    return Promise.resolve(Snippet.aggregate(option));
+    return Promise.resolve(Book.aggregate(option));
   },
   create(body) {
     return Promise.resolve(Book.create(body));

@@ -4,8 +4,9 @@ const bookService = require('../services/book');
 
 router.get('/api/books', (req, res) => {
   bookService
-    .getOneRandom()
+    .getUniq()
     .then(result => {
+      console.log(result);
       res.send(result);
     })
     .catch(error => {
