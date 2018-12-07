@@ -1,20 +1,21 @@
 <template>
   <div>
-    <book/>
-    <snippet/>
+    <nav>
+      <ul>
+        <li>
+          <router-link to="/admin/books">books</router-link>
+        </li>
+        <li>
+          <router-link to="/admin/snippets">snippets</router-link>
+        </li>
+      </ul>
+    </nav>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Book from "./book";
-import Snippet from "./snippet";
-
-export default {
-  components: {
-    Book,
-    Snippet
-  }
-};
+export default {};
 </script>
 
 <style>

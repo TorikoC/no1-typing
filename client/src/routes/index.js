@@ -5,6 +5,9 @@ import PraticeEN from '../components/User/Pratice/english';
 import MatchCN from '../components/User/Match/chinese';
 import MatchEN from '../components/User/Match/english';
 
+import AdminBook from '../components/Admin/Books/index';
+import AdminSnippet from '../components/Admin/Snippets/index';
+
 import VueRouter from 'vue-router';
 
 const router = new VueRouter({
@@ -31,6 +34,16 @@ const router = new VueRouter({
     {
       path: '/admin',
       component: Admin,
+      children: [
+        {
+          path: 'books',
+          component: AdminBook,
+        },
+        {
+          path: 'snippets',
+          component: AdminSnippet,
+        },
+      ],
     },
   ],
 });

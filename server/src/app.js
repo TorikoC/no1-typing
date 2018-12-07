@@ -10,12 +10,14 @@ const config = require('config');
 
 const snippetRouter = require('./routes/snippet');
 const recordRouter = require('./routes/record');
+const bookRouter = require('./routes/book');
 
 const app = express();
 
 app.use(cors());
 app.use(snippetRouter);
 app.use(recordRouter);
+app.use(bookRouter);
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
