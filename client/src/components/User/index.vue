@@ -23,7 +23,8 @@
         <input type="radio" id="index-radio-en" name="lang" v-model="lang" value="en">
       </div>
       <router-link :to="'/pratice/' + lang">pratice</router-link>
-      <router-link to="/match">match</router-link>
+      <br>
+      <router-link :to="'/match/' + lang">match</router-link>
     </div>
   </div>
 </template>
