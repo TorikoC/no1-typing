@@ -7,6 +7,8 @@ import App from './App.vue';
 import router from './routes';
 import config from './config';
 
+import Back from './components/common/back';
+
 Vue.config.productionTip = false;
 
 Vue.prototype.$axios = axios;
@@ -29,6 +31,7 @@ Vue.filter('formatTime', stamp => {
   result = `${mins}:${seconds}`;
   return result;
 });
+Vue.component('back', Back);
 
 new Vue({
   router,
