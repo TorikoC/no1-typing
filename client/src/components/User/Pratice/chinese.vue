@@ -5,7 +5,7 @@
     <div class="pratice__snippet"></div>
     <div class="pratice__input" :contenteditable="state === WRITING" spellcheck="false"></div>
     <div v-if="state === DONE" class="pratice__record">
-      <div class="pratice__time">{{ time }}</div>
+      <div class="pratice__time">{{ time | formatTime }}</div>
       <div class="pratice__speed">{{ speed }} WPM</div>
     </div>
   </div>
