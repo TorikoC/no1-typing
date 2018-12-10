@@ -8,6 +8,7 @@ import router from './routes';
 import config from './config';
 
 import Back from './components/common/back';
+import Progress from './components/common/progress';
 
 Vue.config.productionTip = false;
 
@@ -32,6 +33,7 @@ Vue.filter('formatTime', stamp => {
   return result;
 });
 Vue.component('back', Back);
+Vue.component('n1-progress', Progress);
 
 new Vue({
   router,
