@@ -296,7 +296,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .pratice {
   .pratice__snippet {
     font-family: "Microsoft Yahei";

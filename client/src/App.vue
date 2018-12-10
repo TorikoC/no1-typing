@@ -16,6 +16,7 @@ html,
 body {
   margin: 0px;
   padding: 0px;
+  color: #333;
   font-family: "Microsoft Yahei";
 }
 #app {

@@ -1,5 +1,5 @@
 <template>
-  <span class="prev-link" @click.prevent="$router.go(-1)">← back</span>
+  <span class="prev-link" @click.prevent="$router.go(-1)">← 返回</span>
 </template>
 
 <script>

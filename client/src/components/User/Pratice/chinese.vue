@@ -1,12 +1,23 @@
 <template>
   <div class="pratice">
-    <div v-if="state === COUNTING" class="pratice__clock">{{ clock }}</div>
-    <button v-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
+    <back/>
+    <div class="pratice__progress">
+      <n1-progress name="wkelfjlajflasdjfasdjfljame" :total="snippetLength" :current="match"/>
+    </div>
+    <div class="pratice__meta">
+      <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
+      <button v-else-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
+      <span v-else-if="state === WRITING">已经开始了</span>
+    </div>
     <div class="pratice__snippet"></div>
     <div class="pratice__input" :contenteditable="state === WRITING" spellcheck="false"></div>
-    <div v-if="state === DONE" class="pratice__record">
-      <div class="pratice__time">{{ time | formatTime }}</div>
-      <div class="pratice__speed">{{ speed }} WPM</div>
+    <div v-if="state === DONE">
+      <dl>
+        <dt>用时</dt>
+        <dd>{{ time | formatTime }}</dd>
+        <dt>速度</dt>
+        <dd>{{ speed }} WPM</dd>
+      </dl>
     </div>
   </div>
 </template>
@@ -22,7 +33,7 @@ export default {
 
       state: this.LOADING,
 
-      clock: 3000,
+      clock: 3,
 
       snippetRaw: "",
       snippetHTML: "",
@@ -31,6 +42,7 @@ export default {
 
       time: 0,
       speed: 0,
+      match: 0,
 
       startedAt: 0,
 
@@ -47,18 +59,19 @@ export default {
     getSnippet() {
       this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
         this.state = this.COUNTING;
+        resp.data.content = "我";
         this.snippetRaw = resp.data.content;
         this.snippetHTML = this.snippetToHTML(resp.data.content);
         document.getElementsByClassName(
           "pratice__snippet"
         )[0].innerHTML = this.snippetHTML;
-        this.snippetLength = resp.data.length;
+        this.snippetLength = resp.data.content.length;
         this.snippetId = resp.data._id;
         setTimeout(this.countdown, 1000);
       });
     },
     countdown() {
-      this.clock -= 1000;
+      this.clock -= 1;
       if (this.clock === 0) {
         this.state = this.WRITING;
         this.enableInput(this.praticeInput);
@@ -68,7 +81,10 @@ export default {
       }
     },
     restart(evt) {
-      this.clock = 3000;
+      this.clock = 3;
+      this.match = 0;
+      this.praticeInput.innerHTML = "";
+      this.praticeInput.setAttribute("data-highlight", "");
       this.state = this.LOADING;
       this.startedAt = 0;
       this.getSnippet();
@@ -119,6 +135,8 @@ export default {
           .slice(0, len)
           .join("");
         match = match.replace(String.fromCharCode(32), "&nbsp;");
+        this.match = match.length;
+        console.log("pratice", this.match);
         el.setAttribute("data-highlight", match);
         if (match === this.snippetRaw) {
           observer.disconnect();
@@ -208,34 +226,60 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .pratice {
+  width: 50%;
+  margin: 1em auto;
+
+  .pratice__meta {
+    color: #777;
+    text-align: right;
+    margin: 0.2em;
+  }
   .pratice__snippet {
-    font-family: "Microsoft Yahei";
+    color: #333;
+    background: #eee;
+    border-radius: 2px;
+    padding: 0.2em 0.4em;
+    font-size: 1em;
   }
   .pratice__input {
-    width: 640px;
-    height: 320px;
-    border: 1px solid silver;
-    color: red;
-    font-family: "Microsoft Yahei";
+    box-sizing: border-box;
+    padding: 0.2em 0.4em;
+    min-height: 1.8em;
+    height: auto;
     position: relative;
+    border: 1px solid silver;
+    font-size: 1em;
+    color: red;
     &::before {
       content: attr(data-highlight);
+      display: block;
+      padding: 0.2em 0.4em;
       color: green;
       position: absolute;
       top: 0;
       left: 0;
     }
   }
-  .pratice__next-word {
-    text-decoration: underline;
+  .pratice__record:nth-child(odd) {
+    background: #eee;
+    color: #333;
   }
-  .pratice__word--match {
-    color: green;
-  }
-  .pratice__word--not-match {
-    color: red;
+  dt {
+    background: #eee;
   }
 }
 </style>
+<style>
+.pratice__next-word {
+  text-decoration: underline;
+}
+.pratice__word--match {
+  color: green !important;
+}
+.pratice__word--not-match {
+  color: red !important;
+}
+</style>
+

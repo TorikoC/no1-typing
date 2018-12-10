@@ -11,6 +11,7 @@ import AdminSnippet from '../components/Admin/Snippets/index';
 import VueRouter from 'vue-router';
 
 const router = new VueRouter({
+  mode: 'history',
   routes: [
     {
       path: '/',
