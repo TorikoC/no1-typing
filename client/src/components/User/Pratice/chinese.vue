@@ -1,8 +1,7 @@
 <template>
   <div class="pratice">
     <div v-if="state === COUNTING" class="pratice__clock">{{ clock }}</div>
-    <button v-if="state === DONE" class="pratice__again" @click="again">再来一次</button>
-
+    <button v-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
     <div class="pratice__snippet"></div>
     <div class="pratice__input" :contenteditable="state === WRITING" spellcheck="false"></div>
     <div v-if="state === DONE" class="pratice__record">
@@ -68,10 +67,10 @@ export default {
         setTimeout(this.countdown, 1000);
       }
     },
-    again(evt) {
-      debugger;
+    restart(evt) {
       this.clock = 3000;
       this.state = this.LOADING;
+      this.startedAt = 0;
       this.getSnippet();
     },
     preventPaste(el) {
@@ -83,7 +82,7 @@ export default {
     enableInput(el) {
       el.setAttribute("contenteditable", true);
     },
-    watch(el) {
+    focus(el) {
       let s = window.getSelection();
       let r = document.createRange();
       el.innerHTML = "\u00a0";
@@ -91,6 +90,9 @@ export default {
       s.removeAllRanges();
       s.addRange(r);
       document.execCommand("delete", false, null);
+    },
+    watch(el) {
+      this.focus(el);
 
       const config = {
         attributes: false,
