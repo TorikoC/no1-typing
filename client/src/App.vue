@@ -12,6 +12,14 @@ export default {
 </script>
 
 <style>
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: "Microsoft Yahei";
+}
 #app {
+  height: 100vh;
+  position: relative;
 }
 </style>
