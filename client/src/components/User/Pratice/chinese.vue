@@ -59,7 +59,6 @@ export default {
     getSnippet() {
       this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
         this.state = this.COUNTING;
-        resp.data.content = "我";
         this.snippetRaw = resp.data.content;
         this.snippetHTML = this.snippetToHTML(resp.data.content);
         document.getElementsByClassName(
