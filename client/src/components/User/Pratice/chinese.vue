@@ -16,8 +16,19 @@
         <dt>用时</dt>
         <dd>{{ time | formatTime }}</dd>
         <dt>速度</dt>
-        <dd>{{ speed }} WPM</dd>
+        <dd>约 {{ speed }} 字/分钟</dd>
       </dl>
+      <p>段落来自:</p>
+      <div class="source">
+        <div class="source__cover">
+          <img :src="snippet.cover" alt="source cover">
+        </div>
+        <div class="source__name">
+          {{ snippet.name }}
+          <br>
+          <small>by {{ snippet.author }}</small>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -39,6 +50,7 @@ export default {
       snippetHTML: "",
       snippetLength: 0,
       snippetId: "",
+      snippet: {},
 
       time: 0,
       speed: 0,
@@ -61,6 +73,7 @@ export default {
         this.state = this.COUNTING;
         this.snippetRaw = resp.data.content;
         this.snippetHTML = this.snippetToHTML(resp.data.content);
+        this.snippet = resp.data;
         document.getElementsByClassName(
           "pratice__snippet"
         )[0].innerHTML = this.snippetHTML;
@@ -240,7 +253,8 @@ export default {
     background: #eee;
     border-radius: 2px;
     padding: 0.2em 0.4em;
-    font-size: 1em;
+    font-size: 1.2em;
+    font-weight: bold;
   }
   .pratice__input {
     box-sizing: border-box;
@@ -249,8 +263,9 @@ export default {
     height: auto;
     position: relative;
     border: 1px solid silver;
-    font-size: 1em;
-    color: red;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: crimson;
     &::before {
       content: attr(data-highlight);
       display: block;
@@ -268,17 +283,33 @@ export default {
   dt {
     background: #eee;
   }
+  .source {
+    display: flex;
+    flex-direction: row;
+    .source__cover {
+      display: block;
+      width: 200px;
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+    }
+    .source__name {
+      padding: 0.2em 0.4em;
+    }
+  }
 }
 </style>
 <style>
 .pratice__next-word {
-  text-decoration: underline;
+  border-bottom: 2px solid black;
 }
 .pratice__word--match {
   color: green !important;
 }
 .pratice__word--not-match {
-  color: red !important;
+  color: crimson !important;
 }
 </style>
 

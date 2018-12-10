@@ -1,18 +1,23 @@
 const router = require('express').Router();
 const multer = require('multer');
 const snippetService = require('../services/snippet');
+const bookService = require('../services/book');
 
-router.get('/api/snippets', (req, res) => {
-  snippetService
-    // .getOne({ _id: '5c08b2f3ddb06454dc53f902' })
-    .getOneRandom()
+router.get('/api/snippets', async (req, res) => {
+  let snippet = await snippetService.getOneRandom();
+  if (snippet.length > 0) {
+    snippet = snippet[0];
+  }
+  bookService
+    .getOne({ name: snippet.sourceId })
     .then(result => {
-      console.log(result);
-      if (result instanceof Array) {
-        res.send(result[0]);
-      } else {
-        res.send(result);
-      }
+      res.send({
+        name: result.name,
+        author: result.author,
+        cover: result.cover,
+        content: snippet.content,
+        length: snippet.length,
+      });
     })
     .catch(error => {
       res.status(500);

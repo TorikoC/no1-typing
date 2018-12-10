@@ -1,14 +1,17 @@
 <template>
-  <form class="form" @submit.prevent="submit">
+  <form class="book-form" @submit.prevent="submit">
     <div class="form-group">
-      <label class="form-label" for="name">name:</label>
+      <label for="name">名字:</label>
       <input type="text" name="name" id="name" required autofocus>
     </div>
     <div class="form-group">
-      <label for="author">author:</label>
+      <label for="author">作者:</label>
       <input type="text" name="author" id="author" required>
     </div>
-    <button type="submit">submit</button>
+    <div class="form-group">
+      <label for></label>
+      <button type="submit">提交</button>
+    </div>
   </form>
 </template>
 
@@ -27,5 +30,29 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.book-form {
+  width: 50%;
+  margin: 1em auto;
+  .form-group {
+    display: flex;
+    flex-direction: row;
+    label {
+      width: 20%;
+      align-self: flex-start;
+    }
+    input,
+    button,
+    select,
+    textarea {
+      width: 100%;
+    }
+    textarea {
+      resize: vertical;
+    }
+  }
+  .form-group + .form-group {
+    margin-top: 0.6em;
+  }
+}
 </style>

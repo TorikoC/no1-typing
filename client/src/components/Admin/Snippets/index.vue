@@ -3,7 +3,8 @@
     <div class="form-group">
       <label for="source-type">类型:</label>
       <select name="sourceType" id="source-type" v-model="type" required>
-        <option value="book">book</option>
+        <option value="book">书籍</option>
+        <option value="movie">电影</option>
       </select>
     </div>
     <div class="form-group">

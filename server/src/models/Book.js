@@ -15,7 +15,8 @@ const Book = mongoose.model(
     },
     cover: {
       type: String,
-      default: '',
+      default:
+        'https://upload.wikimedia.org/wikipedia/en/thumb/c/c9/ElJard%C3%ADnDeSenderosQueSeBifurcan.jpg/200px-ElJard%C3%ADnDeSenderosQueSeBifurcan.jpg',
     },
     createdAt: {
       type: Number,
