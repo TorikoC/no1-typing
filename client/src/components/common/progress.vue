@@ -3,6 +3,7 @@
     <div class="progress-name" :title="name">{{ name }}</div>
     <div class="progress-body" ref="body"></div>
     <span class="progress-percent">{{ progress }}%</span>
+    <span class="progress-speed">{{ speed }} 字/分钟</span>
   </div>
 </template>
 
@@ -41,6 +42,9 @@ export default {
     },
     progress: {
       type: Number
+    },
+    speed: {
+      // type: Number
     }
   },
   mounted() {
@@ -60,7 +64,9 @@ export default {
   text-overflow: ellipsis;
 }
 .progress-body {
+  border-left: 1px solid silver;
   width: 0%;
+  height: 2em;
   transition: all 0.3s;
 }
 .progress-body--low {
@@ -74,5 +80,11 @@ export default {
 }
 .progress-percent {
   color: #777;
+}
+.progress-speed {
+  width: 10em;
+  color: #777;
+  margin-left: auto;
+  text-align: right;
 }
 </style>

@@ -8,7 +8,7 @@
       <span v-else-if="state === WRITING">已经开始了</span>
     </div>
     <div class="pratice__snippet"></div>
-    <div class="pratice__input" :contenteditable="state === WRITING" spellcheck="false"></div>
+    <div class="pratice__input" contenteditable="false" spellcheck="false"></div>
     <dl v-if="state === DONE">
       <dt>用时</dt>
       <dd>{{ time | formatTime }}</dd>
@@ -213,6 +213,9 @@ export default {
     color: #777;
     text-align: right;
     margin: 0.2em;
+  }
+  .pratice__word {
+    transition: border color 0.3s;
   }
   .pratice__snippet {
     background: #eee;

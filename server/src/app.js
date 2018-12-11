@@ -51,7 +51,7 @@ mongoose.connect(
         console.log('disconnect: ', socket.id);
         leave(socket);
       });
-      socket.on('re-match', () => {
+      socket.on('re-start', () => {
         console.log('re match: ', socket.id);
         leave(socket);
         join(socket);
