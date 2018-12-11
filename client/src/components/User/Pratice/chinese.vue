@@ -1,39 +1,42 @@
 <template>
   <div class="pratice">
     <back/>
-    <div class="pratice__progress">
-      <n1-progress name="游客" :progress="progress"/>
-    </div>
+    <n1-progress name="游客" class="pratice__progress" :progress="progress"/>
     <div class="pratice__meta">
       <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
-      <button v-else-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
+      <button v-else-if="state === DONE" @click="restart">再来一次</button>
       <span v-else-if="state === WRITING">已经开始了</span>
     </div>
     <div class="pratice__snippet"></div>
     <div class="pratice__input" :contenteditable="state === WRITING" spellcheck="false"></div>
-    <div v-if="state === DONE">
-      <dl>
-        <dt>用时</dt>
-        <dd>{{ time | formatTime }}</dd>
-        <dt>速度</dt>
-        <dd>约 {{ speed }} 字/分钟</dd>
-      </dl>
-      <p>段落来自:</p>
-      <div class="source">
-        <div class="source__cover">
-          <img :src="snippet.cover" alt="source cover">
+    <dl v-if="state === DONE">
+      <dt>用时</dt>
+      <dd>{{ time | formatTime }}</dd>
+      <dt>速度</dt>
+      <dd>约 {{ speed }} 字/分钟</dd>
+      <dt>段落来自</dt>
+      <dd>
+        <div class="source">
+          <div class="source__cover">
+            <img :src="snippet.cover" alt="source cover">
+          </div>
+          <div class="source__name">
+            {{ snippet.name }}
+            <br>
+            <small>by {{ snippet.author }}</small>
+          </div>
         </div>
-        <div class="source__name">
-          {{ snippet.name }}
-          <br>
-          <small>by {{ snippet.author }}</small>
-        </div>
-      </div>
-    </div>
+      </dd>
+    </dl>
   </div>
 </template>
 
 <script>
+import charToSpan from "@/tools/char-to-span.js";
+import preventPaste from "@/tools/prevent-paste.js";
+import focusEditable from "@/tools/focus-editable.js";
+import commonSubstrLength from "@/tools/common-substr-length";
+
 export default {
   data() {
     return {
@@ -44,12 +47,9 @@ export default {
 
       state: this.LOADING,
 
-      clock: 3,
+      clock: 4,
 
-      snippetRaw: "",
       snippetHTML: "",
-      snippetLength: 0,
-      snippetId: "",
       snippet: {},
 
       time: 0,
@@ -58,50 +58,51 @@ export default {
 
       startedAt: 0,
 
-      praticeInput: null
+      input: null
     };
   },
   mounted() {
-    this.praticeInput = document.getElementsByClassName("pratice__input")[0];
-    this.preventPaste(this.praticeInput);
-    this.prevenInput(this.praticeInput);
+    this.input = document.getElementsByClassName("pratice__input")[0];
+    preventPaste(this.input);
+
+    this.prevenInput(this.input);
     this.getSnippet();
   },
   methods: {
     getSnippet() {
       this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
-        this.state = this.COUNTING;
-        this.snippetRaw = resp.data.content;
-        this.snippetHTML = this.snippetToHTML(resp.data.content);
         this.snippet = resp.data;
+        this.state = this.COUNTING;
+
         document.getElementsByClassName(
           "pratice__snippet"
-        )[0].innerHTML = this.snippetHTML;
-        this.snippetLength = resp.data.content.length;
-        this.snippetId = resp.data._id;
-        setTimeout(this.countdown, 1000);
+        )[0].innerHTML = charToSpan(resp.data.content, "pratice__word");
+
+        this.countdown();
       });
     },
     countdown() {
       this.clock -= 1;
       if (this.clock === 0) {
         this.state = this.WRITING;
-        this.enableInput(this.praticeInput);
-        this.watch(this.praticeInput);
+        this.startedAt = Date.now();
+
+        this.enableInput(this.input);
+        this.watch(this.input);
       } else {
         setTimeout(this.countdown, 1000);
       }
     },
     restart(evt) {
-      this.clock = 3;
-      this.praticeInput.innerHTML = "";
-      this.praticeInput.setAttribute("data-highlight", "");
-      this.state = this.LOADING;
-      this.startedAt = 0;
+      this.reset();
       this.getSnippet();
     },
-    preventPaste(el) {
-      el.addEventListener("paste", evt => evt.preventDefault(), false);
+    reset() {
+      this.clock = 4;
+      this.input.innerHTML = "";
+      this.input.setAttribute("data-highlight", "");
+      this.startedAt = 0;
+      this.state = this.LOADING;
     },
     prevenInput(el) {
       el.setAttribute("contenteditable", false);
@@ -109,18 +110,7 @@ export default {
     enableInput(el) {
       el.setAttribute("contenteditable", true);
     },
-    focus(el) {
-      let s = window.getSelection();
-      let r = document.createRange();
-      el.innerHTML = "\u00a0";
-      r.selectNodeContents(el);
-      s.removeAllRanges();
-      s.addRange(r);
-      document.execCommand("delete", false, null);
-    },
     watch(el) {
-      this.focus(el);
-
       const config = {
         attributes: false,
         childList: false,
@@ -129,10 +119,7 @@ export default {
       };
 
       const handler = (mutationList, observer) => {
-        if (!this.startedAt) {
-          this.startedAt = Date.now();
-        }
-        let len = this.getCommonSubstrLength(this.snippetRaw, el.textContent);
+        let len = commonSubstrLength(this.snippet.content, el.textContent);
 
         this.colorfy(
           document.getElementsByClassName("pratice__word"),
@@ -146,38 +133,37 @@ export default {
           .slice(0, len)
           .join("");
         match = match.replace(String.fromCharCode(32), "&nbsp;");
-        this.progress = Math.floor((match.length / this.snippetLength) * 100);
         el.setAttribute("data-highlight", match);
-        if (match === this.snippetRaw) {
+
+        this.progress = Math.floor((match.length / this.snippet.length) * 100);
+
+        if (match === this.snippet.content) {
           observer.disconnect();
-          this.prevenInput(this.praticeInput);
           this.state = this.DONE;
+          this.prevenInput(this.input);
+
           this.time = Date.now() - this.startedAt;
-          this.speed = ((this.snippetLength / (this.time / 1000)) * 60).toFixed(
-            1
-          );
+          this.speed = (
+            (this.snippet.length / (this.time / 1000)) *
+            60
+          ).toFixed(1);
           this.post();
         }
       };
 
       var observer = new MutationObserver(handler);
       observer.observe(el, config);
+      focusEditable(el);
     },
     post() {
       const formData = new FormData();
       formData.append("time", this.time);
       formData.append("speed", this.speed);
-      formData.append("snippetId", this.snippetId);
+      formData.append("snippetId", this.snippet._id);
 
       this.$axios
         .post(`${this.$config.server}/api/records`, formData)
         .then(resp => {});
-    },
-    snippetToHTML(snippet) {
-      const els = snippet.split("").map(word => {
-        return `<span class='pratice__word'>${word}</span>`;
-      });
-      return els.join("");
     },
     colorfy(els, successIndex = -1, failIndex = -1, nextIndex = -1) {
       if (!els) {
@@ -211,26 +197,6 @@ export default {
           els[i].classList.remove("pratice__next-word");
         }
       }
-    },
-    getCommonSubstrLength(s1, s2) {
-      let len = 0;
-      let hasMatch = false;
-      for (let i = 0; i < s1.length && i < s2.length; i += 1) {
-        if (
-          s1[i] !== s2[i] &&
-          !(s1.charCodeAt(i) === 32 && s2.charCodeAt(i) === 160)
-        ) {
-          console.log("not match: ", s1.charCodeAt(i), s2.charCodeAt(i));
-          len = i;
-          break;
-        }
-        hasMatch = true;
-      }
-      if (hasMatch && len === 0) {
-        // s2 is sub string of s1
-        len = s2.length;
-      }
-      return len;
     }
   }
 };
@@ -240,14 +206,15 @@ export default {
 .pratice {
   width: 50%;
   margin: 1em auto;
-
+  .pratice__progress {
+    margin: 0.4em 0;
+  }
   .pratice__meta {
     color: #777;
     text-align: right;
     margin: 0.2em;
   }
   .pratice__snippet {
-    color: #333;
     background: #eee;
     border-radius: 2px;
     padding: 0.2em 0.4em;
@@ -273,10 +240,6 @@ export default {
       top: 0;
       left: 0;
     }
-  }
-  .pratice__record:nth-child(odd) {
-    background: #eee;
-    color: #333;
   }
   dt {
     background: #eee;

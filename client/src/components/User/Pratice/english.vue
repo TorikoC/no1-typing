@@ -15,14 +15,14 @@ export default {
       snippetHTML: "",
       time: 0,
 
-      praticeInput: null
+      input: null
     };
   },
   mounted() {
-    this.praticeInput = document.getElementsByClassName("pratice__input")[0];
+    this.input = document.getElementsByClassName("pratice__input")[0];
 
-    this.preventPaste(this.praticeInput);
-    this.prevenInput(this.praticeInput);
+    this.preventPaste(this.input);
+    this.prevenInput(this.input);
 
     this.getSnippet();
   },
@@ -32,8 +32,8 @@ export default {
         this.loading = false;
         this.snippetRaw = resp.data.content;
         this.snippetHTML = this.snippetToHTML(resp.data.content);
-        this.enableInput(this.praticeInput);
-        this.watch(this.praticeInput);
+        this.enableInput(this.input);
+        this.watch(this.input);
       });
     },
     preventPaste(el) {

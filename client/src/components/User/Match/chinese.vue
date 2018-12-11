@@ -78,13 +78,13 @@ export default {
 
       startedAt: 0,
 
-      praticeInput: null
+      input: null
     };
   },
   mounted() {
-    this.praticeInput = document.getElementsByClassName("pratice__input")[0];
-    this.preventPaste(this.praticeInput);
-    this.prevenInput(this.praticeInput);
+    this.input = document.getElementsByClassName("pratice__input")[0];
+    this.preventPaste(this.input);
+    this.prevenInput(this.input);
     this.socket = this.$io.connect("http://localhost:3000");
     this.bind();
   },
@@ -134,8 +134,8 @@ export default {
     },
     start() {
       this.state = this.WRITING;
-      this.enableInput(this.praticeInput);
-      this.watch(this.praticeInput);
+      this.enableInput(this.input);
+      this.watch(this.input);
     },
     restart(evt) {
       this.reset();
@@ -144,8 +144,8 @@ export default {
     reset() {
       this.state = this.LOADING;
       this.startedAt = 0;
-      this.praticeInput.innerHTML = "";
-      this.praticeInput.setAttribute("data-highlight", "");
+      this.input.innerHTML = "";
+      this.input.setAttribute("data-highlight", "");
       this.progress = 0;
     },
     preventPaste(el) {
@@ -225,7 +225,7 @@ export default {
         el.setAttribute("data-highlight", match);
         if (match === this.snippet.content) {
           observer.disconnect();
-          this.prevenInput(this.praticeInput);
+          this.prevenInput(this.input);
           this.state = this.DONE;
           this.time = Date.now() - this.startedAt;
           this.speed = (

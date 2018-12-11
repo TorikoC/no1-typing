@@ -46,25 +46,25 @@ export default {
 .rank {
   width: 50%;
   margin: 1em auto;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
+  .table {
+    width: 100%;
+    border-collapse: collapse;
 
-  tbody tr:nth-child(1) {
-    border: 1px solid crimson;
-    color: red;
-  }
-  tbody tr:nth-child(2) {
-    border: 1px solid orange;
-    color: orange;
-  }
-  tbody tr:nth-child(3) {
-    border: 1px solid purple;
-    color: purple;
-  }
-  td {
-    text-align: center;
+    tbody tr:nth-child(1) {
+      border: 1px solid crimson;
+      color: red;
+    }
+    tbody tr:nth-child(2) {
+      border: 1px solid orange;
+      color: orange;
+    }
+    tbody tr:nth-child(3) {
+      border: 1px solid purple;
+      color: purple;
+    }
+    td {
+      text-align: center;
+    }
   }
 }
 </style>

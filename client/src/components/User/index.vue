@@ -1,9 +1,9 @@
 <template>
-  <div class="index">
+  <div>
     <nav class="nav">
       <ul>
         <li>
-          <router-link to="/">主页</router-link>
+          <router-link to="/">练习</router-link>
         </li>
         <li>
           <router-link to="/rank">榜单</router-link>
@@ -24,8 +24,8 @@
           <legend>语言</legend>
           <label for="index-radio-cn">中文</label>
           <input type="radio" id="index-radio-cn" name="lang" v-model="lang" value="cn">
-          <label for="index-radio-en">English</label>
-          <input type="radio" id="index-radio-en" name="lang" v-model="lang" value="en">
+          <label for="index-radio-en" title="开发中">英文</label>
+          <input type="radio" id="index-radio-en" name="lang" v-model="lang" value="en" disabled>
         </fieldset>
       </div>
       <router-link :to="'/pratice/' + lang">练习</router-link>
@@ -45,19 +45,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.index {
-  height: 100%;
-  position: relative;
-}
 .entry {
+  $linkColor: orange;
+
   position: relative;
   display: block;
   width: 30%;
-  margin: 2em auto;
-  $linkColor: orange;
-  .entry__mode {
-    color: #333;
-  }
+  margin: 1em auto;
   a {
     display: block;
     position: relative;
@@ -74,7 +68,7 @@ export default {
   a:hover {
     color: darken($color: $linkColor, $amount: 10);
   }
-  $triWidth: 10px;
+  $triWidth: 8px;
   a:hover::after {
     content: "";
     display: inline-block;
@@ -82,7 +76,6 @@ export default {
     right: -$triWidth;
     top: 50%;
     transform: translateY(-50%);
-    // border: 10px solid black;
     border-left: $triWidth solid transparent;
     border-right: $triWidth solid black;
     border-top: $triWidth solid transparent;
@@ -110,7 +103,6 @@ export default {
     left: -$triWidth;
     top: 50%;
     transform: translateY(-50%);
-    // border: 10px solid black;
     border-left: $triWidth solid black;
     border-right: $triWidth solid transparent;
     border-top: $triWidth solid transparent;
@@ -148,10 +140,10 @@ export default {
     color: $linkColor;
   }
   a:hover {
-    color: darken($color: $linkColor, $amount: 10);
+    color: darken($color: $linkColor, $amount: 20);
   }
   a:active {
-    color: darken($color: $linkColor, $amount: 20);
+    color: darken($color: $linkColor, $amount: 30);
   }
 }
 </style>
