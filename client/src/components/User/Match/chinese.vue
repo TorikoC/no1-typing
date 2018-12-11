@@ -1,14 +1,16 @@
 <template>
   <div class="pratice">
-    <ul>
-      <li
-        v-for="user in users"
-        :key="user.id"
-      >{{user.id}}, {{user.progress}}, {{ user.speed || '' }}</li>
+    <back/>
+    <ul class="users">
+      <li v-for="user in users" :key="user.id">
+        <n1-progress :name="user.ip" :progress="user.progress"/>
+      </li>
     </ul>
-    <div v-if="state === COUNTING" class="pratice__clock">{{ clock }}</div>
-    <button v-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
-
+    <div class="pratice__meta">
+      <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
+      <button v-else-if="state === DONE" class="pratice__again" @click="restart">再来一次</button>
+      <span v-else-if="state === WRITING">已经开始了</span>
+    </div>
     <div class="pratice__snippet"></div>
     <div
       class="pratice__input"
@@ -16,9 +18,35 @@
       data-highlight
       spellcheck="false"
     ></div>
-    <div v-if="state === DONE" class="pratice__record">
-      <div class="pratice__time">{{ time }}</div>
-      <div class="pratice__speed">{{ speed }} WPM</div>
+    <div v-if="state === DONE">
+      <dl>
+        <dt>用时</dt>
+        <dd>{{ time | formatTime }}</dd>
+        <dt>速度</dt>
+        <dd>{{ speed }} 字/分钟</dd>
+        <dt>段落来自</dt>
+        <dd>
+          <div class="source">
+            <div class="source__cover">
+              <img :src="snippet.cover" alt="source cover">
+            </div>
+            <div class="source__name">
+              {{ snippet.name }}
+              <br>
+              <small>by {{ snippet.author }}</small>
+            </div>
+          </div>
+        </dd>
+        <dt>段落排行</dt>
+        <dd>
+          <ul class="records">
+            <li
+              v-for="record in records"
+              :key="record.createdAt"
+            >{{ record.user }} | {{ record.speed }} 字/分钟 | {{ record.createdAt }}</li>
+          </ul>
+        </dd>
+      </dl>
     </div>
   </div>
 </template>
@@ -39,14 +67,14 @@ export default {
 
       users: [],
 
-      snippetRaw: "",
       snippetHTML: "",
-      snippetLength: 0,
-      snippetId: "",
+      snippet: {},
 
       time: 0,
       speed: 0,
       progress: 0,
+
+      records: [],
 
       startedAt: 0,
 
@@ -59,35 +87,28 @@ export default {
     this.prevenInput(this.praticeInput);
     this.socket = this.$io.connect("http://localhost:3000");
     this.bind();
-    this.getSnippet();
   },
   methods: {
-    getSnippet() {
-      this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
-        this.state = this.COUNTING;
-        console.log("counting");
-        this.snippetRaw = resp.data.content;
-        this.snippetHTML = this.snippetToHTML(resp.data.content);
-        document.getElementsByClassName(
-          "pratice__snippet"
-        )[0].innerHTML = this.snippetHTML;
-        this.snippetLength = resp.data.length;
-        this.snippetId = resp.data._id;
-      });
-    },
     bind() {
       this.socket.on("users", data => {
-        console.log("users:", data);
         this.users = data.map(user => {
           return {
-            id: user,
+            id: user.id,
+            ip: user.ip,
             progress: 0,
-            speed: null
+            speed: 0
           };
         });
       });
+      this.socket.on("snippet", data => {
+        this.state = this.COUNTING;
+        this.snippet = data;
+        this.snippetHTML = this.snippetToHTML(data.content);
+        document.getElementsByClassName(
+          "pratice__snippet"
+        )[0].innerHTML = this.snippetHTML;
+      });
       this.socket.on("user-leave", data => {
-        console.log("user leave:", data);
         if (this.state === this.COUNTING) {
           let idx = this.users.findIndex(user => {
             return user.id === data;
@@ -98,17 +119,13 @@ export default {
         }
       });
       this.socket.on("user-enter", data => {
-        console.log("user enter: ", data);
         this.users.push({
-          id: data,
+          id: data.id,
+          ip: data.ip,
           progress: 0
         });
       });
-      this.socket.on("done", () => {
-        console.log("done");
-      });
       this.socket.on("clock", data => {
-        console.log("tick: ", data);
         this.clock = data;
         if (this.clock === 0) {
           this.start();
@@ -122,11 +139,10 @@ export default {
     },
     restart(evt) {
       this.reset();
-      this.state = this.LOADING;
       this.socket.emit("re-match");
-      this.getSnippet();
     },
     reset() {
+      this.state = this.LOADING;
       this.startedAt = 0;
       this.praticeInput.innerHTML = "";
       this.praticeInput.setAttribute("data-highlight", "");
@@ -159,7 +175,8 @@ export default {
 
       const send = () => {
         let success = el.getAttribute("data-highlight").length || 0;
-        let total = this.snippetLength;
+        let total = this.snippet.length;
+        console.log("success", success);
         this.socket.emit("progress", {
           id: this.socket.id,
           progress: this.progress
@@ -173,7 +190,6 @@ export default {
       }
       this.socket.on("progress", data => {
         if (this.state === this.WRITING || this.state === this.DONE) {
-          console.log(data);
           this.users.forEach(user => {
             if (user.id === data.id) {
               user.progress = data.progress;
@@ -188,7 +204,10 @@ export default {
         if (!this.startedAt) {
           this.startedAt = Date.now();
         }
-        let len = this.getCommonSubstrLength(this.snippetRaw, el.textContent);
+        let len = this.getCommonSubstrLength(
+          this.snippet.content,
+          el.textContent
+        );
 
         this.colorfy(
           document.getElementsByClassName("pratice__word"),
@@ -202,16 +221,17 @@ export default {
           .slice(0, len)
           .join("");
         match = match.replace(String.fromCharCode(32), "&nbsp;");
-        this.progress = Math.floor((match.length / this.snippetLength) * 100);
+        this.progress = Math.floor((match.length / this.snippet.length) * 100);
         el.setAttribute("data-highlight", match);
-        if (match === this.snippetRaw) {
+        if (match === this.snippet.content) {
           observer.disconnect();
           this.prevenInput(this.praticeInput);
           this.state = this.DONE;
           this.time = Date.now() - this.startedAt;
-          this.speed = ((this.snippetLength / (this.time / 1000)) * 60).toFixed(
-            1
-          );
+          this.speed = (
+            (this.snippet.length / (this.time / 1000)) *
+            60
+          ).toFixed(1);
           this.post();
         }
       };
@@ -220,18 +240,21 @@ export default {
       observer.observe(el, config);
     },
     post() {
-      // const formData = new FormData();
-      // formData.append("time", this.time);
-      // formData.append("speed", this.speed);
-      // formData.append("snippetId", this.snippetId);
-      // this.$axios
-      //   .post(`${this.$config.server}/api/records`, formData)
-      //   .then(resp => {});
+      this.socket.emit("progress", {
+        id: this.socket.id,
+        progress: this.progress
+      });
       this.socket.emit("done", {
         time: this.time,
         speed: this.speed,
-        snippetId: this.snippetId
+        snippetId: this.snippet._id
       });
+      this.$axios
+        .get(`${this.$config.server}/api/records?snippetId=${this.snippet._id}`)
+        .then(resp => {
+          console.log(resp);
+          this.records = resp.data;
+        });
     },
     snippetToHTML(snippet) {
       const els = snippet.split("").map(word => {
@@ -280,7 +303,6 @@ export default {
           s1[i] !== s2[i] &&
           !(s1.charCodeAt(i) === 32 && s2.charCodeAt(i) === 160)
         ) {
-          console.log("not match: ", s1.charCodeAt(i), s2.charCodeAt(i));
           len = i;
           break;
         }
@@ -292,38 +314,81 @@ export default {
       }
       return len;
     }
+  },
+  destroyed() {
+    this.state = this.DONE;
+    if (this.socket) {
+      this.socket.close();
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
 .pratice {
+  width: 50%;
+  margin: 1em auto;
+
+  .users {
+    li + li {
+      margin-top: 0.4em;
+    }
+  }
+  .pratice__meta {
+    color: #777;
+    text-align: right;
+    margin: 0.2em;
+  }
   .pratice__snippet {
-    font-family: "Microsoft Yahei";
+    color: #333;
+    background: #eee;
+    border-radius: 2px;
+    padding: 0.2em 0.4em;
+    font-size: 1.2em;
+    font-weight: bold;
   }
   .pratice__input {
-    width: 640px;
-    height: 320px;
-    border: 1px solid silver;
-    color: red;
-    font-family: "Microsoft Yahei";
+    box-sizing: border-box;
+    padding: 0.2em 0.4em;
+    min-height: 1.8em;
+    height: auto;
     position: relative;
+    border: 1px solid silver;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: crimson;
     &::before {
       content: attr(data-highlight);
+      display: block;
+      padding: 0.2em 0.4em;
       color: green;
       position: absolute;
       top: 0;
       left: 0;
     }
   }
-  .pratice__next-word {
-    text-decoration: underline;
+  .pratice__record:nth-child(odd) {
+    background: #eee;
+    color: #333;
   }
-  .pratice__word--match {
-    color: green;
+  dt {
+    background: #eee;
   }
-  .pratice__word--not-match {
-    color: red;
+  .source {
+    display: flex;
+    flex-direction: row;
+    .source__cover {
+      display: block;
+      width: 200px;
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+    }
+    .source__name {
+      padding: 0.2em 0.4em;
+    }
   }
 }
 </style>

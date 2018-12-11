@@ -2,7 +2,7 @@
   <div class="pratice">
     <back/>
     <div class="pratice__progress">
-      <n1-progress name="wkelfjlajflasdjfasdjfljame" :total="snippetLength" :current="match"/>
+      <n1-progress name="游客" :progress="progress"/>
     </div>
     <div class="pratice__meta">
       <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
@@ -54,7 +54,7 @@ export default {
 
       time: 0,
       speed: 0,
-      match: 0,
+      progress: 0,
 
       startedAt: 0,
 
@@ -94,7 +94,6 @@ export default {
     },
     restart(evt) {
       this.clock = 3;
-      this.match = 0;
       this.praticeInput.innerHTML = "";
       this.praticeInput.setAttribute("data-highlight", "");
       this.state = this.LOADING;
@@ -147,8 +146,7 @@ export default {
           .slice(0, len)
           .join("");
         match = match.replace(String.fromCharCode(32), "&nbsp;");
-        this.match = match.length;
-        console.log("pratice", this.match);
+        this.progress = Math.floor((match.length / this.snippetLength) * 100);
         el.setAttribute("data-highlight", match);
         if (match === this.snippetRaw) {
           observer.disconnect();

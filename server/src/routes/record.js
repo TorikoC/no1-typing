@@ -3,8 +3,21 @@ const multer = require('multer');
 const recordService = require('../services/record');
 
 router.get('/api/records', (req, res) => {
+  let { snippetId, limit } = req.query;
+  snippetId = snippetId || '';
+  limit = +limit || 10;
+
+  const where = {};
+  if (snippetId) {
+    where.snippetId = snippetId;
+  }
+  const sort = {
+    speed: -1,
+  };
+
+  console.log('get api/records:', snippetId, limit);
   recordService
-    .getOneRandom()
+    .get(where, sort, limit)
     .then(result => {
       res.send(result);
     })

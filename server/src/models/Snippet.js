@@ -13,6 +13,10 @@ const Snippet = mongoose.model(
       type: String,
       default: '',
     },
+    language: {
+      type: String,
+      default: 'chinese',
+    },
     length: {
       type: Number,
       default: 0,

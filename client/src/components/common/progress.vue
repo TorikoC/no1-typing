@@ -1,25 +1,24 @@
 <template>
   <div class="progress">
     <div class="progress-name" :title="name">{{ name }}</div>
-    <div class="progress-body"></div>
-    <span class="progress-percent">{{ percent }}%</span>
+    <div class="progress-body" ref="body"></div>
+    <span class="progress-percent">{{ progress }}%</span>
   </div>
 </template>
 
 <script>
 export default {
   watch: {
-    current(value) {
+    progress(value) {
       if (!this.body) {
         return;
       }
-      this.percent = Math.floor((value / this.total) * 100);
-      this.body.style.width = this.percent + "%";
-      if (this.percent < 25) {
+      this.body.style.width = value + "%";
+      if (value < 25) {
         this.body.classList.remove("progress-body--high");
         this.body.classList.remove("progress-body--middle");
         this.body.classList.add("progress-body--low");
-      } else if (this.percent < 75) {
+      } else if (value < 75) {
         this.body.classList.remove("progress-body--high");
         this.body.classList.add("progress-body--middle");
         this.body.classList.remove("progress-body--low");
@@ -40,15 +39,12 @@ export default {
     name: {
       type: String
     },
-    total: {
-      type: Number
-    },
-    current: {
+    progress: {
       type: Number
     }
   },
   mounted() {
-    this.body = document.getElementsByClassName("progress-body")[0];
+    this.body = this.$refs["body"];
   }
 };
 </script>
@@ -75,5 +71,8 @@ export default {
 }
 .progress-body--high {
   background: green;
+}
+.progress-percent {
+  color: #777;
 }
 </style>

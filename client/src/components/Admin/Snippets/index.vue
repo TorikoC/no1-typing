@@ -8,6 +8,13 @@
       </select>
     </div>
     <div class="form-group">
+      <label for="language">语言</label>
+      <select name="language" id="language">
+        <option value="chinese">中文</option>
+        <option value="english">英文</option>
+      </select>
+    </div>
+    <div class="form-group">
       <label for="source-id">名字:</label>
       <select name="sourceId" id="source-id" required>
         <option v-for="option in options" :key="option" :value="option">{{ option }}</option>
@@ -33,7 +40,7 @@ export default {
   },
   data() {
     return {
-      type: "",
+      type: "book",
       options: []
     };
   },

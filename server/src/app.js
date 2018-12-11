@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const RecordService = require('./services/record');
+const SnippetService = require('./services/snippet');
+const BookService = require('./services/book');
 
 process.env['NODE_CONFIG_DIR'] = path.join(__dirname, 'config');
 const config = require('config');
@@ -38,7 +40,11 @@ mongoose.connect(
     server.listen(config.get('server_port'), () => {
       console.log(`server is listening on port ${config.get('server_port')}`);
     });
+
     io.on('connection', socket => {
+      var clientIp = socket.request.connection.remoteAddress;
+      console.log(clientIp);
+
       join(socket);
 
       socket.on('disconnect', () => {
@@ -63,33 +69,23 @@ mongoose.connect(
           return;
         }
         room.done += 1;
-        io.to(room.name).emit('progress', {
-          id: socket.id,
-          progress: 100,
-          speed: data.speed,
-        });
         const record = {
+          user: clientIp,
           time: data.time,
           speed: data.speed,
           snippetId: data.snippetId,
         };
         RecordService.create(record);
-        if (room.done === room.users.length) {
-          let index = rooms.findIndex(obj => obj.name === room.name);
-          if (index !== -1) {
-            rooms.splice(index, 1);
-          }
-          io.to(room.name).emit('done');
-        }
       });
-      function join(socket) {
-        let room = getRoom();
+      async function join(socket) {
+        console.log('rooms: ', rooms.length);
+        let room = await getRoom();
         socketRoomMap[socket.id] = room;
 
         socket.join(room.name, () => {
-          console.log(room);
           console.log('join: ', room.name, socket.id);
           socket.broadcast.to(room.name).emit('user-enter', socket.id);
+          socket.emit('snippet', room.snippet);
 
           console.log('users: ', room.users);
           socket.emit('users', room.users);
@@ -104,7 +100,7 @@ mongoose.connect(
           return;
         }
         socket.leave(room.name);
-        let index = room.users.findIndex(id => id === socket.id);
+        let index = room.users.findIndex(user => user.id === socket.id);
         if (index !== -1) {
           room.users.splice(index, 1);
         }
@@ -117,7 +113,7 @@ mongoose.connect(
           socket.broadcast.to(room.name).emit('user-leave', socket.id);
         }
       }
-      function getRoom() {
+      async function getRoom() {
         let room = rooms.find(room => {
           return (
             room.state === WAITING &&
@@ -126,21 +122,37 @@ mongoose.connect(
           );
         });
         if (room) {
-          room.users.push(socket.id);
+          room.users.push({
+            id: socket.id,
+            ip: clientIp,
+          });
         } else {
+          let snippet = await SnippetService.getOneRandom();
+          let snippetSource = await BookService.getOne({
+            name: snippet[0].sourceId,
+          });
+          snippet[0].cover = snippetSource.cover;
+          snippet[0].author = snippetSource.author;
+          snippet[0].name = snippetSource.name;
+          snippet = snippet[0];
           room = {
             name: Date.now(),
-            users: [socket.id],
+            users: [{ id: socket.id, ip: clientIp }],
             state: WAITING,
             clock: 3,
             done: 0,
+            snippet: snippet,
           };
           rooms.push(room);
           function countdown() {
             room.clock -= 1;
-            console.log('room: ', room.name, room.clock);
+            console.log('tick', room.name, room.clock);
             io.to(room.name).emit('clock', room.clock);
-            if (room.state === WAITING && room.clock > 0) {
+            if (
+              room.state === WAITING &&
+              room.clock > 0 &&
+              room.users.length > 0
+            ) {
               setTimeout(() => {
                 countdown();
               }, 1000);

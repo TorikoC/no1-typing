@@ -1,7 +1,14 @@
 const Record = require('../models/record');
 
 const service = {
-  get(where) {
+  get(where, sort = { speed: -1 }, limit = 10) {
+    return Promise.resolve(
+      Record.find(where)
+        .sort(sort)
+        .limit(limit),
+    );
+  },
+  getAll(where) {
     return Promise.resolve(Record.find(where));
   },
   getOne(where) {

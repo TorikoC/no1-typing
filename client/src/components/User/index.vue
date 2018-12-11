@@ -3,7 +3,10 @@
     <nav class="nav">
       <ul>
         <li>
-          <router-link to="/rank">排行</router-link>
+          <router-link to="/">主页</router-link>
+        </li>
+        <li>
+          <router-link to="/rank">榜单</router-link>
         </li>
         <li>
           <router-link to="/about">关于</router-link>

@@ -32,6 +32,29 @@ Vue.filter('formatTime', stamp => {
   result = `${mins}:${seconds}`;
   return result;
 });
+Vue.filter('formatDate', timeStamp => {
+  let date = new Date(timeStamp);
+  let year = date.getFullYear();
+  let month = date.getMonth() + 1;
+  let day = date.getDate();
+
+  let hour = date.getHours();
+  let min = date.getMinutes();
+  if (month < 10) {
+    month = '0' + 10;
+  }
+  if (day < 10) {
+    day = '0' + 10;
+  }
+  if (hour < 10) {
+    hour = '0' + 10;
+  }
+  if (min < 10) {
+    min = '0' + 10;
+  }
+  const result = `${year}-${month}-${day} ${hour}:${min}`;
+  return result;
+});
 Vue.component('back', Back);
 Vue.component('n1-progress', Progress);
 
