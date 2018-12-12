@@ -3,25 +3,22 @@ const multer = require('multer');
 const recordService = require('../services/record');
 
 /**
- * @param snippedId String
- * @param limit Number
+ * 返回速度排名前十的记录。
+ * @param snippetId String
  */
 router.get('/api/records', (req, res) => {
   req.log.info();
-  let { snippetId, limit } = req.query;
+
+  let { snippetId } = req.query;
   snippetId = snippetId || '';
-  limit = +limit || 10;
 
   const where = {};
   if (snippetId) {
     where.snippetId = snippetId;
   }
-  const sort = {
-    speed: -1,
-  };
 
   recordService
-    .get(where, sort, limit)
+    .getTop(where)
     .then(result => {
       res.send(result);
     })

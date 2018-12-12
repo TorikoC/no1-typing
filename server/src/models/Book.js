@@ -7,11 +7,15 @@ const BookSchema = mongoose.Schema({
   author: {
     type: String,
   },
-  publishedAt: {
+  cover: {
     type: String,
     default: '',
   },
-  cover: {
+  isbn: {
+    type: String,
+    default: '',
+  },
+  publishedAt: {
     type: String,
     default: '',
   },
@@ -27,8 +31,5 @@ const BookSchema = mongoose.Schema({
 
 BookSchema.index({ name: 1 }, { unique: true });
 const Book = mongoose.model('Book', BookSchema);
-Book.on('index', (error, name) => {
-  console.log('index', error, name);
-});
 
 module.exports = Book;

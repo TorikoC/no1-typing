@@ -11,10 +11,6 @@ const Snippet = mongoose.model(
       type: String,
       default: '',
     },
-    language: {
-      type: String,
-      default: 'chinese',
-    },
     length: {
       type: Number,
       default: 0,
@@ -22,6 +18,10 @@ const Snippet = mongoose.model(
     createdAt: {
       type: Number,
       default: Date.now(),
+    },
+    language: {
+      type: String,
+      default: '',
     },
     updatedAt: {
       type: Number,

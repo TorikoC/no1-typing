@@ -2,6 +2,7 @@
   <div class="rank">
     <h1>榜单</h1>
     <p>只显示前10位</p>
+    <p>只显示匹配记录</p>
     <table class="table">
       <thead>
         <tr>

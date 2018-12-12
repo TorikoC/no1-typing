@@ -53,7 +53,7 @@
       </tbody>
     </table>
     <h2>段落详情</h2>
-    <div>
+    <div v-if="snippets[detailIndex]">
       <dl>
         <dt>书名</dt>
         <dd>{{ snippets[detailIndex].bookName }}</dd>
@@ -120,7 +120,7 @@ export default {
 
 <style lang="scss" scoped>
 .admin-snippet {
-  width: 100%;
+  width: 90%;
   margin: 1em auto;
   .form-group {
     display: flex;

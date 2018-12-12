@@ -3,6 +3,9 @@ const multer = require('multer');
 const snippetService = require('../services/snippet');
 const bookService = require('../services/book');
 
+/**
+ * 返回所有段落.
+ */
 router.get('/api/snippets', (req, res) => {
   req.log.info();
   snippetService
@@ -16,10 +19,12 @@ router.get('/api/snippets', (req, res) => {
     });
 });
 
+/**
+ * 返回一个随机段落。
+ */
 router.get('/api/random-snippet', async (req, res) => {
-  // req.log.info();
+  req.log.info();
   let snippet = await snippetService.getOneRandom();
-  console.log(snippet);
   if (snippet.length > 0) {
     snippet = snippet[0];
   }
