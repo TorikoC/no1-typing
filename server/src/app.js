@@ -34,7 +34,7 @@ mongoose.connect(
     }
     logger.info('db connected');
     server.listen(config.get('serverPort'), () => {
-      logger.info(`server is listening on port ${config.get('serverPort)}`);
+      logger.info(`server is listening on port ${config.get('serverPort')}`);
     });
   },
 );
