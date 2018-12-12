@@ -29,8 +29,8 @@ const service = {
   updateOne(where, option) {
     return Promise.resolve(Book.updateOne(where, option));
   },
-  del(where) {
-    return Promise.resolve(Book.remove(where));
+  deleteOne(where) {
+    return Promise.resolve(Book.deleteOne(where));
   },
 };
 

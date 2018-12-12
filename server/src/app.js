@@ -16,6 +16,7 @@ const bookRouter = require('./routes/book');
 
 const app = express();
 
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(cors());
 app.use(snippetRouter);
 app.use(recordRouter);
@@ -139,7 +140,7 @@ mongoose.connect(
             name: Date.now(),
             users: [{ id: socket.id, ip: clientIp }],
             state: WAITING,
-            clock: 3,
+            clock: 10,
             done: 0,
             snippet: snippet,
           };

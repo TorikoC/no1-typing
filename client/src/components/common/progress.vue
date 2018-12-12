@@ -16,17 +16,25 @@ export default {
       }
       this.body.style.width = value + "%";
       if (value < 25) {
+        this.body.classList.add("progress-body--low");
         this.body.classList.remove("progress-body--high");
         this.body.classList.remove("progress-body--middle");
-        this.body.classList.add("progress-body--low");
-      } else if (value < 75) {
-        this.body.classList.remove("progress-body--high");
+        this.body.classList.remove("progress-body--complete");
+      } else if (value < 50) {
         this.body.classList.add("progress-body--middle");
+        this.body.classList.remove("progress-body--high");
         this.body.classList.remove("progress-body--low");
-      } else {
+        this.body.classList.remove("progress-body--complete");
+      } else if (value < 100) {
         this.body.classList.add("progress-body--high");
         this.body.classList.remove("progress-body--middle");
         this.body.classList.remove("progress-body--low");
+        this.body.classList.remove("progress-body--complete");
+      } else {
+        this.body.classList.remove("progress-body--high");
+        this.body.classList.remove("progress-body--middle");
+        this.body.classList.remove("progress-body--low");
+        this.body.classList.add("progress-body--complete");
       }
     }
   },
@@ -43,9 +51,7 @@ export default {
     progress: {
       type: Number
     },
-    speed: {
-      // type: Number
-    }
+    speed: {}
   },
   mounted() {
     this.body = this.$refs["body"];
@@ -59,30 +65,35 @@ export default {
   color: #333;
 }
 .progress-name {
-  width: 10%;
+  width: 6em;
+  flex-shrink: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .progress-body {
   border-left: 1px solid silver;
   width: 0%;
-  height: 2em;
+  height: 1.4em;
   transition: all 0.3s;
 }
 .progress-body--low {
   background: crimson;
 }
 .progress-body--middle {
-  background: orange;
+  background: gold;
 }
 .progress-body--high {
+  background: orange;
+}
+.progress-body--complete {
   background: green;
 }
 .progress-percent {
   color: #777;
 }
 .progress-speed {
-  width: 10em;
+  flex-shrink: 0;
+  width: 8em;
   color: #777;
   margin-left: auto;
   text-align: right;

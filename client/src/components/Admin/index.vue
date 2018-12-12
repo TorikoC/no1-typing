@@ -8,6 +8,9 @@
         <li>
           <router-link to="/admin/snippets">段落</router-link>
         </li>
+        <li class="nav-link--right">
+          <router-link to="/">用户主页</router-link>
+        </li>
       </ul>
     </nav>
     <router-view></router-view>
@@ -24,15 +27,22 @@ export default {};
   line-height: 2.2;
   background: #eee;
   padding: 0.2em 0.6em;
+  ul {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
   ul,
   li {
     margin: 0;
     padding: 0;
     list-style: none;
-    display: inline-block;
   }
   li + li {
     margin-left: 1em;
+  }
+  .nav-link--right {
+    margin-left: auto;
   }
   a {
     text-decoration: none;

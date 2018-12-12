@@ -2,6 +2,10 @@ const router = require('express').Router();
 const multer = require('multer');
 const recordService = require('../services/record');
 
+/**
+ * @param snippedId String
+ * @param limit Number
+ */
 router.get('/api/records', (req, res) => {
   let { snippetId, limit } = req.query;
   snippetId = snippetId || '';

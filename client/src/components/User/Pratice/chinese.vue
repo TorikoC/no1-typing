@@ -1,7 +1,7 @@
 <template>
   <div class="pratice">
     <back/>
-    <n1-progress name="游客" class="pratice__progress" :progress="progress"/>
+    <n1-progress name="游客" class="pratice__progress" :progress="progress" :speed="speed"/>
     <div class="pratice__meta">
       <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
       <button v-else-if="state === DONE" @click="restart">再来一次</button>
@@ -102,6 +102,8 @@ export default {
       this.input.innerHTML = "";
       this.input.setAttribute("data-highlight", "");
       this.startedAt = 0;
+      this.speed = 0;
+      this.progress = 0;
       this.state = this.LOADING;
     },
     prevenInput(el) {
@@ -136,6 +138,10 @@ export default {
         el.setAttribute("data-highlight", match);
 
         this.progress = Math.floor((match.length / this.snippet.length) * 100);
+        this.speed = (
+          (match.length / ((Date.now() - this.startedAt) / 1000)) *
+          60
+        ).toFixed(1);
 
         if (match === this.snippet.content) {
           observer.disconnect();

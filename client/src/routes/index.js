@@ -50,6 +50,7 @@ const router = new VueRouter({
     {
       path: '/admin',
       component: Admin,
+      redirect: '/admin/snippets',
       children: [
         {
           path: 'books',

@@ -3,7 +3,19 @@ const multer = require('multer');
 const snippetService = require('../services/snippet');
 const bookService = require('../services/book');
 
-router.get('/api/snippets', async (req, res) => {
+router.get('/api/snippets', (req, res) => {
+  snippetService
+    .get()
+    .then(result => {
+      res.send(result);
+    })
+    .catch(error => {
+      res.status(500);
+      res.send(error);
+    });
+});
+
+router.get('/api/random-snippet', async (req, res) => {
   let snippet = await snippetService.getOneRandom();
   if (snippet.length > 0) {
     snippet = snippet[0];
@@ -39,4 +51,10 @@ router.post('/api/snippets', multer().none(), (req, res) => {
     });
 });
 
+router.delete('/api/snippets/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log('delete /api/snippets/', id);
+  const result = await snippetService.deleteOne({ _id: id });
+  res.send(result);
+});
 module.exports = router;

@@ -1,8 +1,12 @@
 const Snippet = require('../models/Snippet');
 
 const service = {
-  get(where) {
-    return Promise.resolve(Snippet.find(where));
+  get(where, projection, sort = { createdAt: -1 }, limit = 10) {
+    return Promise.resolve(
+      Snippet.find(where, projection)
+        .sort(sort)
+        .limit(limit),
+    );
   },
   getOne(where) {
     return Promise.resolve(Snippet.findOne(where));
@@ -20,14 +24,8 @@ const service = {
   create(body) {
     return Promise.resolve(Snippet.create(body));
   },
-  update() {
-    return Promise.resolve(Snippet.update(where, option));
-  },
-  updateOne(where, option) {
-    return Promise.resolve(Snippet.updateOne(where, option));
-  },
-  del(where) {
-    return Promise.resolve(Snippet.remove(where));
+  deleteOne(where) {
+    return Promise.resolve(Snippet.deleteOne(where));
   },
 };
 

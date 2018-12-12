@@ -1,48 +1,93 @@
 <template>
-  <form @submit.prevent="submit" class="snippet-form">
-    <div class="form-group">
-      <label for="source-type">类型:</label>
-      <select name="sourceType" id="source-type" v-model="type" required>
-        <option value="book">书籍</option>
-        <option value="movie">电影</option>
-      </select>
+  <div v-if="!loading" class="admin-snippet">
+    <h1>段落</h1>
+    <P>在这里对段落进行管理</P>
+    <h2>添加段落</h2>
+    <form @submit.prevent="submit" class="snippet-form">
+      <div class="form-group">
+        <label for="book-name">书名:</label>
+        <select name="bookName" id="book-name" required>
+          <option v-for="book in books" :key="book._id" :value="book.name">{{ book.name }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="language">语言</label>
+        <select name="language" id="language" required>
+          <option value="chinese">中文</option>
+          <option value="english">英文</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="content">内容:</label>
+        <textarea name="content" id="content" cols="30" rows="10" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for></label>
+        <button type="submit" class="snippet-form__button">添加</button>
+      </div>
+    </form>
+    <h2>段落列表</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>书名</th>
+          <th>语言</th>
+          <th>内容</th>
+          <th>长度</th>
+          <th>创建时间</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(snippet, index) in snippets" :key="snippet._id">
+          <td>{{ snippet.bookName }}</td>
+          <td>{{ snippet.language }}</td>
+          <td :title="snippet.content">{{ snippet.content }}</td>
+          <td>{{ snippet.length }}</td>
+          <td>{{ snippet.createdAt | formatDate }}</td>
+          <td>
+            <button @click="detailIndex = index">详情</button>
+            <button @click="del(snippet._id, index)">删除</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>段落详情</h2>
+    <div>
+      <dl>
+        <dt>书名</dt>
+        <dd>{{ snippets[detailIndex].bookName }}</dd>
+        <dt>语言</dt>
+        <dd>{{ snippets[detailIndex].language }}</dd>
+        <dt>内容</dt>
+        <dd>{{ snippets[detailIndex].content }}</dd>
+        <dt>长度</dt>
+        <dd>{{ snippets[detailIndex].length }}</dd>
+        <dt>创建时间</dt>
+        <dd>{{ snippets[detailIndex].createdAt | formatDate }}</dd>
+      </dl>
     </div>
-    <div class="form-group">
-      <label for="language">语言</label>
-      <select name="language" id="language">
-        <option value="chinese">中文</option>
-        <option value="english">英文</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="source-id">名字:</label>
-      <select name="sourceId" id="source-id" required>
-        <option v-for="option in options" :key="option" :value="option">{{ option }}</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="content">段落:</label>
-      <textarea name="content" id="content" cols="30" rows="10" required></textarea>
-    </div>
-    <div class="form-group">
-      <label for></label>
-      <button type="submit" class="snippet-form__button">提交</button>
-    </div>
-  </form>
+  </div>
 </template>
 
 <script>
 export default {
   watch: {
     type(value) {
-      this.getData();
+      this.getBooks();
     }
   },
   data() {
     return {
-      type: "book",
-      options: []
+      loading: true,
+      books: [],
+      detailIndex: 0,
+      snippets: []
     };
+  },
+  mounted() {
+    this.getBooks();
+    this.getSnippets();
   },
   methods: {
     submit(evt) {
@@ -50,22 +95,36 @@ export default {
       formData.append("length", formData.get("content").length);
       this.$axios
         .post(`${this.$config.server}/api/snippets`, formData)
-        .then(() => {
+        .then(resp => {
+          this.snippets.push(resp.data);
           evt.target.reset();
         });
     },
-    getData() {
-      this.$axios.get(`${this.$config.server}/api/${this.type}s`).then(resp => {
-        this.options = resp.data;
+    getBooks() {
+      this.$axios.get(`${this.$config.server}/api/books`).then(resp => {
+        this.books = resp.data;
       });
+    },
+    getSnippets() {
+      this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
+        this.snippets = resp.data;
+        this.loading = false;
+      });
+    },
+    del(id, index) {
+      this.$axios
+        .delete(`${this.$config.server}/api/snippets/${id}`)
+        .then(() => {
+          this.snippets.splice(index, 1);
+        });
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.snippet-form {
-  width: 50%;
+.admin-snippet {
+  width: 100%;
   margin: 1em auto;
   .form-group {
     display: flex;
@@ -86,6 +145,25 @@ export default {
   }
   .form-group + .form-group {
     margin-top: 0.6em;
+  }
+  table {
+    width: 100%;
+    table-layout: fixed;
+    td {
+      text-overflow: ellipsis;
+      overflow: hidden;
+
+      text-align: center;
+    }
+  }
+  dd {
+    word-wrap: break-word;
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .admin-snippet {
+    width: 50%;
   }
 }
 </style>

@@ -3,11 +3,9 @@ const mongoose = require('mongoose');
 const Snippet = mongoose.model(
   'Snippet',
   mongoose.Schema({
-    sourceType: {
+    bookName: {
       type: String,
-    },
-    sourceId: {
-      type: String,
+      default: '',
     },
     content: {
       type: String,
