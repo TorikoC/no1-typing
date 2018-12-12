@@ -26,15 +26,15 @@ const handleIo = require('./socket/index');
 handleIo(io);
 
 mongoose.connect(
-  config.get('db_host'),
+  config.get('dbHost'),
   err => {
     if (err) {
       logger.error(err);
       return;
     }
     logger.info('db connected');
-    server.listen(config.get('server_port'), () => {
-      logger.info(`server is listening on port ${config.get('server_port')}`);
+    server.listen(config.get('serverPort'), () => {
+      logger.info(`server is listening on port ${config.get('serverPort)}`);
     });
   },
 );
