@@ -93,30 +93,26 @@ export default {
     submit(evt) {
       const formData = new FormData(evt.target);
       formData.append("length", formData.get("content").length);
-      this.$axios
-        .post(`${this.$config.server}/api/snippets`, formData)
-        .then(resp => {
-          this.snippets.push(resp.data);
-          evt.target.reset();
-        });
+      this.$axios.post(`/snippets`, formData).then(resp => {
+        this.snippets.push(resp.data);
+        evt.target.reset();
+      });
     },
     getBooks() {
-      this.$axios.get(`${this.$config.server}/api/books`).then(resp => {
+      this.$axios.get(`/books`).then(resp => {
         this.books = resp.data;
       });
     },
     getSnippets() {
-      this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
+      this.$axios.get(`/snippets`).then(resp => {
         this.snippets = resp.data;
         this.loading = false;
       });
     },
     del(id, index) {
-      this.$axios
-        .delete(`${this.$config.server}/api/snippets/${id}`)
-        .then(() => {
-          this.snippets.splice(index, 1);
-        });
+      this.$axios.delete(`/snippets/${id}`).then(() => {
+        this.snippets.splice(index, 1);
+      });
     }
   }
 };

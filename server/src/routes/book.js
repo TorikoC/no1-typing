@@ -3,6 +3,7 @@ const multer = require('multer');
 const bookService = require('../services/book');
 
 router.get('/api/books', (req, res) => {
+  req.log.info();
   bookService
     .get()
     .then(result => {
@@ -16,8 +17,8 @@ router.get('/api/books', (req, res) => {
 });
 
 router.post('/api/books', multer().none(), (req, res) => {
+  req.log.info();
   const { body } = req;
-  console.log('post api/books', body);
   bookService
     .create(body)
     .then(result => {
@@ -30,8 +31,8 @@ router.post('/api/books', multer().none(), (req, res) => {
 });
 
 router.delete('/api/books/:id', (req, res) => {
+  req.log.info();
   const { id } = req.params;
-  console.log('delete api/books/', id);
   bookService
     .deleteOne({ _id: id })
     .then(result => {

@@ -23,12 +23,6 @@ const service = {
   create(body) {
     return Promise.resolve(Book.create(body));
   },
-  update() {
-    return Promise.resolve(Book.update(where, option));
-  },
-  updateOne(where, option) {
-    return Promise.resolve(Book.updateOne(where, option));
-  },
   deleteOne(where) {
     return Promise.resolve(Book.deleteOne(where));
   },

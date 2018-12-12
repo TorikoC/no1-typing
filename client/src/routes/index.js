@@ -1,4 +1,3 @@
-import Admin from '../components/Admin/index';
 import User from '../components/User/index';
 import PraticeCN from '../components/User/Pratice/chinese';
 import PraticeEN from '../components/User/Pratice/english';
@@ -8,6 +7,7 @@ import Rank from '../components/User/Rank/index';
 import Feedback from '../components/User/Feedback/index';
 import About from '../components/User/About/index';
 
+import Admin from '../components/Admin/index';
 import AdminBook from '../components/Admin/Books/index';
 import AdminSnippet from '../components/Admin/Snippets/index';
 

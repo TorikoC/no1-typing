@@ -27,15 +27,6 @@ const service = {
   create(body) {
     return Promise.resolve(Record.create(body));
   },
-  update() {
-    return Promise.resolve(Record.update(where, option));
-  },
-  updateOne(where, option) {
-    return Promise.resolve(Record.updateOne(where, option));
-  },
-  del(where) {
-    return Promise.resolve(Record.remove(where));
-  },
 };
 
 module.exports = service;

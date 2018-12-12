@@ -1,7 +1,7 @@
 <template>
   <div class="pratice">
-    <back/>
-    <n1-progress name="游客" class="pratice__progress" :progress="progress" :speed="speed"/>
+    <cs-back/>
+    <cs-progress name="游客" class="pratice__progress" :progress="progress" :speed="speed"/>
     <div class="pratice__meta">
       <span v-if="state === COUNTING" class="pratice__clock">倒计时: {{ clock }} 秒</span>
       <button v-else-if="state === DONE" @click="restart">再来一次</button>
@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     getSnippet() {
-      this.$axios.get(`${this.$config.server}/api/snippets`).then(resp => {
+      this.$axios.get(`/random-snippet`).then(resp => {
         this.snippet = resp.data;
         this.state = this.COUNTING;
 
@@ -167,9 +167,7 @@ export default {
       formData.append("speed", this.speed);
       formData.append("snippetId", this.snippet._id);
 
-      this.$axios
-        .post(`${this.$config.server}/api/records`, formData)
-        .then(resp => {});
+      this.$axios.post(`records`, formData).then(resp => {});
     },
     colorfy(els, successIndex = -1, failIndex = -1, nextIndex = -1) {
       if (!els) {

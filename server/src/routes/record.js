@@ -7,6 +7,7 @@ const recordService = require('../services/record');
  * @param limit Number
  */
 router.get('/api/records', (req, res) => {
+  req.log.info();
   let { snippetId, limit } = req.query;
   snippetId = snippetId || '';
   limit = +limit || 10;
@@ -19,7 +20,6 @@ router.get('/api/records', (req, res) => {
     speed: -1,
   };
 
-  console.log('get api/records:', snippetId, limit);
   recordService
     .get(where, sort, limit)
     .then(result => {
@@ -32,8 +32,8 @@ router.get('/api/records', (req, res) => {
 });
 
 router.post('/api/records', multer().none(), (req, res) => {
+  req.log.info();
   const { body } = req;
-  console.log('post api/records', body);
   recordService
     .create(body)
     .then(result => {

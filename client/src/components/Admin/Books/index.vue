@@ -63,22 +63,20 @@ export default {
   methods: {
     submit(evt) {
       const formData = new FormData(evt.target);
-      this.$axios
-        .post(`${this.$config.server}/api/books`, formData)
-        .then(resp => {
-          console.log(resp);
-          this.books.push(resp.data);
-        });
+      this.$axios.post(`/books`, formData).then(resp => {
+        console.log(resp);
+        this.books.push(resp.data);
+      });
     },
     getBooks() {
-      this.$axios.get(`${this.$config.server}/api/books`).then(resp => {
+      this.$axios.get(`/books`).then(resp => {
         this.books = resp.data;
         this.loading = false;
       });
     },
     del(id, index) {
       this.$axios
-        .delete(`${this.$config.server}/api/books/${id}`)
+        .delete(`/books/${id}`)
         .then(result => {
           this.books.splice(index, 1);
         })

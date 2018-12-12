@@ -2,6 +2,7 @@ const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const expressPino = require('express-pino-logger')();
 
 const RecordService = require('./services/record');
 const SnippetService = require('./services/snippet');
@@ -9,6 +10,7 @@ const BookService = require('./services/book');
 
 process.env['NODE_CONFIG_DIR'] = path.join(__dirname, 'config');
 const config = require('config');
+const logger = require('./logger/index');
 
 const snippetRouter = require('./routes/snippet');
 const recordRouter = require('./routes/record');
@@ -16,6 +18,7 @@ const bookRouter = require('./routes/book');
 
 const app = express();
 
+app.use(expressPino);
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(cors());
 app.use(snippetRouter);
@@ -35,25 +38,25 @@ mongoose.connect(
   config.get('db_host'),
   err => {
     if (err) {
+      logger.error(err);
       return;
     }
-    console.log('db connected');
+    logger.info('db connected');
     server.listen(config.get('server_port'), () => {
-      console.log(`server is listening on port ${config.get('server_port')}`);
+      logger.info(`server is listening on port ${config.get('server_port')}`);
     });
 
     io.on('connection', socket => {
       var clientIp = socket.request.connection.remoteAddress;
-      console.log(clientIp);
 
       join(socket);
 
       socket.on('disconnect', () => {
-        console.log('disconnect: ', socket.id);
+        logger.info('socket disconnect', clientIp);
         leave(socket);
       });
       socket.on('re-start', () => {
-        console.log('re match: ', socket.id);
+        logger.info('re-match', clientIp);
         leave(socket);
         join(socket);
       });
@@ -79,16 +82,14 @@ mongoose.connect(
         RecordService.create(record);
       });
       async function join(socket) {
-        console.log('rooms: ', rooms.length);
+        logger.info('room number when', clientIp, 'join:', rooms.length);
         let room = await getRoom();
         socketRoomMap[socket.id] = room;
 
         socket.join(room.name, () => {
-          console.log('join: ', room.name, socket.id);
+          logger.info(clientIp, 'join room: ', room.name);
           socket.broadcast.to(room.name).emit('user-enter', socket.id);
           socket.emit('snippet', room.snippet);
-
-          console.log('users: ', room.users);
           socket.emit('users', room.users);
         });
       }
@@ -130,7 +131,7 @@ mongoose.connect(
         } else {
           let snippet = await SnippetService.getOneRandom();
           let snippetSource = await BookService.getOne({
-            name: snippet[0].sourceId,
+            name: snippet[0].bookName,
           });
           snippet[0].cover = snippetSource.cover;
           snippet[0].author = snippetSource.author;
@@ -147,7 +148,6 @@ mongoose.connect(
           rooms.push(room);
           function countdown() {
             room.clock -= 1;
-            console.log('tick', room.name, room.clock);
             io.to(room.name).emit('clock', room.clock);
             if (
               room.state === WAITING &&

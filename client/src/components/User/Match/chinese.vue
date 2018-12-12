@@ -1,9 +1,9 @@
 <template>
   <div class="match">
-    <back/>
+    <cs-back/>
     <ul class="match__users">
       <li v-for="user in users" :key="user.id">
-        <n1-progress :name="user.ip" :progress="user.progress" :speed="user.speed"/>
+        <cs-progress :name="user.ip" :progress="user.progress" :speed="user.speed"/>
       </li>
     </ul>
     <div class="match__meta">
@@ -230,11 +230,9 @@ export default {
         speed: this.speed,
         snippetId: this.snippet._id
       });
-      this.$axios
-        .get(`${this.$config.server}/api/records?snippetId=${this.snippet._id}`)
-        .then(resp => {
-          this.records = resp.data;
-        });
+      this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
+        this.records = resp.data;
+      });
     },
     colorfy(els, successIndex = -1, failIndex = -1, nextIndex = -1) {
       if (!els) {

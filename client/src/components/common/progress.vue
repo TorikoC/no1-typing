@@ -1,9 +1,9 @@
 <template>
   <div class="progress">
-    <div class="progress-name" :title="name">{{ name }}</div>
-    <div class="progress-body" ref="body"></div>
-    <span class="progress-percent">{{ progress }}%</span>
-    <span class="progress-speed">{{ speed }} 字/分钟</span>
+    <div class="progress__name" :title="name">{{ name }}</div>
+    <div class="progress__body" ref="body"></div>
+    <span class="progress__percent">{{ progress }}%</span>
+    <span class="progress__speed">{{ speed }} 字/分钟</span>
   </div>
 </template>
 
@@ -16,25 +16,25 @@ export default {
       }
       this.body.style.width = value + "%";
       if (value < 25) {
-        this.body.classList.add("progress-body--low");
-        this.body.classList.remove("progress-body--high");
-        this.body.classList.remove("progress-body--middle");
-        this.body.classList.remove("progress-body--complete");
+        this.body.classList.add("progress__body--low");
+        this.body.classList.remove("progress__body--high");
+        this.body.classList.remove("progress__body--middle");
+        this.body.classList.remove("progress__body--complete");
       } else if (value < 50) {
-        this.body.classList.add("progress-body--middle");
-        this.body.classList.remove("progress-body--high");
-        this.body.classList.remove("progress-body--low");
-        this.body.classList.remove("progress-body--complete");
+        this.body.classList.add("progress__body--middle");
+        this.body.classList.remove("progress__body--high");
+        this.body.classList.remove("progress__body--low");
+        this.body.classList.remove("progress__body--complete");
       } else if (value < 100) {
-        this.body.classList.add("progress-body--high");
-        this.body.classList.remove("progress-body--middle");
-        this.body.classList.remove("progress-body--low");
-        this.body.classList.remove("progress-body--complete");
+        this.body.classList.add("progress__body--high");
+        this.body.classList.remove("progress__body--middle");
+        this.body.classList.remove("progress__body--low");
+        this.body.classList.remove("progress__body--complete");
       } else {
-        this.body.classList.remove("progress-body--high");
-        this.body.classList.remove("progress-body--middle");
-        this.body.classList.remove("progress-body--low");
-        this.body.classList.add("progress-body--complete");
+        this.body.classList.remove("progress__body--high");
+        this.body.classList.remove("progress__body--middle");
+        this.body.classList.remove("progress__body--low");
+        this.body.classList.add("progress__body--complete");
       }
     }
   },
@@ -64,34 +64,34 @@ export default {
   flex-direction: row;
   color: #333;
 }
-.progress-name {
+.progress__name {
   width: 6em;
   flex-shrink: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.progress-body {
+.progress__body {
   border-left: 1px solid silver;
   width: 0%;
   height: 1.4em;
   transition: all 0.3s;
 }
-.progress-body--low {
+.progress__body--low {
   background: crimson;
 }
-.progress-body--middle {
+.progress__body--middle {
   background: gold;
 }
-.progress-body--high {
+.progress__body--high {
   background: orange;
 }
-.progress-body--complete {
+.progress__body--complete {
   background: green;
 }
-.progress-percent {
+.progress__percent {
   color: #777;
 }
-.progress-speed {
+.progress__speed {
   flex-shrink: 0;
   width: 8em;
   color: #777;
