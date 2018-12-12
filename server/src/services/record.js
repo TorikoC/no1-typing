@@ -1,4 +1,4 @@
-const Record = require('../models/record');
+const Record = require('../models/Record');
 
 const service = {
   getTop(where = {}, size = 10) {
