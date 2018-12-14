@@ -1,29 +1,29 @@
 <template>
-  <div class="match">
+  <div class="platform--cn platform">
     <cs-back/>
-    <ul class="match__users">
+    <ul class="platform__users">
       <li v-for="user in users" :key="user.id">
         <cs-progress :name="user.ip" :percent="user.percent" :speed="user.speed"/>
       </li>
     </ul>
-    <div class="match__meta">
+    <div class="platform__meta">
       <span v-if="state === COUNTING">倒计时: {{ clock }} 秒</span>
       <button v-else-if="state === DONE" @click="restart">再来一次</button>
       <span v-else-if="state === WRITING">已经开始了</span>
     </div>
-    <div class="match__snippet">
+    <div class="platform__snippet">
       <span
         v-for="(char,index) in snippet.content"
         :key="index"
         :class="{
-          'match__word--match': index < currentMatchLength, 
-          'match__word--not-match': index >= currentMatchLength && index < currentInputLength,
-          'match__next-word': index === currentMatchLength
+          'platform__word--match': index < currentMatchLength, 
+          'platform__word--not-match': index >= currentMatchLength && index < currentInputLength,
+          'platform__next-word': index === currentMatchLength
           }"
-        class="match__word"
+        class="platform__word"
       >{{ char }}</span>
     </div>
-    <div class="match__input" contenteditable="false" data-highlight spellcheck="false"></div>
+    <div class="platform__input" contenteditable="false" data-highlight spellcheck="false"></div>
     <dl v-if="state === DONE">
       <dt>用时</dt>
       <dd>{{ time | formatTime }}</dd>
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     init() {
-      this.input = document.getElementsByClassName("match__input")[0];
+      this.input = document.getElementsByClassName("platform__input")[0];
       preventPaste(this.input);
       this.socket = this.$io.connect(this.$config.server);
       this.listen(this.socket);
@@ -255,84 +255,9 @@ export default {
   }
 };
 </script>
-
 <style lang="scss" scoped>
-.match {
-  width: 50%;
-  margin: 1em auto;
-  .match__users {
-    li + li {
-      margin-top: 0.4em;
-    }
-  }
-  .match__meta {
-    color: #777;
-    text-align: right;
-    margin: 0.2em;
-  }
-  .match__snippet {
-    color: #333;
-    background: #eee;
-    border-radius: 2px;
-    padding: 0.2em 0.4em;
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-  .match__input {
-    box-sizing: border-box;
-    padding: 0.2em 0.4em;
-    min-height: 1.8em;
-    height: auto;
-    position: relative;
-    border: 1px solid silver;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: crimson;
-    &::before {
-      content: attr(data-highlight);
-      display: block;
-      padding: 0.2em 0.4em;
-      color: green;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    &:focus {
-      outline-style: solid;
-      outline-width: medium;
-    }
-  }
-  .match__record:nth-child(odd) {
-    background: #eee;
-    color: #333;
-  }
-  dt {
-    background: #eee;
-  }
-  .source {
-    display: flex;
-    flex-direction: row;
-    .source__cover {
-      display: block;
-      width: 200px;
-      img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
-    }
-    .source__name {
-      padding: 0.2em 0.4em;
-    }
-  }
-  .match__next-word {
-    border-bottom: 2px solid black;
-  }
-  .match__word--match {
-    color: green !important;
-  }
-  .match__word--not-match {
-    color: crimson !important;
-  }
-}
+@import "@/assets/css/platform.scss";
+@import "@/assets/css/platform-cn.scss";
 </style>
+
+

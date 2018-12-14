@@ -1,8 +1,9 @@
 <template>
-  <div class="platform">
+  <div class="platform--en platform">
     <cs-back/>
     <cs-progress
       name="游客"
+      lang="en"
       class="platform__progress"
       :percent="progress.percent"
       :speed="progress.speed"
@@ -32,25 +33,15 @@
       rows="10"
       spellcheck="false"
     ></textarea>
-    <dl v-if="state === DONE">
-      <dt>用时</dt>
-      <dd>{{ time | formatTime }}</dd>
-      <dt>速度</dt>
-      <dd>约 {{ progress.speed }} 字/分钟</dd>
-      <dt>段落来自</dt>
-      <dd>
-        <div class="source">
-          <div class="source__cover">
-            <img :src="snippet.cover" alt="source cover">
-          </div>
-          <div class="source__name">
-            {{ snippet.name }}
-            <br>
-            <small>by {{ snippet.author }}</small>
-          </div>
-        </div>
-      </dd>
-    </dl>
+    <cs-result
+      v-if="state === DONE"
+      lang="en"
+      :time="time"
+      :speed="progress.speed"
+      :cover="snippet.cover"
+      :name="snippet.name"
+      :author="snippet.author"
+    />
   </div>
 </template>
 
@@ -235,77 +226,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.platform {
-  width: 50%;
-  margin: 1em auto;
-  font-size: 1em;
-  .platform__progress {
-    margin: 0.4em 0;
-  }
-  .platform__meta {
-    color: #777;
-    text-align: right;
-    margin: 0.2em;
-  }
-  .platform__word {
-    transition: border color 0.3s;
-  }
-  .platform__snippet {
-    background: #eee;
-    border-radius: 2px;
-    padding: 0.2em 0.4em;
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-  .platform__input {
-    font-family: inherit;
-    resize: none;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.2em 0.4em;
-    height: 2em;
-    overflow: hidden;
-    line-height: 1.6;
-    position: relative;
-    border: 1px solid silver;
-    font-size: 1.2em;
-    font-weight: bold;
-
-    &:focus {
-      outline-style: solid;
-      outline-width: medium;
-    }
-  }
-  .platform__input--not-valid {
-    background: lightcoral;
-  }
-  dt {
-    background: #eee;
-  }
-  .source {
-    display: flex;
-    flex-direction: row;
-    .source__cover {
-      display: block;
-      width: 200px;
-      img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
-    }
-    .source__name {
-      padding: 0.2em 0.4em;
-    }
-  }
-  .platform__next-word {
-    border-bottom: 2px solid black;
-  }
-  .platform__word--match {
-    color: green !important;
-  }
-  .platform__word--not-match {
-    color: crimson !important;
-  }
-}
+@import "@/assets/css/platform.scss";
+@import "@/assets/css/platform-en.scss";
 </style>
+

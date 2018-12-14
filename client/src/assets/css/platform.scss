@@ -1,0 +1,35 @@
+.platform {
+  width: 50%;
+  margin: 1em auto;
+  .platform__users {
+    li + li {
+      margin-top: 0.4em;
+    }
+  }
+  .platform__meta {
+    color: #777;
+    text-align: right;
+    margin: 0.2em;
+  }
+  .platform__snippet {
+    color: #333;
+    background: #eee;
+    border-radius: 2px;
+    padding: 0.2em 0.4em;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  .platform__record:nth-child(odd) {
+    background: #eee;
+    color: #333;
+  }
+  .platform__next-word {
+    border-bottom: 2px solid black;
+  }
+  .platform__word--match {
+    color: green !important;
+  }
+  .platform__word--not-match {
+    color: crimson !important;
+  }
+}

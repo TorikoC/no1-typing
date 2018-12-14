@@ -3,7 +3,7 @@
     <div class="progress__name" :title="name">{{ name }}</div>
     <div class="progress__body" ref="body"></div>
     <span class="progress__percent">{{ percent }}%</span>
-    <span class="progress__speed">{{ speed }} 字/分钟</span>
+    <span class="progress__speed">{{ speed | formatSpeed(lang) }}</span>
   </div>
 </template>
 
@@ -46,6 +46,10 @@ export default {
     };
   },
   props: {
+    lang: {
+      type: String,
+      default: "cn"
+    },
     name: {
       type: String
     },

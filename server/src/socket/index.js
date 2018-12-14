@@ -128,6 +128,7 @@ module.exports = io => {
           room.clock >= 5
         );
       });
+      console.log(clientIp, socket.id, 'find room: ', room);
       if (room) {
         room.users.push({
           id: socket.id,

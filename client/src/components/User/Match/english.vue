@@ -1,5 +1,5 @@
 <template>
-  <div class="platform">
+  <div class="plafrom--en platform">
     <cs-back/>
     <ul>
       <li v-for="user in users" :key="user.id">
@@ -62,6 +62,7 @@
 <script>
 import getLongestCommonSubstrLength from "@/tools/common-substr-length.js";
 import charToSpan from "@/tools/char-to-span.js";
+import findOneAndRemove from "@/tools/find-one-and-remove";
 
 export default {
   watch: {
@@ -280,77 +281,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.platform {
-  width: 50%;
-  margin: 1em auto;
-  font-size: 1em;
-  .platform__progress {
-    margin: 0.4em 0;
-  }
-  .platform__meta {
-    color: #777;
-    text-align: right;
-    margin: 0.2em;
-  }
-  .platform__word {
-    transition: border color 0.3s;
-  }
-  .platform__snippet {
-    background: #eee;
-    border-radius: 2px;
-    padding: 0.2em 0.4em;
-    font-size: 1.2em;
-    font-weight: bold;
-  }
-  .platform__input {
-    font-family: inherit;
-    resize: none;
-    width: 100%;
-    box-sizing: border-box;
-    padding: 0.2em 0.4em;
-    height: 2em;
-    overflow: hidden;
-    line-height: 1.6;
-    position: relative;
-    border: 1px solid silver;
-    font-size: 1.2em;
-    font-weight: bold;
-
-    &:focus {
-      outline-style: solid;
-      outline-width: medium;
-    }
-  }
-  .platform__input--not-valid {
-    background: lightcoral;
-  }
-  dt {
-    background: #eee;
-  }
-  .source {
-    display: flex;
-    flex-direction: row;
-    .source__cover {
-      display: block;
-      width: 200px;
-      img {
-        max-width: 100%;
-        height: auto;
-        display: block;
-      }
-    }
-    .source__name {
-      padding: 0.2em 0.4em;
-    }
-  }
-  .platform__next-word {
-    border-bottom: 2px solid black;
-  }
-  .platform__word--match {
-    color: green !important;
-  }
-  .platform__word--not-match {
-    color: crimson !important;
-  }
-}
+@import "@/assets/css/platform.scss";
+@import "@/assets/css/platform-en.scss";
 </style>

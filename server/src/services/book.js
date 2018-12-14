@@ -4,9 +4,6 @@ const service = {
   get(where, sortOption = { createdAt: -1 }) {
     return Promise.resolve(Book.find(where).sort(sortOption));
   },
-  // getUniq(where) {
-  //   return Promise.resolve(Book.distinct('name'));
-  // },
   getOne(where) {
     return Promise.resolve(Book.findOne(where));
   },
