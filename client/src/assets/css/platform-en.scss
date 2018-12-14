@@ -18,6 +18,11 @@
       outline-width: medium;
     }
   }
+  .platform__next-word {
+    transition: background 0.3s;
+    background: #2196f3;
+    color: snow;
+  }
   .platform__input--not-valid {
     background: lightcoral;
   }

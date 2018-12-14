@@ -1,6 +1,7 @@
 .platform {
   width: 50%;
   margin: 1em auto;
+  font-family: Consolas, monospace, 'Microsoft Yahei';
   .platform__users {
     li + li {
       margin-top: 0.4em;
@@ -23,9 +24,7 @@
     background: #eee;
     color: #333;
   }
-  .platform__next-word {
-    border-bottom: 2px solid black;
-  }
+
   .platform__word--match {
     color: green !important;
   }

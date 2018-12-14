@@ -1,5 +1,5 @@
 <template>
-  <div class="plafrom--en platform">
+  <div class="platform platform--en">
     <cs-back/>
     <ul>
       <li v-for="user in users" :key="user.id">
@@ -11,7 +11,6 @@
         />
       </li>
     </ul>
-
     <div class="platform__meta">
       <span v-if="state === COUNTING" class="platform__clock">倒计时: {{ clock }} 秒</span>
       <button v-else-if="state === DONE" @click="restart">再来一次</button>

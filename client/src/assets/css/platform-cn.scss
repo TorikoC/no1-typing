@@ -1,5 +1,7 @@
+@import url(//fonts.googleapis.com/earlyaccess/notosansscsliced.css);
 .platform--cn {
   .platform__input {
+    font-family: 'Noto Sans SC Sliced', sans-serif;
     box-sizing: border-box;
     padding: 0.2em 0.4em;
     min-height: 1.8em;
@@ -22,5 +24,8 @@
       outline-style: solid;
       outline-width: medium;
     }
+  }
+  .platform__next-word {
+    border-bottom: 2px solid black;
   }
 }

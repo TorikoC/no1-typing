@@ -1,5 +1,5 @@
 <template>
-  <div class="platform--cn platform">
+  <div class="platform platform--cn">
     <cs-back/>
     <ul class="platform__users">
       <li v-for="user in users" :key="user.id">

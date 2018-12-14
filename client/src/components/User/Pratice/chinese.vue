@@ -1,5 +1,5 @@
 <template>
-  <div class="platform--cn platform">
+  <div class="platform platform--cn">
     <cs-back/>
     <cs-progress
       name="游客"
@@ -49,27 +49,30 @@ import commonSubstrLength from "@/tools/common-substr-length";
 export default {
   data() {
     return {
+      // 状态
       LOADING: 0,
       COUNTING: 1,
       WRITING: 2,
       DONE: 3,
-
       state: this.LOADING,
 
+      CLOCK: 4,
+      // 倒计时
       clock: 4,
-      startedAt: 0,
 
-      snippet: {},
+      // 花费时间
+      time: 0,
+      startedAt: 0,
 
       currentMatchLength: 0,
       currentInputLength: 0,
 
-      time: 0,
       progress: {
         percent: 0,
         speed: 0
       },
 
+      snippet: {},
       input: null
     };
   },
@@ -98,6 +101,7 @@ export default {
       this.watch(this.input);
     },
     done() {
+      console.log("hi");
       this.state = this.DONE;
       this.prevenInput(this.input);
       this.post();
@@ -123,7 +127,7 @@ export default {
     reset() {
       this.state = this.LOADING;
 
-      this.clock = 4;
+      this.clock = this.CLOCK;
       this.time = 0;
       this.startedAt = 0;
 
@@ -150,27 +154,25 @@ export default {
       };
 
       const handler = (mutationList, observer) => {
-        let len = commonSubstrLength(this.snippet.content, el.textContent);
+        let s1 = this.snippet.content;
+        let s2 = el.textContent;
+        let len = commonSubstrLength(s1, s2);
 
-        let match = el.textContent.substr(0, len);
-        match = match.replace(String.fromCharCode(32), "&nbsp;");
+        let match = s2.substr(0, len);
         el.setAttribute("data-highlight", match);
 
         this.currentMatchLength = len;
-        this.currentInputLength = el.textContent.length;
+        this.currentInputLength = s2.length;
 
         this.time = Date.now() - this.startedAt;
-        this.progress.percent = computePercent(
-          match.length,
-          this.snippet.content.length
-        );
+        this.progress.percent = computePercent(match.length, s1.length);
         this.progress.speed = computeSpeed(match.length, this.time / 1000);
-        if (match === this.snippet.content) {
-          this.done();
+        if (match === s1) {
           observer.disconnect();
+          this.done();
         }
       };
-      var observer = new MutationObserver(handler);
+      const observer = new MutationObserver(handler);
       observer.observe(el, config);
       focusEditable(el);
     },

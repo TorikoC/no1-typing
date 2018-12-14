@@ -1,5 +1,5 @@
 <template>
-  <div class="platform--en platform">
+  <div class="platform platform--en">
     <cs-back/>
     <cs-progress
       name="游客"
@@ -48,6 +48,7 @@
 <script>
 import getLongestCommonSubstrLength from "@/tools/common-substr-length.js";
 import charToSpan from "@/tools/char-to-span.js";
+import preventPaste from "@/tools/prevent-paste.js";
 
 export default {
   watch: {
@@ -55,25 +56,27 @@ export default {
       if (value.length > 0) {
         let s1 = this.snippetArray[this.currentIndex];
         let s2 = value;
+
+        let last = false;
         let space = false;
         let match = false;
         let period = false;
-        let last = false;
         let subStr = false;
+
         if (s2[s2.length - 1] === " ") {
           s2 = s2.substr(0, s2.length - 1);
           space = true;
         } else if (s2[s2.length - 1] === ".") {
           period = true;
         }
-        console.log(this.currentIndex, this.snippetArray.length);
         if (this.currentIndex === this.snippetArray.length - 1) {
           last = true;
         }
-        console.log(s1, s2);
+
         let len = getLongestCommonSubstrLength(s1, s2);
         this.currentMatchLength = this.previouseMatchLength + len;
         this.currentInputLength = this.currentMatchLength + (s2.length - len);
+
         if (len === s2.length && s1.length === s2.length) {
           match = true;
         }
@@ -90,21 +93,22 @@ export default {
             this.inputValid = false;
           }
         }
-        console.log("last: ", last, "period", period, "match", match);
+
         if (last && period && match) {
-          this.previouseMatchLength = this.currentMatchLength + 1;
+          this.previouseMatchLength = this.currentMatchLength;
           this.currentMatchLength = this.previouseMatchLength;
           this.currentInputLength = this.previouseMatchLength;
+
           this.input = "";
           this.currentIndex += 1;
-          this.state = this.DONE;
-          this.done();
           this.updateProgress();
+          this.done();
         } else if (space && match) {
           // +1 space
           this.previouseMatchLength = this.currentMatchLength + 1;
           this.currentMatchLength = this.previouseMatchLength;
           this.currentInputLength = this.previouseMatchLength;
+
           this.input = "";
           this.currentIndex += 1;
           this.updateProgress();
@@ -159,13 +163,12 @@ export default {
     init() {
       this.elInput = document.getElementsByClassName("platform__input")[0];
       this.elInput.setAttribute("disabled", true);
+      preventPaste(this.elInput);
     },
     load() {
       this.$axios.get("/snippets/random?lang=en").then(resp => {
-        console.log(resp);
         this.snippet = resp.data;
         this.snippetArray = resp.data.content.split(" ");
-        console.log(this.snippetArray);
         this.currentIndex = 0;
         this.count();
       });

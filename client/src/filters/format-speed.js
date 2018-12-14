@@ -1,3 +1,8 @@
+/**
+ *
+ * @param {String} speed
+ * @param {String} lang
+ */
 function formatSpeed(speed, lang) {
   let unit = '';
   switch (lang) {
