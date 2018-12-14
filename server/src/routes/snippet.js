@@ -20,59 +20,21 @@ router.get('/api/snippets', (req, res) => {
 });
 
 /**
- * 返回一个随机英文段落。
+ * 返回一个随机段落。
+ *
+ * @param [String] lang
  */
-// TODO:
-// 返回英文段落
-router.get('/api/snippets/en/random', async (req, res) => {
+router.get('/api/snippets/random', async (req, res) => {
   req.log.info();
-  // let snippet = await snippetService.getOneRandom();
-  let snippet = await snippetService.get({ _id: '5c123c17df77e3121c530793' });
-  if (snippet.length > 0) {
-    snippet = snippet[0];
-  }
-  bookService
-    .getOne({ name: snippet.bookName })
-    .then(result => {
-      res.send({
-        name: result.name,
-        author: result.author,
-        cover: result.cover,
-        content: snippet.content,
-        length: snippet.length,
-      });
-    })
-    .catch(error => {
-      res.status(500);
-      res.send(error);
-    });
-});
-/**
- * 返回一个随机中文段落
- */
-// TODO:
-// 返回中文段落
-router.get('/api/snippets/cn/random', async (req, res) => {
-  req.log.info();
-  let snippet = await snippetService.getOneRandom();
-  if (snippet.length > 0) {
-    snippet = snippet[0];
-  }
-  bookService
-    .getOne({ name: snippet.bookName })
-    .then(result => {
-      res.send({
-        name: result.name,
-        author: result.author,
-        cover: result.cover,
-        content: snippet.content,
-        length: snippet.length,
-      });
-    })
-    .catch(error => {
-      res.status(500);
-      res.send(error);
-    });
+  let { lang } = req.query;
+  lang = lang || 'cn';
+
+  const where = {
+    lang,
+  };
+
+  let snippet = await snippetService.getOneRandomWithSource(where);
+  res.send(snippet);
 });
 
 router.post('/api/snippets', multer().none(), (req, res) => {

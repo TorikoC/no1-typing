@@ -11,10 +11,10 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="language">语言</label>
-        <select name="language" id="language" required>
-          <option value="chinese">中文</option>
-          <option value="english">英文</option>
+        <label for="lang">语言</label>
+        <select name="lang" id="lang" required>
+          <option value="cn">中文</option>
+          <option value="en">英文</option>
         </select>
       </div>
       <div class="form-group">

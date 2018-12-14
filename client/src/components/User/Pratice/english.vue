@@ -170,7 +170,7 @@ export default {
       this.elInput.setAttribute("disabled", true);
     },
     load() {
-      this.$axios.get("/snippets/en/random").then(resp => {
+      this.$axios.get("/snippets/random?lang=en").then(resp => {
         console.log(resp);
         this.snippet = resp.data;
         this.snippetArray = resp.data.content.split(" ");

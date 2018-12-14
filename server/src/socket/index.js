@@ -1,6 +1,5 @@
 const RecordService = require('../services/record');
 const SnippetService = require('../services/snippet');
-const BookService = require('../services/book');
 
 const findOneAndRemove = require('../tools/find-one-and-remove');
 
@@ -16,6 +15,18 @@ const DEBUG = process.env.NODE_ENV !== 'production';
 let logger = console;
 if (!DEBUG) {
   logger = require('../logger/socket');
+}
+class Room {
+  constructor(name, lang = 'cn', users = [], snippet) {
+    this.name = name;
+    this.lang = lang;
+    this.users = users;
+    this.snippet = snippet;
+
+    this.state = WAITING;
+    this.done = 0;
+    this.clock = 10;
+  }
 }
 
 module.exports = io => {
@@ -82,23 +93,15 @@ module.exports = io => {
       });
     }
     function leave(socket) {
-      if (!socket) {
+      if (!socket || !socketRoomMap[socket.id]) {
         return;
       }
       let room = socketRoomMap[socket.id];
-      if (!room) {
-        return;
-      }
+      logger.info(clientIp, socket.id, 'leave room: ', room.name);
       socket.leave(room.name);
       delete socketRoomMap[socket.id];
-      logger.info(clientIp, socket.id, 'leave room: ', room.name);
       findOneAndRemove(room.users, user => user.id === socket.id);
       if (room.users.length === 0) {
-        // let index = rooms.findIndex(obj => obj.name === room.name);
-        // if (index !== -1) {
-        //   logger.info('room: ', room.name, 'removed.');
-        //   rooms.splice(index, 1);
-        // }
         findOneAndRemove(rooms, obj => obj.name === room.name);
       } else {
         socket.broadcast.to(room.name).emit('user-leave', socket.id);
@@ -131,30 +134,13 @@ module.exports = io => {
           ip: clientIp,
         });
       } else {
-        let snippet;
-        if (lang === 'en') {
-          snippet = await SnippetService.get({
-            _id: '5c123c17df77e3121c530793',
-          });
-        } else {
-          snippet = await SnippetService.getOneRandom();
-        }
-        let snippetSource = await BookService.getOne({
-          name: snippet[0].bookName,
-        });
-        snippet[0].cover = snippetSource.cover;
-        snippet[0].author = snippetSource.author;
-        snippet[0].name = snippetSource.name;
-        snippet = snippet[0];
-        room = {
-          name: Date.now(),
-          users: [{ id: socket.id, ip: clientIp }],
-          state: WAITING,
-          clock: 10,
-          done: 0,
-          snippet: snippet,
-          lang: lang,
-        };
+        let snippet = await SnippetService.getOneRandomWithSource({ lang });
+        room = new Room(
+          Date.now(),
+          lang,
+          [{ id: socket.id, ip: clientIp }],
+          snippet,
+        );
         rooms.push(room);
 
         setTimeout(() => {

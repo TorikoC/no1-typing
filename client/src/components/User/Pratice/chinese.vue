@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     getSnippet() {
-      this.$axios.get(`/snippets/cn/random`).then(resp => {
+      this.$axios.get(`/snippets/random?lang=cn`).then(resp => {
         this.snippet = resp.data;
         this.state = this.COUNTING;
 

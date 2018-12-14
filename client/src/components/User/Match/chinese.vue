@@ -11,7 +11,18 @@
       <button v-else-if="state === DONE" @click="restart">再来一次</button>
       <span v-else-if="state === WRITING">已经开始了</span>
     </div>
-    <div class="match__snippet"></div>
+    <div class="match__snippet">
+      <span
+        v-for="(char,index) in snippet.content"
+        :key="index"
+        :class="{
+          'match__word--match': index < currentMatchLength, 
+          'match__word--not-match': index >= currentMatchLength && index < currentInputLength,
+          'match__next-word': index === currentMatchLength
+          }"
+        class="match__word"
+      >{{ char }}</span>
+    </div>
     <div class="match__input" contenteditable="false" data-highlight spellcheck="false"></div>
     <dl v-if="state === DONE">
       <dt>用时</dt>
@@ -63,6 +74,9 @@ export default {
       users: [],
       snippet: {},
       records: [],
+
+      currentMatchLength: 0,
+      currentInputLength: 0,
 
       clock: 10000,
       time: 0,
@@ -117,9 +131,9 @@ export default {
       });
       socket.on("snippet", data => {
         this.snippet = data;
-        document.getElementsByClassName(
-          "match__snippet"
-        )[0].innerHTML = charToSpan(data.content, "match__word");
+        // document.getElementsByClassName(
+        //   "match__snippet"
+        // )[0].innerHTML = charToSpan(data.content, "match__word");
       });
       socket.on("progress", data => {
         if (this.state === this.COUNTING || this.state === this.LOADING) {
@@ -158,6 +172,8 @@ export default {
       this.progress.percent = 0;
       this.progress.speed = 0;
       this.startedAt = 0;
+      this.currentMatchLength = 0;
+      this.currentInputLength = 0;
 
       this.input.innerHTML = "";
       this.prevenInput(this.input);
@@ -188,18 +204,15 @@ export default {
       const handler = (mutationList, observer) => {
         let len = commonSubstrLength(this.snippet.content, el.textContent);
 
-        this.colorfy(
-          document.getElementsByClassName("match__word"),
-          len,
-          el.textContent.length,
-          len + 1
-        );
-
         let match = el.textContent
           .split("")
           .slice(0, len)
           .join("");
         match = match.replace(String.fromCharCode(32), "&nbsp;");
+
+        this.currentMatchLength = len;
+        this.currentInputLength = el.textContent.length;
+
         el.setAttribute("data-highlight", match);
 
         this.progress.percent = Math.floor(
@@ -232,39 +245,6 @@ export default {
       this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
         this.records = resp.data;
       });
-    },
-    colorfy(els, successIndex = -1, failIndex = -1, nextIndex = -1) {
-      if (!els) {
-        return;
-      }
-      if (~successIndex) {
-        for (let i = 0; i < successIndex && i < els.length; i += 1) {
-          els[i].classList.remove("match__next-word");
-          els[i].classList.remove("match__word--not-match");
-          els[i].classList.add("match__word--match");
-        }
-        for (let i = successIndex; i < els.length; i += 1) {
-          els[i].classList.remove("match__word--match");
-        }
-      }
-      if (~failIndex) {
-        for (let i = successIndex; i < failIndex && i < els.length; i += 1) {
-          els[i].classList.remove("match__next-word");
-          els[i].classList.remove("match__word--match");
-          els[i].classList.add("match__word--not-match");
-        }
-        for (let i = failIndex; i < els.length; i += 1) {
-          els[i].classList.remove("match__word--not-match");
-        }
-      }
-      if (~nextIndex) {
-        for (let i = successIndex; i < nextIndex && i < els.length; i += 1) {
-          els[i].classList.add("match__next-word");
-        }
-        for (let i = nextIndex; i < els.length; i += 1) {
-          els[i].classList.remove("match__next-word");
-        }
-      }
     }
   },
   destroyed() {
@@ -280,13 +260,11 @@ export default {
 .match {
   width: 50%;
   margin: 1em auto;
-
   .match__users {
     li + li {
       margin-top: 0.4em;
     }
   }
-
   .match__meta {
     color: #777;
     text-align: right;
@@ -347,19 +325,14 @@ export default {
       padding: 0.2em 0.4em;
     }
   }
-}
-</style>
-<style>
-.match__word {
-  transition: color 0.3s;
-}
-.match__next-word {
-  border-bottom: 2px solid black;
-}
-.match__word--match {
-  color: green !important;
-}
-.match__word--not-match {
-  color: crimson !important;
+  .match__next-word {
+    border-bottom: 2px solid black;
+  }
+  .match__word--match {
+    color: green !important;
+  }
+  .match__word--not-match {
+    color: crimson !important;
+  }
 }
 </style>

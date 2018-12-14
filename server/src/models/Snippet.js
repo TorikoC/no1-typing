@@ -19,7 +19,7 @@ const Snippet = mongoose.model(
       type: Number,
       default: Date.now(),
     },
-    language: {
+    lang: {
       type: String,
       default: '',
     },
