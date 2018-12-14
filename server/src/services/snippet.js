@@ -2,7 +2,11 @@ const Snippet = require('../models/Snippet');
 
 const service = {
   get(where, sortOption = { createdAt: -1 }) {
-    return Promise.resolve(Snippet.find(where).sort(sortOption));
+    return Promise.resolve(
+      Snippet.find(where)
+        .sort(sortOption)
+        .lean(),
+    );
   },
   getOneRandom() {
     const option = [

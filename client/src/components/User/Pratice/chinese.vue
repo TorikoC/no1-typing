@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     getSnippet() {
-      this.$axios.get(`/random-snippet`).then(resp => {
+      this.$axios.get(`/snippets/cn/random`).then(resp => {
         this.snippet = resp.data;
         this.state = this.COUNTING;
 
@@ -246,6 +246,10 @@ export default {
       position: absolute;
       top: 0;
       left: 0;
+    }
+    &:focus {
+      outline-style: solid;
+      outline-width: medium;
     }
   }
   dt {

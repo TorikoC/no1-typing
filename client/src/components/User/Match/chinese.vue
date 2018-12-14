@@ -3,7 +3,7 @@
     <cs-back/>
     <ul class="match__users">
       <li v-for="user in users" :key="user.id">
-        <cs-progress :name="user.ip" :progress="user.progress" :speed="user.speed"/>
+        <cs-progress :name="user.ip" :percent="user.percent" :speed="user.speed"/>
       </li>
     </ul>
     <div class="match__meta">
@@ -17,7 +17,7 @@
       <dt>用时</dt>
       <dd>{{ time | formatTime }}</dd>
       <dt>速度</dt>
-      <dd>{{ speed }} 字/分钟</dd>
+      <dd>{{ progress.speed }} 字/分钟</dd>
       <dt>段落来自</dt>
       <dd>
         <div class="source">
@@ -49,6 +49,7 @@ import charToSpan from "@/tools/char-to-span.js";
 import preventPaste from "@/tools/prevent-paste.js";
 import focusEditable from "@/tools/focus-editable.js";
 import commonSubstrLength from "@/tools/common-substr-length";
+import findOneAndRemove from "@/tools/find-one-and-remove";
 
 export default {
   data() {
@@ -65,80 +66,97 @@ export default {
 
       clock: 10000,
       time: 0,
-      speed: 0,
-      progress: 0,
       startedAt: 0,
+
+      progress: {
+        percent: 0,
+        speed: 0
+      },
 
       socket: null,
       input: null
     };
   },
   mounted() {
-    this.input = document.getElementsByClassName("match__input")[0];
-    preventPaste(this.input);
-
-    this.socket = this.$io.connect(this.$config.server);
-    this.listen(this.socket);
+    this.init();
+    this.join("cn");
   },
   methods: {
+    init() {
+      this.input = document.getElementsByClassName("match__input")[0];
+      preventPaste(this.input);
+      this.socket = this.$io.connect(this.$config.server);
+      this.listen(this.socket);
+    },
+    join(lang) {
+      this.socket.emit("join", lang);
+    },
     listen(socket) {
       socket.on("users", data => {
         this.users = data.map(user => {
           return {
             id: user.id,
             ip: user.ip,
-            progress: 0,
+            percent: 0,
             speed: 0
           };
         });
       });
+      socket.on("user-leave", userId => {
+        if (this.state === this.COUNTING) {
+          findOneAndRemove(this.users, user => user.id === userId);
+        }
+      });
+      socket.on("user-join", data => {
+        this.users.push({
+          id: data.id,
+          ip: data.ip,
+          percent: 0,
+          speed: 0
+        });
+      });
       socket.on("snippet", data => {
-        this.state = this.COUNTING;
         this.snippet = data;
         document.getElementsByClassName(
           "match__snippet"
         )[0].innerHTML = charToSpan(data.content, "match__word");
       });
-      socket.on("user-leave", data => {
-        if (this.state === this.COUNTING) {
-          let idx = this.users.findIndex(user => {
-            return user.id === data;
-          });
-          if (idx !== -1) {
-            this.users.splice(idx, 1);
-          }
+      socket.on("progress", data => {
+        if (this.state === this.COUNTING || this.state === this.LOADING) {
+          return;
+        }
+        console.log("progress", data);
+        let user = this.users.find(user => user.id === data.id);
+        if (user) {
+          Object.assign(user, data);
+          console.log(this.users);
         }
       });
-      socket.on("user-enter", data => {
-        this.users.push({
-          id: data.id,
-          ip: data.ip,
-          progress: 0,
-          speed: 0
-        });
-      });
       socket.on("clock", data => {
+        if (this.state !== this.COUNTING) {
+          this.state = this.COUNTING;
+        }
         this.clock = data;
-        if (this.clock === 0) {
+        if (this.clock < 1 && this.state !== this.WRITING) {
           this.start();
         }
       });
     },
     start() {
       this.state = this.WRITING;
+      this.startedAt = Date.now();
       this.enableInput(this.input);
       this.watch(this.input);
-      this.startedAt = Date.now();
     },
     restart() {
       this.reset();
-      this.socket.emit("re-start");
+      this.socket.emit("re-join");
     },
     reset() {
       this.state = this.LOADING;
       this.clock = 10000;
-      this.speed = 0;
-      this.progress = 0;
+      this.progress.percent = 0;
+      this.progress.speed = 0;
       this.startedAt = 0;
 
       this.input.innerHTML = "";
@@ -160,26 +178,13 @@ export default {
       };
 
       const send = () => {
-        this.socket.emit("progress", {
-          id: this.socket.id,
-          progress: this.progress,
-          speed: this.speed
-        });
+        this.socket.emit("progress", this.progress);
         if (this.state === this.WRITING) {
           setTimeout(send, 500);
         }
       };
       setTimeout(send, 500);
-      this.socket.on("progress", data => {
-        if (this.state === this.WRITING || this.state === this.DONE) {
-          this.users.forEach(user => {
-            if (user.id === data.id) {
-              user.progress = data.progress;
-              user.speed = data.speed;
-            }
-          });
-        }
-      });
+
       const handler = (mutationList, observer) => {
         let len = commonSubstrLength(this.snippet.content, el.textContent);
 
@@ -197,22 +202,18 @@ export default {
         match = match.replace(String.fromCharCode(32), "&nbsp;");
         el.setAttribute("data-highlight", match);
 
-        this.progress = Math.floor((match.length / this.snippet.length) * 100);
-        this.speed = (
-          (match.length / ((Date.now() - this.startedAt) / 1000)) *
+        this.progress.percent = Math.floor(
+          (match.length / this.snippet.length) * 100
+        );
+        this.time = Date.now() - this.startedAt;
+        this.progress.speed = (
+          (match.length / (this.time / 1000)) *
           60
         ).toFixed(1);
 
         if (match === this.snippet.content) {
           observer.disconnect();
-          this.state = this.DONE;
-          this.time = Date.now() - this.startedAt;
-          this.prevenInput(this.input);
-          this.speed = (
-            (this.snippet.length / (this.time / 1000)) *
-            60
-          ).toFixed(1);
-          this.post();
+          this.done();
         }
       };
 
@@ -220,15 +221,13 @@ export default {
       observer.observe(el, config);
       focusEditable(el);
     },
-    post() {
-      this.socket.emit("progress", {
-        id: this.socket.id,
-        progress: this.progress
-      });
+    done() {
+      this.state = this.DONE;
+      this.prevenInput(this.input);
+      this.socket.emit("progress", this.progress);
       this.socket.emit("done", {
         time: this.time,
-        speed: this.speed,
-        snippetId: this.snippet._id
+        speed: this.progress.speed
       });
       this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
         this.records = resp.data;
@@ -319,6 +318,10 @@ export default {
       position: absolute;
       top: 0;
       left: 0;
+    }
+    &:focus {
+      outline-style: solid;
+      outline-width: medium;
     }
   }
   .match__record:nth-child(odd) {

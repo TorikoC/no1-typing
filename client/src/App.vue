@@ -11,7 +11,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "./assets/css/platform.scss";
+
 html,
 body {
   margin: 0px;

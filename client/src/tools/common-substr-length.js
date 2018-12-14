@@ -18,7 +18,7 @@ function getLongestCommonSubstrLength(s1, s2) {
   }
   if (hasMatch && len === 0) {
     // s2 is sub string of s1
-    len = s2.length;
+    len = Math.min(s1.length, s2.length);
   }
   return len;
 }

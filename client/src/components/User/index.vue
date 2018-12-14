@@ -22,10 +22,26 @@
       <div class="entry__mode">
         <fieldset>
           <legend>语言</legend>
-          <label for="index-radio-cn">中文</label>
-          <input type="radio" id="index-radio-cn" name="lang" v-model="lang" value="cn">
-          <label for="index-radio-en" title="开发中">英文</label>
-          <input type="radio" id="index-radio-en" name="lang" v-model="lang" value="en" disabled>
+          <label for="radio-cn">中文</label>
+          <input type="radio" id="radio-cn" name="lang" v-model="lang" value="cn">
+          <label for="radio-en">English</label>
+          <input type="radio" id="radio-en" name="lang" v-model="lang" value="en">
+          <label for="radio-jp" title="开发中">日本語</label>
+          <input type="radio" id="radio-jp" name="lang" v-model="lang" value="jp" disabled>
+        </fieldset>
+        <fieldset v-if="lang === 'cn'">
+          <legend>模式</legend>
+          <label for="cn-simplified">简体</label>
+          <input type="radio" id="cn-simplified" name="cn" v-model="cnMode" value="simplified">
+          <label for="cn-traditional" title="开发中">繁体</label>
+          <input
+            type="radio"
+            id="cn-traditional"
+            name="cn"
+            v-model="cnMode"
+            value="tradtional"
+            disabled
+          >
         </fieldset>
       </div>
       <router-link :to="'/pratice/' + lang">练习</router-link>
@@ -38,7 +54,8 @@
 export default {
   data() {
     return {
-      lang: "cn"
+      lang: "en",
+      cnMode: "simplified"
     };
   }
 };

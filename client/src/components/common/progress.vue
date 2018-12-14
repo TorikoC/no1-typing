@@ -2,7 +2,7 @@
   <div class="progress">
     <div class="progress__name" :title="name">{{ name }}</div>
     <div class="progress__body" ref="body"></div>
-    <span class="progress__percent">{{ progress }}%</span>
+    <span class="progress__percent">{{ percent }}%</span>
     <span class="progress__speed">{{ speed }} 字/分钟</span>
   </div>
 </template>
@@ -10,10 +10,12 @@
 <script>
 export default {
   watch: {
-    progress(value) {
+    percent(value) {
+      console.log(value);
       if (!this.body) {
         return;
       }
+      console.log(value);
       this.body.style.width = value + "%";
       if (value < 25) {
         this.body.classList.add("progress__body--low");
@@ -31,16 +33,15 @@ export default {
         this.body.classList.remove("progress__body--low");
         this.body.classList.remove("progress__body--complete");
       } else {
+        this.body.classList.add("progress__body--complete");
         this.body.classList.remove("progress__body--high");
         this.body.classList.remove("progress__body--middle");
         this.body.classList.remove("progress__body--low");
-        this.body.classList.add("progress__body--complete");
       }
     }
   },
   data() {
     return {
-      percent: 0,
       body: null
     };
   },
@@ -48,9 +49,7 @@ export default {
     name: {
       type: String
     },
-    progress: {
-      type: Number
-    },
+    percent: {},
     speed: {}
   },
   mounted() {
