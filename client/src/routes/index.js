@@ -8,10 +8,12 @@ import Feedback from '../components/User/Feedback/index';
 import About from '../components/User/About/index';
 import Register from '../components/User/register.vue';
 import Login from '../components/User/login.vue';
+import Profile from '../components/User/Profile/index.vue';
 
 import Admin from '../components/Admin/index';
 import AdminBook from '../components/Admin/Books/index';
 import AdminSnippet from '../components/Admin/Snippets/index';
+import AdminUsers from '../components/Admin/Users/index';
 
 import VueRouter from 'vue-router';
 
@@ -22,37 +24,42 @@ const router = new VueRouter({
       path: '/',
       component: User,
       children: [
-        { path: '/pratice/cn', component: PraticeCN },
+        { path: 'pratice/cn', component: PraticeCN },
         {
-          path: '/pratice/en',
+          path: 'pratice/en',
           component: PraticeEN,
         },
         {
-          path: '/match/cn',
+          path: 'match/cn',
           component: MatchCN,
         },
         {
-          path: '/match/en',
+          path: 'match/en',
           component: MatchEN,
         },
         {
-          path: '/rank',
+          path: 'rank',
           component: Rank,
         },
         {
-          path: '/feedback',
+          path: 'feedback',
           component: Feedback,
         },
         {
-          path: '/about',
+          path: 'about',
           component: About,
         },
         {
-          path: '/register',
+          path: 'profile/:username',
+          props: true,
+          component: Profile,
+        },
+        {
+          path: 'register',
           component: Register,
         },
         {
-          path: '/login',
+          path: 'login',
           component: Login,
         },
       ],
@@ -69,6 +76,10 @@ const router = new VueRouter({
         {
           path: 'snippets',
           component: AdminSnippet,
+        },
+        {
+          path: 'users',
+          component: AdminUsers,
         },
       ],
     },

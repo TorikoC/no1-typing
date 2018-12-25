@@ -89,9 +89,11 @@ export default {
       this.jwt = jwt;
       this.jwtData = jwtDecode(jwt);
       localStorage.setItem("jwt", jwt);
+      this.$axios.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
     },
     toLogout() {
       this.login = false;
+      this.$axios.defaults.headers.common["Authorization"] = "";
       localStorage.removeItem("jwt");
     }
   },

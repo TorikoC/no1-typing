@@ -8,6 +8,9 @@
         <li>
           <router-link to="/admin/snippets">段落</router-link>
         </li>
+        <li>
+          <router-link to="/admin/users">用户</router-link>
+        </li>
         <li class="nav-link--right">
           <router-link to="/">用户主页</router-link>
         </li>

@@ -200,6 +200,13 @@ export default {
     done() {
       this.state = this.DONE;
       this.elInput.setAttribute("disabled", true);
+      const formData = new FormData();
+      formData.append("mode", "pratice");
+      formData.append("lang", "en");
+      formData.append("time", this.time);
+      formData.append("speed", this.progress.speed);
+      formData.append("snippetId", this.snippet._id);
+      this.$axios.post("/records", formData);
     },
     restart() {
       this.reset();

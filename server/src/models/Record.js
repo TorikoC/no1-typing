@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
 const RecordSchema = mongoose.Schema({
-  user: {
+  username: {
+    type: String,
+  },
+  mode: {
     type: String,
   },
   time: {
