@@ -16,6 +16,7 @@ Vue.use(VueRouter);
 Vue.prototype.$axios = axios.create({
   baseURL: config.apiServer,
 });
+Vue.prototype.$bus = new Vue();
 Vue.prototype.$config = config;
 Vue.prototype.$io = io;
 

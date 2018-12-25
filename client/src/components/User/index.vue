@@ -15,6 +15,19 @@
           <router-link to="/feedback">反馈</router-link>
         </li>
       </ul>
+      <ul v-if="login" class="nav__right">
+        <li>
+          <router-link :to="'/profile/' + jwtData.username">{{ jwtData.username }}</router-link>
+        </li>
+        <li>
+          <a @click="toLogout">退出</a>
+        </li>
+      </ul>
+      <ul v-else class="nav__right">
+        <li>
+          <router-link to="/login">登录</router-link>
+        </li>
+      </ul>
     </nav>
     <router-view></router-view>
     <div v-if="$route.fullPath === '/'" class="entry">
@@ -51,18 +64,43 @@
 </template>
 
 <script>
+import jwtDecode from "@/tools/jwt-decode";
 export default {
   data() {
     return {
       lang: "en",
-      cnMode: "simplified"
+      cnMode: "simplified",
+
+      login: false,
+      jwt: "",
+      jwtData: ""
     };
+  },
+  created() {
+    this.$bus.$on("login", this.toLogin);
+    this.$bus.$on("logout", this.toLogout);
+    if (localStorage.getItem("jwt")) {
+      this.toLogin(localStorage.getItem("jwt"));
+    }
+  },
+  methods: {
+    toLogin(jwt) {
+      this.login = true;
+      this.jwt = jwt;
+      this.jwtData = jwtDecode(jwt);
+      localStorage.setItem("jwt", jwt);
+    },
+    toLogout() {
+      this.login = false;
+      localStorage.removeItem("jwt");
+    }
+  },
+  destroyed() {
+    this.$bus.$off("login", this.toLogin);
+    this.$bus.$off("logout", this.toLogout);
   }
 };
 </script>
-
-<style lang="scss">
-</style>
 
 <style lang="scss" scoped>
 .entry {
@@ -141,6 +179,8 @@ export default {
   line-height: 2.2;
   background: #eee;
   padding: 0.2em 0.6em;
+  display: flex;
+  flex-direction: row;
   ul,
   li {
     margin: 0;
@@ -164,6 +204,10 @@ export default {
   }
   a:active {
     color: darken($color: $linkColor, $amount: 30);
+  }
+
+  .nav__right {
+    margin-left: auto;
   }
 }
 </style>

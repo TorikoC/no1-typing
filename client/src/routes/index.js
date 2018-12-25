@@ -6,6 +6,8 @@ import MatchEN from '../components/User/Match/english';
 import Rank from '../components/User/Rank/index';
 import Feedback from '../components/User/Feedback/index';
 import About from '../components/User/About/index';
+import Register from '../components/User/register.vue';
+import Login from '../components/User/login.vue';
 
 import Admin from '../components/Admin/index';
 import AdminBook from '../components/Admin/Books/index';
@@ -44,6 +46,14 @@ const router = new VueRouter({
         {
           path: '/about',
           component: About,
+        },
+        {
+          path: '/register',
+          component: Register,
+        },
+        {
+          path: '/login',
+          component: Login,
         },
       ],
     },

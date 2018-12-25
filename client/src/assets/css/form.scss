@@ -1,0 +1,19 @@
+.form-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  label {
+    vertical-align: top;
+    width: 6em;
+  }
+
+  input {
+    flex: 1;
+    align-self: flex-start;
+  }
+}
+
+.form-group + .form-group {
+  margin-top: 1em;
+}
