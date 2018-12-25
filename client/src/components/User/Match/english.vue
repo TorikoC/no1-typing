@@ -54,6 +54,15 @@
           </div>
         </div>
       </dd>
+      <dt>段落排行</dt>
+      <dd>
+        <ul class="records">
+          <li
+            v-for="record in records"
+            :key="record.createdAt"
+          >{{ record.user }}, {{ record.speed }} 字/分钟, {{ record.createdAt | formatDate }}</li>
+        </ul>
+      </dd>
     </dl>
   </div>
 </template>
@@ -149,6 +158,8 @@ export default {
         percent: 0,
         speed: 0
       },
+
+      records: [],
 
       elInput: null,
       input: "",
@@ -260,6 +271,9 @@ export default {
         time: this.time
       });
       this.elInput.setAttribute("disabled", true);
+      this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
+        this.records = resp.data;
+      });
     },
     restart() {
       this.reset();
