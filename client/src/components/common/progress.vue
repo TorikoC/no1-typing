@@ -1,5 +1,7 @@
 <template>
   <div class="progress">
+    <span v-if="done">*</span>
+    <span v-else>#</span>
     <div class="progress__name" :title="name">{{ name }}</div>
     <div class="progress__body" ref="body"></div>
     <span class="progress__percent">{{ percent }}%</span>
@@ -54,7 +56,8 @@ export default {
       type: String
     },
     percent: {},
-    speed: {}
+    speed: {},
+    done: ""
   },
   mounted() {
     this.body = this.$refs["body"];

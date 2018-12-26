@@ -1,5 +1,6 @@
 const RecordService = require('../services/record');
 const SnippetService = require('../services/snippet');
+const RoomService = require('../services/room');
 
 const findOneAndRemove = require('../tools/find-one-and-remove');
 
@@ -29,10 +30,126 @@ class Room {
   }
 }
 
+const idUserMap = {};
+const idCounterMap = {};
+const idUsersMap = {};
+const idDoneMap = {};
+const idPrepareMap = {};
+const idClockMap = {};
+
 module.exports = io => {
   io.on('connection', socket => {
     const clientIp = socket.request.connection.remoteAddress;
     logger.info('new connection: ', clientIp, socket.id);
+
+    socket.on('join-room', (roomId, username) => {
+      logger.info(`user ${username} join room ${roomId}`);
+      joinRoom(socket, roomId, username);
+    });
+    function joinRoom(socket, id, username) {
+      socket.join(id);
+      socket.broadcast.to(id).emit('user-join', username);
+      if (!idUsersMap[id]) {
+        idUsersMap[id] = [username];
+      } else {
+        idUsersMap[id].push(username);
+      }
+      idUserMap[id] = idUsersMap[id].length;
+      socket.emit('users', idUsersMap[id]);
+    }
+    socket.on('room-prepare', (roomId, username) => {
+      socket.broadcast.to(roomId).emit('prepare', username);
+      if (!idPrepareMap[roomId]) {
+        idPrepareMap[roomId] = 1;
+      } else {
+        idPrepareMap[roomId] += 1;
+      }
+      console.log(
+        'prepared',
+        username,
+        ' total users: ',
+        idUserMap[roomId],
+        'prepared: ',
+        idPrepareMap[roomId],
+      );
+      if (idPrepareMap[roomId] === idUserMap[roomId]) {
+        idPrepareMap[roomId] = 0;
+        RoomService.getOne({ _id: roomId }).then(async result => {
+          io.to(roomId).emit(
+            'snippet',
+            await SnippetService.getOneRandomWithSource({ lang: result.lang }),
+          );
+          idClockMap[roomId] = 10;
+        });
+      }
+    });
+    socket.on('leave-room', (roomId, username) => {
+      logger.info(`user ${username} leave room ${roomId}`);
+      logger.info('users', idUsersMap[roomId]);
+      socket.leave(roomId);
+
+      if (idUsersMap[roomId]) {
+        socket.broadcast.to(roomId).emit('user-leave', username);
+        RoomService.removeUser(roomId, username);
+        findOneAndRemove(idUsersMap[roomId], name => name === username);
+        logger.info('users', idUsersMap[roomId]);
+        idUserMap[roomId] = idUsersMap[roomId].length;
+      }
+    });
+    function leaveRoom(socket, id, username) {}
+    function tickRoom(id) {
+      idClockMap[id] -= 1;
+      io.to(id).emit('clock', idClockMap[id]);
+      if (idClockMap[id] > 0) {
+        setTimeout(() => {
+          tickRoom(id);
+        }, 1000);
+      }
+    }
+    socket.on('room-start', async (roomId, lang) => {
+      io.to(roomId).emit(
+        'snippet',
+        await SnippetService.getOneRandomWithSource({ lang }),
+      );
+      idClockMap[roomId] = 10;
+    });
+    socket.on('room-progress', (roomId, progress, username) => {
+      io.to(roomId).emit('progress', {
+        percent: progress.percent,
+        speed: progress.speed,
+        username: username,
+      });
+    });
+    socket.on('snippet-received', roomId => {
+      if (!idCounterMap[roomId]) {
+        idCounterMap[roomId] = 1;
+      } else {
+        idCounterMap[roomId] += 1;
+      }
+      logger.info('received');
+      console.log(idUserMap[roomId], idCounterMap[roomId]);
+      if (idCounterMap[roomId] === idUserMap[roomId]) {
+        idCounterMap[roomId] = 0;
+        logger.info('assign completed');
+        tickRoom(roomId);
+      }
+    });
+    socket.on('room-done', (roomId, record, username) => {
+      socket.broadcast.to(roomId).emit('done', username);
+      RecordService.create(record);
+      if (!idDoneMap[roomId]) {
+        idDoneMap[roomId] = 1;
+      } else {
+        idDoneMap[roomId] += 1;
+      }
+      if (idDoneMap[roomId] === idUserMap[roomId]) {
+        io.to(roomId).emit('all-done');
+        idDoneMap[roomId] = 0;
+      }
+    });
+    socket.on('room-progress', (roomId, progress) => {
+      io.to(roomId).emit('room-progress', progress);
+    });
 
     socket.on('join', lang => {
       logger.info('join: ', clientIp, socket.id);
@@ -74,6 +191,10 @@ module.exports = io => {
       };
       RecordService.create(record);
     });
+
+    function leaveRoom(socket, id) {
+      socket.leave(id);
+    }
     async function join(socket, lang = 'cn') {
       if (socketRoomMap[socket.id]) {
         logger.info(clientIp, socket.id, " already in a room, can't not join.");

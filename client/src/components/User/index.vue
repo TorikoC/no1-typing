@@ -14,6 +14,9 @@
         <li>
           <router-link to="/feedback">反馈</router-link>
         </li>
+        <li>
+          <router-link to="/rooms">房间</router-link>
+        </li>
       </ul>
       <ul v-if="login" class="nav__right">
         <li>
@@ -89,10 +92,15 @@ export default {
       this.jwt = jwt;
       this.jwtData = jwtDecode(jwt);
       localStorage.setItem("jwt", jwt);
+      window.login = true;
+      window.$user = this.jwtData;
       this.$axios.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
+      console.log("yes");
     },
     toLogout() {
       this.login = false;
+      window.login = false;
+      window.$user = "";
       this.$axios.defaults.headers.common["Authorization"] = "";
       localStorage.removeItem("jwt");
     }

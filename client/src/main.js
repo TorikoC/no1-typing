@@ -19,6 +19,10 @@ Vue.prototype.$axios = axios.create({
 Vue.prototype.$bus = new Vue();
 Vue.prototype.$config = config;
 Vue.prototype.$io = io;
+Vue.prototype.$roomState = {
+  WAITTING: 0,
+  ONGOING: 1,
+};
 
 for (let key of Object.keys(filters)) {
   Vue.filter(key, filters[key]);

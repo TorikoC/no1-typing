@@ -9,6 +9,9 @@ import About from '../components/User/About/index';
 import Register from '../components/User/register.vue';
 import Login from '../components/User/login.vue';
 import Profile from '../components/User/Profile/index.vue';
+import Rooms from '../components/User/Rooms/index.vue';
+import Room from '../components/User/Room/index.vue';
+import AddRoom from '../components/User/Add/Room/index.vue';
 
 import Admin from '../components/Admin/index';
 import AdminBook from '../components/Admin/Books/index';
@@ -48,6 +51,19 @@ const router = new VueRouter({
         {
           path: 'about',
           component: About,
+        },
+        {
+          path: 'rooms',
+          component: Rooms,
+        },
+        {
+          path: 'rooms/:id',
+          props: true,
+          component: Room,
+        },
+        {
+          path: 'add/room',
+          component: AddRoom,
         },
         {
           path: 'profile/:username',

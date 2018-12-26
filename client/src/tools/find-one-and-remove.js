@@ -1,5 +1,5 @@
 function findOneAndRemove(arr, cb) {
-  if (!arr instanceof Array) {
+  if (!(arr instanceof Array)) {
     return;
   }
   if (typeof cb !== 'function') {
@@ -7,7 +7,7 @@ function findOneAndRemove(arr, cb) {
   }
   let idx = arr.findIndex(cb);
   if (~idx) {
-    arr.splice(idx);
+    arr.splice(idx, 1);
   }
 }
 
