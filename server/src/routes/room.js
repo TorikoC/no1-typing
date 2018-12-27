@@ -20,8 +20,13 @@ router.get('/rooms/:id', expressJwt({ secret: jwtSecret }), (req, res) => {
         res.send('room not exist.');
         return;
       }
-      if (!result.users.some(name => name === req.user.username)) {
-        result.users.push(req.user.username);
+      if (!result.canJoin) {
+        res.status(401);
+        res.send('room is private.');
+        return;
+      }
+      if (!result.users.some(user => user.username === req.user.username)) {
+        result.users.push({ username: req.user.username });
         result.save();
       }
       res.send(result);
@@ -38,8 +43,8 @@ router.post(
   multer().none(),
   (req, res) => {
     const { body } = req;
-    body.creator = req.user.username;
-    body.users = [req.user.username];
+    // body.creator = req.user.username;
+    body.users = [{ username: req.user.username }];
     roomService.create(body).then(result => {
       res.send(result);
     });

@@ -5,7 +5,7 @@
       <li v-for="user in users" :key="user.id">
         <cs-progress
           class="platform__progress"
-          :name="user.ip"
+          :name="user.username"
           :percent="user.percent"
           :speed="user.speed"
         />
@@ -59,7 +59,7 @@
         <ul class="records">
           <li
             v-for="record in records"
-            :key="record.createdAt"
+            :key="record._id"
           >{{ record.user }}, {{ record.speed }} 字/分钟, {{ record.createdAt | formatDate }}</li>
         </ul>
       </dd>
@@ -176,10 +176,21 @@ export default {
         bookName: "",
         author: "",
         cover: ""
-      }
+      },
+
+      matchId: "",
+      ip: ""
     };
   },
   mounted() {
+    window.onbeforeunload = () => {
+      this.socket.emit(
+        "match-leave",
+        this.matchId,
+        window.$user ? window.$user.username : ""
+      );
+      this.socket.close();
+    };
     this.init();
     this.join("en");
   },
@@ -191,28 +202,33 @@ export default {
       this.listen(this.socket);
     },
     listen(socket) {
-      socket.on("users", data => {
-        this.users = data.map(obj => {
+      socket.on("users", users => {
+        this.users = users.map(username => {
           return {
-            id: obj.id,
-            ip: obj.ip,
+            username: username,
             percent: 0,
             speed: 0
           };
         });
       });
-      socket.on("user-leave", userId => {
+      socket.on("user-leave", username => {
+        console.log("user leave", username);
         if (this.state === this.COUNTING) {
-          findOneAndRemove(this.users, user => user.id === userId);
+          findOneAndRemove(this.users, user => user.username === username);
         }
       });
-      socket.on("user-join", data => {
+      socket.on("match-id", id => {
+        this.matchId = id;
+      });
+      socket.on("user-join", username => {
         this.users.push({
-          id: data.id,
-          ip: data.ip,
+          username: username,
           percent: 0,
           speed: 0
         });
+      });
+      socket.on("ip", ip => {
+        this.ip = ip;
       });
       socket.on("clock", data => {
         if (this.state !== this.COUNTING) {
@@ -224,23 +240,23 @@ export default {
         }
       });
       socket.on("progress", data => {
-        console.log("progress", data);
-        let user = this.users.find(user => user.id === data.id);
-        console.log(user);
+        let user = this.users.find(user => user.username === data.username);
         if (user) {
           Object.assign(user, data);
-          console.log(this.users);
         }
       });
       socket.on("snippet", data => {
-        console.log("snippet", data);
         this.snippet = data;
         this.snippetArray = data.content.split(" ");
         this.currentIndex = 0;
       });
     },
     join(lang) {
-      this.socket.emit("join", lang);
+      this.socket.emit(
+        "match-join",
+        lang,
+        window.$user ? window.$user.username : ""
+      );
     },
     start() {
       this.state = this.WRITING;
@@ -265,11 +281,21 @@ export default {
     },
     done() {
       this.state = this.DONE;
-      this.socket.emit("progress", this.progress);
-      this.socket.emit("done", {
+      // this.socket.emit("progress", this.progress);
+      this.socket.emit("match-update-progress", this.matchId, {
+        percent: this.progress.percent,
         speed: this.progress.speed,
-        time: this.time
+        username: window.$user ? window.$user.username : this.ip
       });
+      this.socket.emit("match-done", {
+        speed: this.progress.speed,
+        time: this.time,
+        lang: "en",
+        mode: "match",
+        snippetId: this.snippet._id,
+        username: window.$user ? window.$user.username : this.ip
+      });
+      console.log("donel");
       this.elInput.setAttribute("disabled", true);
       this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
         this.records = resp.data;
@@ -277,7 +303,12 @@ export default {
     },
     restart() {
       this.reset();
-      this.socket.emit("re-join", "en");
+      this.socket.emit(
+        "match-leave",
+        this.matchId,
+        window.$user ? window.$user.username : ""
+      );
+      this.join("en");
     },
     updateProgress() {
       this.time = Date.now() - this.startedAt;
@@ -287,8 +318,20 @@ export default {
       this.progress.speed = Math.floor(
         (this.currentIndex / (this.time / 1000)) * 60
       ).toFixed(0);
-      this.socket.emit("progress", this.progress);
+      this.socket.emit("match-update-progress", this.matchId, {
+        percent: this.progress.percent,
+        speed: this.progress.speed,
+        username: window.$user ? window.$user.username : this.ip
+      });
     }
+  },
+  destroyed() {
+    this.socket.emit(
+      "match-leave",
+      this.matchId,
+      window.$user ? window.$user.username : ""
+    );
+    this.socket.close();
   }
 };
 </script>

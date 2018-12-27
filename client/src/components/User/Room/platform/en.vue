@@ -13,8 +13,6 @@
     </ul>
     <div class="platform__meta">
       <span v-if="state === COUNTING" class="platform__clock">倒计时: {{ clock }} 秒</span>
-      <button v-else-if="state === DONE" @click="restart">再来一次</button>
-      <span v-else-if="state === WRITING">已经开始了</span>
     </div>
     <div class="platform__snippet">
       <span
@@ -59,7 +57,7 @@
         <ul class="records">
           <li
             v-for="record in records"
-            :key="record.createdAt"
+            :key="record._id"
           >{{ record.user }}, {{ record.speed }} 字/分钟, {{ record.createdAt | formatDate }}</li>
         </ul>
       </dd>
@@ -68,88 +66,83 @@
 </template>
 
 <script>
-import getLongestCommonSubstrLength from "@/tools/common-substr-length.js";
 import charToSpan from "@/tools/char-to-span.js";
 import findOneAndRemove from "@/tools/find-one-and-remove";
+import getLongestCommonSubstrLength from "@/tools/common-substr-length.js";
 
 export default {
   watch: {
     input(value) {
-      if (value.length > 0) {
-        let s1 = this.snippetArray[this.currentIndex];
-        let s2 = value;
-        let space = false;
-        let match = false;
-        let period = false;
-        let last = false;
-        let subStr = false;
-        if (s2[s2.length - 1] === " ") {
-          s2 = s2.substr(0, s2.length - 1);
-          space = true;
-        } else if (s2[s2.length - 1] === ".") {
-          period = true;
-        }
-        // console.log(this.currentIndex, this.snippetArray.length);
-        if (this.currentIndex === this.snippetArray.length - 1) {
-          last = true;
-        }
-        // console.log(s1, s2);
-        let len = getLongestCommonSubstrLength(s1, s2);
-        this.currentMatchLength = this.previouseMatchLength + len;
-        this.currentInputLength = this.currentMatchLength + (s2.length - len);
-        if (len === s2.length && s1.length === s2.length) {
-          match = true;
-        }
-        if (space) {
-          if (match) {
-            this.inputValid = true;
-          } else {
-            this.inputValid = false;
-          }
-        } else {
-          if (len === s2.length) {
-            this.inputValid = true;
-          } else {
-            this.inputValid = false;
-          }
-        }
-        // console.log("last: ", last, "period", period, "match", match);
-        if (last && period && match) {
-          this.previouseMatchLength = this.currentMatchLength + 1;
-          this.currentMatchLength = this.previouseMatchLength;
-          this.currentInputLength = this.previouseMatchLength;
-          this.input = "";
-          this.currentIndex += 1;
-          this.state = this.DONE;
-          this.done();
-          this.updateProgress();
-        } else if (space && match) {
-          // +1 space
-          this.previouseMatchLength = this.currentMatchLength + 1;
-          this.currentMatchLength = this.previouseMatchLength;
-          this.currentInputLength = this.previouseMatchLength;
-          this.input = "";
-          this.currentIndex += 1;
-          this.updateProgress();
-        }
-      } else {
+      if (value.length <= 0) {
         this.inputValid = true;
         this.currentMatchLength = this.previouseMatchLength;
         this.currentInputLength = this.previouseMatchLength;
+        return;
+      }
+      let pattern = this.snippetArray[this.currentIndex];
+      let userInput = value;
+
+      let space = false;
+      let match = false;
+      let period = false;
+      let last = false;
+      let subStr = false;
+
+      if (userInput[userInput.length - 1] === " ") {
+        userInput = userInput.substr(0, userInput.length - 1);
+        space = true;
+      }
+
+      if (userInput[userInput.length - 1] === ".") {
+        period = true;
+      }
+
+      let matchedLen = getLongestCommonSubstrLength(pattern, userInput);
+      this.currentMatchLength = this.previouseMatchLength + matchedLen;
+      this.currentInputLength = this.previouseMatchLength + userInput.length;
+
+      if (
+        matchedLen === userInput.length &&
+        pattern.length === userInput.length
+      ) {
+        match = true;
+      }
+      if (space) {
+        this.inputValid = match;
+      } else {
+        this.inputValid = matchedLen === userInput.length;
+      }
+      if (this.currentIndex === this.snippetArray.length - 1) {
+        last = true;
+      }
+      if (match) {
+        if (space) {
+          this.updateProgress();
+        }
+        if (period && last) {
+          this.updateProgress();
+          this.done();
+        }
       }
     },
-    roomState(value) {
-      if (value === this.$roomState.ONGOING) {
+    roomState(state) {
+      if (state === this.$roomState.ONGOING) {
         this.reset();
       }
     }
   },
-
   props: {
-    socket: null,
-    roomId: "",
+    socket: {
+      type: Object
+    },
+    roomId: {
+      type: String
+    },
     roomState: {
       type: Number
+    },
+    currentUsers: {
+      type: Array
     }
   },
   data() {
@@ -187,7 +180,9 @@ export default {
         bookName: "",
         author: "",
         cover: ""
-      }
+      },
+
+      username: ""
     };
   },
   mounted() {
@@ -197,39 +192,46 @@ export default {
     init() {
       this.elInput = document.getElementsByClassName("platform__input")[0];
       this.elInput.setAttribute("disabled", true);
+      this.username = window.$user.username;
+      this.users = this.currentUsers.map(user => {
+        return {
+          username: user.username,
+          percent: 0,
+          speed: 0,
+          done: user.done,
+          prepared: false
+        };
+      });
       this.listen(this.socket);
     },
     listen(socket) {
-      socket.on("users", data => {
-        console.log("users", data);
-        this.users = data.map(username => {
-          return {
-            username: username,
-            percent: 0,
-            speed: 0,
-            done: false,
-            prepared: false
-          };
-        });
-      });
-      socket.on("done", username => {
+      socket.on("user-done", username => {
         this.users.forEach(user => {
           if (user.username === username) {
             user.done = true;
           }
         });
       });
-      socket.on("prepare", username => {
+      socket.on("user-prepared", username => {
         this.users.forEach(user => {
           if (user.username === username) {
             user.prepared = true;
           }
         });
+        if (!this.users.slice(1).some(user => !user.prepared)) {
+          this.$emit("ready");
+        }
       });
       socket.on("user-leave", username => {
         console.log("user leave", username);
+        if (this.users.length > 1) {
+          this.$emit("host-change", this.users[1].username);
+        }
         findOneAndRemove(this.users, user => user.username === username);
         console.log(this.users);
+        if (!this.users.slice(1).some(user => !user.prepared)) {
+          this.$emit("ready");
+        }
       });
       socket.on("user-join", username => {
         console.log("user-join", username);
@@ -241,11 +243,12 @@ export default {
           prepared: false
         });
         console.log(this.users);
+        this.$emit("not-ready");
       });
       socket.on("all-done", () => {
         this.$emit("done");
       });
-      socket.on("clock", data => {
+      socket.on("update-clock", data => {
         console.log("clock", data);
         if (this.state !== this.COUNTING) {
           this.state = this.COUNTING;
@@ -255,18 +258,19 @@ export default {
           this.start();
         }
       });
-      socket.on("progress", data => {
+      socket.on("update-progress", data => {
         console.log("progress", data);
         let user = this.users.find(user => user.username === data.username);
         if (user) {
           Object.assign(user, data);
         }
       });
-      socket.on("snippet", data => {
+      socket.on("update-snippet", data => {
+        console.log("update-snippet", data);
         this.snippet = data;
         this.snippetArray = data.content.split(" ");
         this.currentIndex = 0;
-        socket.emit("snippet-received", this.roomId);
+        socket.emit("room-snippet-updated", this.roomId, this.username);
       });
     },
     start() {
@@ -275,15 +279,50 @@ export default {
       this.elInput.removeAttribute("disabled");
       this.elInput.focus();
     },
+    updateProgress() {
+      this.currentIndex += 1;
+      this.time = Date.now() - this.startedAt;
+      this.previouseMatchLength = this.currentMatchLength + 1;
+      this.currentMatchLength = this.previouseMatchLength;
+      this.currentInputLength = this.previouseMatchLength;
+
+      this.input = "";
+
+      this.progress.percent = Math.floor(
+        (this.previouseMatchLength / this.snippet.content.length) * 100
+      ).toFixed(1);
+      this.progress.speed = Math.floor(
+        (this.currentIndex / (this.time / 1000)) * 60
+      ).toFixed(0);
+      this.updateProgressSelf();
+      this.socket.emit("room-update-progress", this.roomId, this.getProgress());
+    },
+    done() {
+      this.state = this.DONE;
+
+      const record = this.getRecord();
+      const progress = this.getProgress();
+      this.updateProgressSelf();
+      this.socket.emit("room-update-progress", this.roomId, progress);
+      this.socket.emit("room-done", this.roomId, this.username, record);
+
+      this.elInput.setAttribute("disabled", true);
+
+      // TODO:
+      // let socket handler this, its faster
+      this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
+        this.records = resp.data;
+      });
+    },
     reset() {
       this.state = this.LOADING;
       this.users = this.users.map(user => {
         return {
-          username: user.username,
-          percent: 0,
           speed: 0,
+          percent: 0,
           done: false,
-          prepared: false
+          prepared: false,
+          username: user.username
         };
       });
       this.clock = 1000;
@@ -298,53 +337,32 @@ export default {
       this.currentInputLength = 0;
       this.inputValid = true;
     },
-    done() {
-      this.state = this.DONE;
-      this.socket.emit(
-        "room-progress",
-        this.roomId,
-        this.progress,
-        window.$user.username
-      );
-      const record = {
-        username: window.$user.username,
-        time: this.time,
-        speed: this.progress.speed,
-        mode: "match",
-        lang: this.snippet.lang,
-        snippetId: this.snippet._id
-      };
+    updateProgressSelf() {
       this.users.forEach(user => {
-        if (user.username === window.$user.username) {
-          user.done = true;
+        if (user.username === this.username) {
+          Object.assign(user, this.progress);
+          if (this.state === this.DONE) {
+            user.done = true;
+          }
         }
       });
-      this.socket.emit("room-done", this.roomId, record, window.$user.username);
-      this.elInput.setAttribute("disabled", true);
-      this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
-        this.records = resp.data;
-        console.log("records", this.records);
-      });
     },
-    restart() {
-      this.reset();
-      // this.socket.emit("re-join", "en");
+    getRecord() {
+      return {
+        mode: "match",
+        time: this.time,
+        lang: this.snippet.lang,
+        speed: this.progress.speed,
+        snippetId: this.snippet._id,
+        username: window.$user.username
+      };
     },
-    updateProgress() {
-      this.time = Date.now() - this.startedAt;
-      this.progress.percent = Math.floor(
-        (this.previouseMatchLength / this.snippet.content.length) * 100
-      ).toFixed(1);
-      this.progress.speed = Math.floor(
-        (this.currentIndex / (this.time / 1000)) * 60
-      ).toFixed(0);
-      console.log(window.$user);
-      this.socket.emit(
-        "room-progress",
-        this.roomId,
-        this.progress,
-        window.$user.username
-      );
+    getProgress() {
+      return {
+        username: this.username,
+        speed: this.progress.speed,
+        percent: this.progress.percent
+      };
     }
   }
 };

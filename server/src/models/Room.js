@@ -1,6 +1,19 @@
 const mongoose = require('mongoose');
 const roomState = require('config').get('roomState');
 
+const UserSchema = mongoose.Schema({
+  username: {
+    type: String,
+  },
+  snippetReceived: {
+    type: Boolean,
+    default: false,
+  },
+  done: {
+    type: Boolean,
+    default: false,
+  },
+});
 const RoomSchema = mongoose.Schema({
   name: {
     type: String,
@@ -12,14 +25,27 @@ const RoomSchema = mongoose.Schema({
     type: Number,
     default: 7,
   },
+  canJoin: {
+    type: Boolean,
+    default: true,
+  },
+  snippetReceivedCounter: {
+    type: Number,
+    default: 0,
+  },
+  preparedUserCounter: {
+    type: Number,
+    default: 0,
+  },
+  doneUserCounter: {
+    type: Number,
+    default: 0,
+  },
   lang: {
     type: String,
     default: 'en',
   },
-  users: {
-    type: Array,
-    default: [],
-  },
+  users: [UserSchema],
   state: {
     type: Number,
     default: roomState.WAITTING,

@@ -25,8 +25,8 @@ app.get('*', (req, res) => {
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const handleIo = require('./socket/index');
-handleIo(io);
+const handleSocket = require('./socket/index');
+handleSocket(io);
 
 mongoose.connect(
   config.get('dbHost'),
