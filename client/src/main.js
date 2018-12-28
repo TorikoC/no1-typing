@@ -16,9 +16,39 @@ Vue.use(VueRouter);
 Vue.prototype.$axios = axios.create({
   baseURL: config.apiServer,
 });
-Vue.prototype.$bus = new Vue();
-Vue.prototype.$config = config;
+let bus = new Vue();
+Vue.prototype.$bus = bus;
 Vue.prototype.$io = io;
+Vue.prototype.$config = config;
+
+let socket = io.connect(config.server);
+socket.on('user-join', username => {
+  bus.$emit('user-join', username);
+});
+socket.on('user-leave', username => {
+  console.log('got user leavae');
+  bus.$emit('user-leave', username);
+});
+socket.on('user-done', username => {
+  bus.$emit('user-done', username);
+});
+socket.on('update-progress', data => {
+  bus.$emit('update-progress', data);
+});
+socket.on('update-snippet', snippet => {
+  bus.$emit('update-snippet', snippet);
+});
+socket.on('update-users', users => {
+  bus.$emit('update-users', users);
+});
+socket.on('update-id', id => {
+  bus.$emit('update-id', id);
+});
+socket.on('test', msg => {
+  bus.$emit('test', msg);
+});
+Vue.prototype.$socket = socket;
+
 Vue.prototype.$roomState = {
   WAITING: 0,
   ONGOING: 1,

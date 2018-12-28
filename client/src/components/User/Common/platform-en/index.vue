@@ -208,7 +208,7 @@ export default {
         (this.currentIndex / (this.progress.time / 1000)) * 60
       ).toFixed(0);
 
-      this.$emit("update-progress", this.progress);
+      this.$emit("match", this.progress);
 
       if (done) {
         console.log("show result", this.showResult);

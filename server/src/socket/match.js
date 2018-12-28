@@ -9,7 +9,8 @@ module.exports = (io, socket) => {
   socket.on('match-join', toJoin.bind(null, io, socket));
   socket.on('match-leave', toLeave.bind(null, socket));
   socket.on('match-update-progress', (id, progress) => {
-    io.to(id).emit('progress', progress);
+    console.log(progress);
+    io.to(id).emit('update-progress', progress);
   });
   socket.on('match-done', record => {
     RecordService.create(record);
@@ -18,11 +19,12 @@ module.exports = (io, socket) => {
 
 function tick(io, id, clock) {
   clock -= 1;
-  logger.info(`match ${id} start at ${clock}`);
-  io.to(id).emit('clock', clock);
-  if (clock === 0) {
+  if (clock === 5) {
     MatchService.banOne({ _id: id });
-  } else {
+  }
+  logger.info(`match ${id} start at ${clock}`);
+  io.to(id).emit('update-clock', clock);
+  if (clock > 0) {
     setTimeout(() => {
       tick(io, id, clock);
     }, 1000);
@@ -41,9 +43,9 @@ function toJoin(io, socket, lang, username) {
       result.save();
       socket.join(result._id, () => {
         socket.broadcast.to(result._id).emit('user-join', username);
-        socket.emit('match-id', result._id);
-        socket.emit('users', result.users);
-        socket.emit('snippet', result.snippet);
+        socket.emit('update-id', result._id);
+        socket.emit('update-users', result.users);
+        socket.emit('update-snippet', result.snippet);
         logger.info(`${username} join match ${result._id}`);
       });
     } else {
@@ -55,9 +57,9 @@ function toJoin(io, socket, lang, username) {
         match.snippet = result;
         MatchService.createOne(match).then(result => {
           socket.join(result._id);
-          socket.emit('match-id', result._id);
-          socket.emit('users', result.users);
-          socket.emit('snippet', result.snippet);
+          socket.emit('update-id', result._id);
+          socket.emit('update-users', result.users);
+          socket.emit('update-snippet', result.snippet);
           logger.info(`${username} join match ${result._id}`);
           tick(io, result._id, CLOCK);
         });

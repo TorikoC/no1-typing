@@ -8,5 +8,7 @@ module.exports = io => {
 
     // 处理房间模式
     handleRoomMode(io, socket);
+
+    socket.emit('test', 'it works!');
   });
 };

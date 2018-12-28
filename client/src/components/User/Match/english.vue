@@ -1,342 +1,175 @@
 <template>
-  <div class="platform platform--en">
-    <cs-back/>
-    <ul>
-      <li v-for="user in users" :key="user.id">
-        <cs-progress
-          class="platform__progress"
-          :name="user.username"
-          :percent="user.percent"
-          :speed="user.speed"
-        />
-      </li>
-    </ul>
-    <div class="platform__meta">
-      <span v-if="state === COUNTING" class="platform__clock">倒计时: {{ clock }} 秒</span>
-      <button v-else-if="state === DONE" @click="restart">再来一次</button>
-      <span v-else-if="state === WRITING">已经开始了</span>
-    </div>
-    <div class="platform__snippet">
-      <span
-        v-for="(char,index) in snippet.content"
-        :key="index"
-        :class="{
-          'platform__word--match': index < currentMatchLength, 
-          'platform__word--not-match': index >= currentMatchLength && index < currentInputLength,
-          'platform__next-word': index === currentMatchLength
-          }"
-        class="platform__word"
-      >{{ char }}</span>
-    </div>
-    <textarea
-      v-model="input"
-      class="platform__input"
-      :class="{'platform__input--not-valid': !inputValid}"
-      cols="30"
-      rows="10"
-      spellcheck="false"
-    ></textarea>
-    <dl v-if="state === DONE">
-      <dt>用时</dt>
-      <dd>{{ time | formatTime }}</dd>
-      <dt>速度</dt>
-      <dd>约 {{ progress.speed }} 字/分钟</dd>
-      <dt>段落来自</dt>
-      <dd>
-        <div class="source">
-          <div class="source__cover">
-            <img :src="snippet.cover" alt="source cover">
-          </div>
-          <div class="source__name">
-            {{ snippet.name }}
-            <br>
-            <small>by {{ snippet.author }}</small>
-          </div>
-        </div>
-      </dd>
-      <dt>段落排行</dt>
-      <dd>
-        <ul class="records">
-          <li
-            v-for="record in records"
-            :key="record._id"
-          >{{ record.user }}, {{ record.speed }} 字/分钟, {{ record.createdAt | formatDate }}</li>
-        </ul>
-      </dd>
-    </dl>
+  <div class="match-en">
+    <button @click="toReload">restart</button>
+    <platform
+      v-if="!loading"
+      :text="snippet.content"
+      :state="state"
+      :clock="clock"
+      :record="record"
+      :show-record="showRecord"
+      :show-users="showUsers"
+      :users="users"
+      @complete="toComplete"
+      @match="toMatch"
+    />
   </div>
 </template>
 
 <script>
-import getLongestCommonSubstrLength from "@/tools/common-substr-length.js";
-import charToSpan from "@/tools/char-to-span.js";
-import findOneAndRemove from "@/tools/find-one-and-remove";
+import Platform from "@/components/User/Common/platform-en/index.vue";
+import removeFromArray from "@/tools/find-one-and-remove.js";
 
 export default {
-  watch: {
-    input(value) {
-      if (value.length > 0) {
-        let s1 = this.snippetArray[this.currentIndex];
-        let s2 = value;
-        let space = false;
-        let match = false;
-        let period = false;
-        let last = false;
-        let subStr = false;
-        if (s2[s2.length - 1] === " ") {
-          s2 = s2.substr(0, s2.length - 1);
-          space = true;
-        } else if (s2[s2.length - 1] === ".") {
-          period = true;
-        }
-        // console.log(this.currentIndex, this.snippetArray.length);
-        if (this.currentIndex === this.snippetArray.length - 1) {
-          last = true;
-        }
-        // console.log(s1, s2);
-        let len = getLongestCommonSubstrLength(s1, s2);
-        this.currentMatchLength = this.previouseMatchLength + len;
-        this.currentInputLength = this.currentMatchLength + (s2.length - len);
-        if (len === s2.length && s1.length === s2.length) {
-          match = true;
-        }
-        if (space) {
-          if (match) {
-            this.inputValid = true;
-          } else {
-            this.inputValid = false;
-          }
-        } else {
-          if (len === s2.length) {
-            this.inputValid = true;
-          } else {
-            this.inputValid = false;
-          }
-        }
-        // console.log("last: ", last, "period", period, "match", match);
-        if (last && period && match) {
-          this.previouseMatchLength = this.currentMatchLength + 1;
-          this.currentMatchLength = this.previouseMatchLength;
-          this.currentInputLength = this.previouseMatchLength;
-          this.input = "";
-          this.currentIndex += 1;
-          this.state = this.DONE;
-          this.done();
-          this.updateProgress();
-        } else if (space && match) {
-          // +1 space
-          this.previouseMatchLength = this.currentMatchLength + 1;
-          this.currentMatchLength = this.previouseMatchLength;
-          this.currentInputLength = this.previouseMatchLength;
-          this.input = "";
-          this.currentIndex += 1;
-          this.updateProgress();
-        }
-      } else {
-        this.inputValid = true;
-        this.currentMatchLength = this.previouseMatchLength;
-        this.currentInputLength = this.previouseMatchLength;
-      }
-    }
+  components: {
+    Platform
   },
   data() {
     return {
+      id: "",
+      username: window.$user ? window.$user.username : "",
+      socket: this.$socket,
+
+      clock: 999,
+      state: this.$platformState.WAITING,
+
+      snippet: {},
+
+      record: {},
+      showRecord: false,
+
       users: [],
-      socket: null,
+      showUsers: true,
 
-      LOADING: 0,
-      COUNTING: 1,
-      WRITING: 2,
-      DONE: 3,
+      fresh: true,
 
-      state: this.LOADING,
-      startedAt: 0,
-      time: 0,
-      clock: 1000,
-
-      progress: {
-        percent: 0,
-        speed: 0
-      },
-
-      records: [],
-
-      elInput: null,
-      input: "",
-      snippetArray: [],
-      currentIndex: -1,
-      previouseMatchLength: 0,
-      currentMatchLength: 0,
-      currentInputLength: 0,
-      inputValid: true,
-
-      snippet: {
-        content: "",
-        length: 0,
-        bookName: "",
-        author: "",
-        cover: ""
-      },
-
-      matchId: "",
-      ip: ""
+      loading: true,
+      loadingUsers: true,
+      loadingSnippet: true
     };
   },
   mounted() {
-    window.onbeforeunload = () => {
-      this.socket.emit(
-        "match-leave",
-        this.matchId,
-        window.$user ? window.$user.username : ""
-      );
-      this.socket.close();
-    };
-    this.init();
-    this.join("en");
+    window.onbeforeunload = this.toLeave;
+    this.socket.emit("match-join", "en", this.username);
+
+    this.socket.on("update-clock", this.toUpdateClock);
+
+    this.$bus.$on("update-id", this.toUpdateId);
+    this.$bus.$on("update-users", this.toUpdateUsers);
+    this.$bus.$on("update-snippet", this.toUpdateSnippet);
+    this.$bus.$on("update-progress", this.toUpdateProgress);
+
+    this.$bus.$on("user-join", this.toJoinUser);
+    this.$bus.$on("user-leave", this.toRemoveUser);
   },
   methods: {
-    init() {
-      this.elInput = document.getElementsByClassName("platform__input")[0];
-      this.elInput.setAttribute("disabled", true);
-      this.socket = this.$io.connect(this.$config.server);
-      this.listen(this.socket);
+    toUpdateId(id) {
+      this.id = id;
     },
-    listen(socket) {
-      socket.on("users", users => {
-        this.users = users.map(username => {
-          return {
-            username: username,
-            percent: 0,
-            speed: 0
-          };
-        });
-      });
-      socket.on("user-leave", username => {
-        console.log("user leave", username);
-        if (this.state === this.COUNTING) {
-          findOneAndRemove(this.users, user => user.username === username);
-        }
-      });
-      socket.on("match-id", id => {
-        this.matchId = id;
-      });
-      socket.on("user-join", username => {
-        this.users.push({
+    toUpdateUsers(users) {
+      this.users = users.map(username => {
+        return {
           username: username,
           percent: 0,
           speed: 0
-        });
+        };
       });
-      socket.on("ip", ip => {
-        this.ip = ip;
-      });
-      socket.on("clock", data => {
-        if (this.state !== this.COUNTING) {
-          this.state = this.COUNTING;
+      this.loadingUsers = false;
+      if (!this.loadingSnippet) {
+        this.loading = false;
+      }
+      console.log("users loaded: ", users);
+    },
+    toUpdateSnippet(snippet) {
+      this.snippet = snippet;
+      this.loadingSnippet = false;
+      if (!this.loadingUsers) {
+        this.loading = false;
+      }
+      this.record = {
+        cover: this.snippet.cover,
+        author: this.snippet.author,
+        name: this.snippet.name
+      };
+      console.log("snippet loaded: ", snippet);
+    },
+
+    toUpdateClock(clock) {
+      if (this.state !== this.$platformState.COUNTING) {
+        this.state = this.$platformState.COUNTING;
+      }
+      this.clock = clock;
+      console.log("clock", clock);
+      if (this.clock === 0) {
+        this.state = this.$platformState.WRITING;
+      }
+    },
+    toUpdateProgress(progress) {
+      console.log("update progress", progress);
+      this.users.forEach(user => {
+        if (user.username === progress.username) {
+          Object.assign(user, progress);
         }
-        this.clock = data;
-        if (this.clock < 1 && this.state !== this.WRITING) {
-          this.start();
-        }
-      });
-      socket.on("progress", data => {
-        let user = this.users.find(user => user.username === data.username);
-        if (user) {
-          Object.assign(user, data);
-        }
-      });
-      socket.on("snippet", data => {
-        this.snippet = data;
-        this.snippetArray = data.content.split(" ");
-        this.currentIndex = 0;
       });
     },
-    join(lang) {
-      this.socket.emit(
-        "match-join",
-        lang,
-        window.$user ? window.$user.username : ""
-      );
-    },
-    start() {
-      this.state = this.WRITING;
-      this.startedAt = Date.now();
-      this.elInput.removeAttribute("disabled");
-      this.elInput.focus();
-    },
-    reset() {
-      this.state = this.LOADING;
-      this.users = [];
-      this.clock = 1000;
-      this.startedAt = 0;
-      this.time = 0;
-      this.progress.percent = 0;
-      this.progress.speed = 0;
-      this.input = "";
-      this.currentIndex = -1;
-      this.previouseMatchLength = 0;
-      this.currentMatchLength = 0;
-      this.currentInputLength = 0;
-      this.inputValid = true;
-    },
-    done() {
-      this.state = this.DONE;
-      // this.socket.emit("progress", this.progress);
-      this.socket.emit("match-update-progress", this.matchId, {
-        percent: this.progress.percent,
-        speed: this.progress.speed,
-        username: window.$user ? window.$user.username : this.ip
+    toJoinUser(username) {
+      this.users.push({
+        username: username,
+        speed: 0,
+        percent: 0
       });
-      this.socket.emit("match-done", {
-        speed: this.progress.speed,
-        time: this.time,
+      console.log("user join: ", username);
+    },
+    toRemoveUser(username) {
+      console.log("user leaving: ", username);
+      removeFromArray(this.users, user => user.username === username);
+      console.log("user leave: ", username);
+    },
+    toComplete(data) {
+      const record = Object.assign(data, {
         lang: "en",
         mode: "match",
-        snippetId: this.snippet._id,
-        username: window.$user ? window.$user.username : this.ip
+        username: this.username || "guest",
+        snippetId: this.snippet._id
       });
-      console.log("donel");
-      this.elInput.setAttribute("disabled", true);
-      this.$axios.get(`/records?snippetId=${this.snippet._id}`).then(resp => {
-        this.records = resp.data;
-      });
+      Object.assign(this.record, data);
+      this.showRecord = true;
+      this.socket.emit("match-done", record);
+      this.state = this.$platformState.WAITING;
     },
-    restart() {
-      this.reset();
-      this.socket.emit(
-        "match-leave",
-        this.matchId,
-        window.$user ? window.$user.username : ""
+    toMatch(data) {
+      this.$socket.emit(
+        "match-update-progress",
+        this.id,
+        Object.assign(data, {
+          username: this.username
+        })
       );
-      this.join("en");
     },
-    updateProgress() {
-      this.time = Date.now() - this.startedAt;
-      this.progress.percent = Math.floor(
-        (this.previouseMatchLength / this.snippet.content.length) * 100
-      ).toFixed(1);
-      this.progress.speed = Math.floor(
-        (this.currentIndex / (this.time / 1000)) * 60
-      ).toFixed(0);
-      this.socket.emit("match-update-progress", this.matchId, {
-        percent: this.progress.percent,
-        speed: this.progress.speed,
-        username: window.$user ? window.$user.username : this.ip
-      });
+    toLeave() {
+      this.socket.emit("match-leave", this.id, this.username);
+    },
+    toReload() {
+      window.location.reload();
     }
   },
   destroyed() {
-    this.socket.emit(
-      "match-leave",
-      this.matchId,
-      window.$user ? window.$user.username : ""
-    );
-    this.socket.close();
+    this.toLeave();
+
+    this.$bus.$off("update-id", this.toUpdateId);
+    this.$bus.$off("update-users", this.toUpdateUsers);
+    this.$bus.$off("update-snippet", this.toUpdateSnippet);
+    this.$bus.$off("update-progress", this.toUpdateProgress);
+
+    this.$bus.$off("user-join", this.toJoinUser);
+    this.$bus.$off("user-leave", this.toRemoveUser);
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/css/platform.scss";
-@import "@/assets/css/platform-en.scss";
+.match-en {
+  width: 50%;
+  margin: 1em auto;
+}
 </style>
