@@ -1,4 +1,6 @@
 import User from '../components/User/index';
+import Test from '../components/Test.vue';
+
 import PraticeCN from '../components/User/Pratice/chinese';
 import PraticeEN from '../components/User/Pratice/english';
 import MatchCN from '../components/User/Match/chinese';
@@ -27,6 +29,10 @@ const router = new VueRouter({
       path: '/',
       component: User,
       children: [
+        {
+          path: '/test',
+          component: Test,
+        },
         { path: 'pratice/cn', component: PraticeCN },
         {
           path: 'pratice/en',

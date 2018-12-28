@@ -1,5 +1,5 @@
 <template>
-  <div class="pratice-en" v-if="!loading">
+  <div v-if="!loading">
     <h1>Pratice</h1>
     <button v-if="state === $platformState.WAITING" @click="toStart">start</button>
     <platform
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import Platform from "@/components/User/Common/platform-en/index.vue";
+import Platform from "./User/Common/platform-en/index.vue";
 
 export default {
   components: {
@@ -118,8 +118,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.pratice-en {
-  width: 50%;
-  margin: 1em auto;
-}
 </style>

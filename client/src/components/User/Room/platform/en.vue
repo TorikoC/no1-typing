@@ -281,11 +281,11 @@ export default {
     },
     updateProgress() {
       this.currentIndex += 1;
-      this.time = Date.now() - this.startedAt;
       this.previouseMatchLength = this.currentMatchLength + 1;
       this.currentMatchLength = this.previouseMatchLength;
       this.currentInputLength = this.previouseMatchLength;
 
+      this.time = Date.now() - this.startedAt;
       this.input = "";
 
       this.progress.percent = Math.floor(
