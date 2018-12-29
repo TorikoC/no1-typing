@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import Platform from "@/components/User/Platform/en";
+import Platform from "@/components/User/Platform/cn";
 
 import UsersView from "@/components/Views/users";
 import RecordView from "@/components/Views/record";
@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     getSnippet(fresh) {
-      this.$axios.get("/snippets/random?lang=en").then(result => {
+      this.$axios.get("/snippets/random?lang=cn").then(result => {
         this.snippet = result.data;
 
         this.record = {
