@@ -1,8 +1,7 @@
 import User from '../components/User/index';
 import Test from '../components/Test.vue';
 
-import PraticeCN from '../components/User/Pratice/chinese';
-import PraticeEN from '../components/User/Pratice/english';
+import Pratice from '../components/User/Pratice/index';
 import MatchCN from '../components/User/Match/chinese';
 import MatchEN from '../components/User/Match/english';
 import Rank from '../components/User/Rank/index';
@@ -33,10 +32,11 @@ const router = new VueRouter({
           path: '/test',
           component: Test,
         },
-        { path: 'pratice/cn', component: PraticeCN },
         {
-          path: 'pratice/en',
-          component: PraticeEN,
+          path: 'pratice/:lang',
+
+          props: true,
+          component: Pratice,
         },
         {
           path: 'match/cn',
