@@ -49,7 +49,7 @@ export default {
     },
     toJoin(room) {
       if (room.users.length < room.userLimit) {
-        this.$router.push(`/rooms/${room._id}`);
+        this.$router.push(`/rooms/${room.lang}/${room._id}`);
       }
     }
   }

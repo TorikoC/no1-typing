@@ -60,7 +60,7 @@ const router = new VueRouter({
           component: Rooms,
         },
         {
-          path: 'rooms/:id',
+          path: 'rooms/:lang/:id',
           props: true,
           component: Room,
         },

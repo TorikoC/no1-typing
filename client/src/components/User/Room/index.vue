@@ -6,7 +6,8 @@
     </div>
     <p>clock: {{ clock }}</p>
     <users-view :users="users"/>
-    <platform
+    <component
+      :is="'platform-' + lang"
       :disabled="platformDisabled"
       :text="snippet.content"
       @complete="toComplete"
@@ -17,7 +18,8 @@
 </template>
 
 <script>
-import Platform from "@/components/User/Platform/en";
+import PlatformCn from "@/components/User/Platform/cn";
+import PlatformEn from "@/components/User/Platform/en";
 import UsersView from "@/components/Views/users";
 import RecordView from "@/components/Views/record";
 
@@ -25,7 +27,8 @@ import removeFromArray from "@/tools/find-one-and-remove.js";
 
 export default {
   components: {
-    Platform,
+    PlatformEn,
+    PlatformCn,
     UsersView,
     RecordView
   },
@@ -36,6 +39,10 @@ export default {
   },
   props: {
     id: {
+      type: String,
+      required: true
+    },
+    lang: {
       type: String,
       required: true
     }
@@ -66,6 +73,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.lang);
     window.onbeforeunload = this.toLeave;
 
     this.socket.on("update-clock", this.toUpdateClock);

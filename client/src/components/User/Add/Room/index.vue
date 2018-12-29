@@ -49,7 +49,7 @@ export default {
     toSubmit(evt) {
       const formData = new FormData(evt.target);
       this.$axios.post("/rooms", formData).then(result => {
-        this.$router.push(`/rooms/${result.data._id}`);
+        this.$router.push(`/rooms/${result.data.lang}/${result.data._id}`);
       });
     }
   }
