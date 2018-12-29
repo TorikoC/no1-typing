@@ -7,7 +7,7 @@ import App from './App.vue';
 import router from './routes';
 import config from './config';
 import filters from './filters/index';
-import components from './components/common/index';
+import components from './components/Common/index';
 
 Vue.config.productionTip = false;
 

@@ -2,7 +2,7 @@
   <div class="match">
     <button @click="toReload">restart</button>
 
-    <users-view :users="users"/>
+    <progress-view :users="users"/>
     <component
       :is="'platform-' + lang"
       :disabled="platformDisabled"
@@ -11,7 +11,7 @@
       @match="toMatch"
     />
 
-    <record-view :show="showRecord" :record="record"/>
+    <result-view :show="showRecord" :record="record"/>
   </div>
 </template>
 
@@ -19,8 +19,8 @@
 import PlatformCn from "@/components/User/Platform/cn";
 import PlatformEn from "@/components/User/Platform/en";
 
-import UsersView from "@/components/Views/users";
-import RecordView from "@/components/Views/record";
+import ProgressView from "@/components/User/Common/Progress-View/index";
+import ResultView from "@/components/User/Common/Result-View/index";
 
 import removeFromArray from "@/tools/find-one-and-remove.js";
 
@@ -34,8 +34,8 @@ export default {
   components: {
     PlatformEn,
     PlatformCn,
-    UsersView,
-    RecordView
+    ProgressView,
+    ResultView
   },
   data() {
     return {

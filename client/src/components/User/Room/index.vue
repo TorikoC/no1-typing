@@ -5,7 +5,7 @@
       <button v-else @click="toPrepare(username)" :disabled="prepared">prepare</button>
     </div>
     <p>clock: {{ clock }}</p>
-    <users-view :users="users"/>
+    <progress-view :users="users"/>
     <component
       :is="'platform-' + lang"
       :disabled="platformDisabled"
@@ -13,15 +13,16 @@
       @complete="toComplete"
       @match="toMatch"
     />
-    <record-view :show="showRecord && !first" :record="record"/>
+    <result-view :show="showRecord && !first" :record="record"/>
   </div>
 </template>
 
 <script>
 import PlatformCn from "@/components/User/Platform/cn";
 import PlatformEn from "@/components/User/Platform/en";
-import UsersView from "@/components/Views/users";
-import RecordView from "@/components/Views/record";
+
+import ProgressView from "@/components/User/Common/Progress-View/index";
+import ResultView from "@/components/User/Common/Result-View/index";
 
 import removeFromArray from "@/tools/find-one-and-remove.js";
 
@@ -29,8 +30,8 @@ export default {
   components: {
     PlatformEn,
     PlatformCn,
-    UsersView,
-    RecordView
+    ProgressView,
+    ResultView
   },
   computed: {
     isHost() {
