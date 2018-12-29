@@ -19,7 +19,7 @@
         <span>{{ progress.percent }}</span>
       </div>
     </div>
-    <div class="platform__text">
+    <div class="platform__text" v-if="!loading">
       <span
         v-for="(char,index) in text"
         class="platform__char"
@@ -79,6 +79,10 @@ export default {
     },
     users: {
       type: Array
+    },
+    loading: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -107,8 +111,6 @@ export default {
       if (this.currentIndex === this.words.length - 1) {
         last = true;
       }
-      console.log(space, period, last, this.words.length, this.currentIndex);
-
       let pattern = this.words[this.currentIndex];
 
       let matchLen = this.getMatchLen(text, pattern);
@@ -135,6 +137,7 @@ export default {
           break;
         }
         case this.$platformState.COUNTING: {
+          this.words = this.text.split(" ");
           this.reset();
           break;
         }
@@ -177,7 +180,7 @@ export default {
   },
   methods: {
     init() {
-      this.words = this.text.split(" ");
+      console.log(this.text, this.words);
       this.elInput = document.getElementsByClassName("platform__input")[0];
     },
     getMatchLen(s1, s2) {

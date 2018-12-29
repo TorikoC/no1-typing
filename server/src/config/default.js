@@ -3,8 +3,8 @@ const config = {
   dbHost: 'mongodb://127.0.0.1:27017/no1typing',
   jwtSecret: 'winterfox',
   roomState: {
-    WAITING: 1,
-    ONGOING: 3,
+    WAITING: 0,
+    ONGOING: 1,
   },
   matchState: {
     COUNTING: 1,

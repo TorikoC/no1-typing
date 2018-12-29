@@ -75,6 +75,7 @@ function onStart(io, id) {
       const snippet = await db.snippet.getOneRandomWithSource({
         lang: result.lang,
       });
+      io.to(id).emit('update-room-state', config.get('roomState').ONGOING);
       io.to(id).emit('update-snippet', snippet);
     });
 }
@@ -93,7 +94,7 @@ function onSnippetUpdated(io, id, username) {
       const distributing = result.users.some(user => !user.snippetReceived);
       if (!distributing) {
         logger.info(`${id} clock start.`);
-        tick(io, id, 10);
+        tick(io, id, 5);
       }
     });
 }
@@ -121,6 +122,8 @@ function onDone(io, socket, id, username, record) {
         io.to(id).emit('all-done');
 
         result.state = config.get('roomState').WAITING;
+        io.to(id).emit('update-room-state', config.get('roomState').WAITING);
+
         if (result.users.length < result.userLimit) {
           result.canJoin = true;
         }

@@ -5,6 +5,10 @@ const UserSchema = mongoose.Schema({
   username: {
     type: String,
   },
+  prepared: {
+    type: String,
+    default: false,
+  },
   snippetReceived: {
     type: Boolean,
     default: false,

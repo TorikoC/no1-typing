@@ -38,12 +38,20 @@ socket.on('update-progress', data => {
 socket.on('update-snippet', snippet => {
   bus.$emit('update-snippet', snippet);
 });
-socket.on('update-users', users => {
-  bus.$emit('update-users', users);
+socket.on('update-users', data => {
+  bus.$emit('update-users', data);
 });
 socket.on('update-id', id => {
   bus.$emit('update-id', id);
 });
+socket.on('user-prepared', username => {
+  bus.$emit('user-prepared', username);
+});
+
+socket.on('update-room-state', data => {
+  bus.$emit('update-room-state', data);
+});
+
 socket.on('test', msg => {
   bus.$emit('test', msg);
 });
