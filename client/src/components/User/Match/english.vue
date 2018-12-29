@@ -1,28 +1,32 @@
 <template>
   <div class="match-en">
     <button @click="toReload">restart</button>
+
+    <users-view :users="users"/>
     <platform
-      v-if="!loading"
+      :disabled="platformDisabled"
       :text="snippet.content"
-      :state="state"
-      :clock="clock"
-      :record="record"
-      :show-record="showRecord"
-      :show-users="showUsers"
-      :users="users"
       @complete="toComplete"
       @match="toMatch"
     />
+
+    <record-view :show="showRecord" :record="record"/>
   </div>
 </template>
 
 <script>
-import Platform from "@/components/User/Common/platform-en/index.vue";
+import Platform from "@/components/User/Platform/en";
+
+import UsersView from "@/components/Views/users";
+import RecordView from "@/components/Views/record";
+
 import removeFromArray from "@/tools/find-one-and-remove.js";
 
 export default {
   components: {
-    Platform
+    Platform,
+    UsersView,
+    RecordView
   },
   data() {
     return {
@@ -31,7 +35,6 @@ export default {
       socket: this.$socket,
 
       clock: 999,
-      state: this.$platformState.WAITING,
 
       snippet: {},
 
@@ -39,17 +42,16 @@ export default {
       showRecord: false,
 
       users: [],
-      showUsers: true,
 
-      fresh: true,
+      platformDisabled: true,
 
-      loading: true,
       loadingUsers: true,
       loadingSnippet: true
     };
   },
   mounted() {
     window.onbeforeunload = this.toLeave;
+
     this.socket.emit("match-join", "en", this.username);
 
     this.socket.on("update-clock", this.toUpdateClock);
@@ -68,24 +70,15 @@ export default {
     },
     toUpdateUsers(users) {
       this.users = users.map(username => {
-        return {
-          username: username,
-          percent: 0,
-          speed: 0
-        };
+        return this.getPlainUser(username);
       });
       this.loadingUsers = false;
-      if (!this.loadingSnippet) {
-        this.loading = false;
-      }
       console.log("users loaded: ", users);
     },
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
       this.loadingSnippet = false;
-      if (!this.loadingUsers) {
-        this.loading = false;
-      }
+
       this.record = {
         cover: this.snippet.cover,
         author: this.snippet.author,
@@ -95,13 +88,11 @@ export default {
     },
 
     toUpdateClock(clock) {
-      if (this.state !== this.$platformState.COUNTING) {
-        this.state = this.$platformState.COUNTING;
-      }
       this.clock = clock;
       console.log("clock", clock);
+
       if (this.clock === 0) {
-        this.state = this.$platformState.WRITING;
+        this.platformDisabled = false;
       }
     },
     toUpdateProgress(progress) {
@@ -113,15 +104,10 @@ export default {
       });
     },
     toJoinUser(username) {
-      this.users.push({
-        username: username,
-        speed: 0,
-        percent: 0
-      });
+      this.users.push(this.getPlainUser(username));
       console.log("user join: ", username);
     },
     toRemoveUser(username) {
-      console.log("user leaving: ", username);
       removeFromArray(this.users, user => user.username === username);
       console.log("user leave: ", username);
     },
@@ -132,10 +118,10 @@ export default {
         username: this.username || "guest",
         snippetId: this.snippet._id
       });
+      this.platformDisabled = true;
       Object.assign(this.record, data);
       this.showRecord = true;
       this.socket.emit("match-done", record);
-      this.state = this.$platformState.WAITING;
     },
     toMatch(data) {
       this.$socket.emit(
@@ -151,6 +137,17 @@ export default {
     },
     toReload() {
       window.location.reload();
+    },
+
+    /**
+     * helper functions
+     */
+    getPlainUser(username) {
+      return {
+        username: username,
+        speed: 0,
+        percent: 0
+      };
     }
   },
   destroyed() {

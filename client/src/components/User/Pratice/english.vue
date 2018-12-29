@@ -1,37 +1,47 @@
 <template>
   <div class="pratice-en" v-if="!loading">
     <h1>Pratice</h1>
-    <button v-if="state === $platformState.WAITING" @click="toStart">start</button>
+    <p v-if="state === COUNTING">clock {{ clock }}</p>
+    <button v-if="state === WAITING" @click="toStart">start</button>
+    <users-view :users="users"/>
     <platform
+      :disabled="platformDisabled"
       :text="snippet.content"
-      :state="state"
-      :clock="clock"
-      :record="record"
-      :show-record="showRecord"
-      :show-users="showUsers"
-      :users="users"
       @complete="toComplete"
-      @update-progress="toUpdateProgress"
+      @match="toMatch"
     />
+
+    <record-view :show="showRecord" :record="record"/>
   </div>
 </template>
 
 <script>
-import Platform from "@/components/User/Common/platform-en/index.vue";
+import Platform from "@/components/User/Platform/en";
+
+import UsersView from "@/components/Views/users";
+import RecordView from "@/components/Views/record";
 
 export default {
   components: {
-    Platform
+    Platform,
+    UsersView,
+    RecordView
   },
   data() {
     return {
+      WAITING: 0,
+      COUNTING: 1,
+      ONGOING: 2,
+      state: 0,
+
       clock: this.$constant.PRATICE_MODE_CLOCK,
-      state: this.$platformState.WAITING,
 
       snippet: {},
 
       record: {},
       showRecord: false,
+
+      platformDisabled: true,
 
       users: [
         {
@@ -40,7 +50,6 @@ export default {
           percent: 0
         }
       ],
-      showUsers: true,
 
       fresh: true,
 
@@ -63,36 +72,39 @@ export default {
 
         this.loading = false;
         if (!fresh) {
-          this.state = this.$platformState.COUNTING;
           this.countdown();
         }
       });
     },
     toStart() {
       this.showRecord = false;
+      this.state = this.ONGOING;
+      this.resetUsers(this.users);
 
       if (this.fresh) {
-        this.state = this.$platformState.COUNTING;
         this.countdown();
       } else {
         this.loading = true;
         this.getSnippet(this.fresh);
       }
     },
-    toUpdateProgress(progress) {
+    toMatch(progress) {
       this.users[0] = Object.assign(this.users[0], progress);
     },
     toComplete(data) {
+      this.platformDisabled = true;
       this.postRecord(data);
 
       if (this.fresh) {
         this.fresh = false;
       }
-      this.state = this.$platformState.WAITING;
 
-      this.showRecord = true;
       this.clock = this.$constant.PRATICE_MODE_CLOCK;
+
+      this.state = this.WAITING;
+
       this.record = Object.assign(this.record, data);
+      this.showRecord = true;
     },
     postRecord(data) {
       const formData = new FormData();
@@ -103,14 +115,27 @@ export default {
 
       this.$axios.post("/records", formData);
     },
+    resetUsers(users) {
+      this.users = users.map(user => {
+        return {
+          username: user.username,
+          speed: 0,
+          percent: 0
+        };
+      });
+    },
     countdown() {
+      if (this.state !== this.COUNTING) {
+        this.state = this.COUNTING;
+      }
       this.clock -= 1;
       if (this.clock > 0) {
         setTimeout(() => {
           this.countdown();
         }, 1000);
       } else {
-        this.state = this.$platformState.WRITING;
+        this.state = this.ONGOING;
+        this.platformDisabled = false;
       }
     }
   }
