@@ -1,5 +1,5 @@
 <template>
-  <div class="platform">
+  <div class="platform platform--en">
     <div class="platform__meta">
       <div class="platform__progress">
         timer
@@ -192,7 +192,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.platform {
+.platform--en {
   margin: 1em auto;
   font-family: Consolas, monospace, "Microsoft Yahei";
 

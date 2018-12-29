@@ -1,9 +1,10 @@
 <template>
-  <div class="match-en">
+  <div class="match">
     <button @click="toReload">restart</button>
 
     <users-view :users="users"/>
-    <platform
+    <component
+      :is="'platform-' + lang"
       :disabled="platformDisabled"
       :text="snippet.content"
       @complete="toComplete"
@@ -15,7 +16,8 @@
 </template>
 
 <script>
-import Platform from "@/components/User/Platform/en";
+import PlatformCn from "@/components/User/Platform/cn";
+import PlatformEn from "@/components/User/Platform/en";
 
 import UsersView from "@/components/Views/users";
 import RecordView from "@/components/Views/record";
@@ -23,8 +25,15 @@ import RecordView from "@/components/Views/record";
 import removeFromArray from "@/tools/find-one-and-remove.js";
 
 export default {
+  props: {
+    lang: {
+      type: String,
+      required: true
+    }
+  },
   components: {
-    Platform,
+    PlatformEn,
+    PlatformCn,
     UsersView,
     RecordView
   },
@@ -52,7 +61,7 @@ export default {
   mounted() {
     window.onbeforeunload = this.toLeave;
 
-    this.socket.emit("match-join", "en", this.username);
+    this.socket.emit("match-join", this.lang, this.username);
 
     this.socket.on("update-clock", this.toUpdateClock);
 
@@ -165,7 +174,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.match-en {
+.match {
   width: 50%;
   margin: 1em auto;
 }
