@@ -18,8 +18,8 @@
 </template>
 
 <script>
-import PlatformCn from "@/components/User/Platform/cn";
-import PlatformEn from "@/components/User/Platform/en";
+import PlatformCn from "@/components/User/Common/Platform/cn";
+import PlatformEn from "@/components/User/Common/Platform/en";
 
 import ProgressView from "@/components/User/Common/Progress-View/index";
 import ResultView from "@/components/User/Common/Result-View/index";
