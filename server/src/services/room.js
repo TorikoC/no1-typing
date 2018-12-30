@@ -8,7 +8,7 @@ module.exports = {
   getOne(where) {
     return Promise.resolve(Room.findOne(where));
   },
-  getOneAndModify(where, body, option = { new: true }) {
+  findOneAndUpdate(where, body, option = { new: true }) {
     return Promise.resolve(Room.findOneAndUpdate(where, body, option));
   },
   create(room) {

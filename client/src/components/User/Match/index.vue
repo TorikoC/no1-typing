@@ -10,8 +10,7 @@
       @complete="toComplete"
       @match="toMatch"
     />
-
-    <result-view :show="showRecord" :record="record"/>
+    <result-view :show="showResult" :record="record" :book="book"/>
   </div>
 </template>
 
@@ -48,7 +47,8 @@ export default {
       snippet: {},
 
       record: {},
-      showRecord: false,
+      book: {},
+      showResult: false,
 
       users: [],
 
@@ -63,15 +63,16 @@ export default {
 
     this.socket.emit("match-join", this.lang, this.username);
 
-    this.socket.on("update-clock", this.toUpdateClock);
+    this.socket.on("match-update-clock", this.toUpdateClock);
 
-    this.$bus.$on("update-id", this.toUpdateId);
-    this.$bus.$on("update-users", this.toUpdateUsers);
-    this.$bus.$on("update-snippet", this.toUpdateSnippet);
-    this.$bus.$on("update-progress", this.toUpdateProgress);
+    this.$bus.$on("match-update-id", this.toUpdateId);
+    this.$bus.$on("match-update-book", this.toUpdateBook);
+    this.$bus.$on("match-update-users", this.toUpdateUsers);
+    this.$bus.$on("match-update-snippet", this.toUpdateSnippet);
+    this.$bus.$on("match-update-progress", this.toUpdateProgress);
 
-    this.$bus.$on("user-join", this.toJoinUser);
-    this.$bus.$on("user-leave", this.toRemoveUser);
+    this.$bus.$on("match-user-join", this.toJoinUser);
+    this.$bus.$on("match-user-leave", this.toRemoveUser);
   },
   methods: {
     toUpdateId(id) {
@@ -88,12 +89,10 @@ export default {
       this.snippet = snippet;
       this.loadingSnippet = false;
 
-      this.record = {
-        cover: this.snippet.cover,
-        author: this.snippet.author,
-        name: this.snippet.name
-      };
       console.log("snippet loaded: ", snippet);
+    },
+    toUpdateBook(b) {
+      this.book = b;
     },
 
     toUpdateClock(clock) {
@@ -128,9 +127,10 @@ export default {
         snippetId: this.snippet._id
       });
       this.platformDisabled = true;
-      Object.assign(this.record, data);
-      this.showRecord = true;
+      this.record = data;
+      this.showResult = true;
       this.socket.emit("match-done", record);
+      this.socket.emit("match-fetch-book", this.snippet.bookName);
     },
     toMatch(data) {
       this.$socket.emit(
@@ -162,13 +162,14 @@ export default {
   destroyed() {
     this.toLeave();
 
-    this.$bus.$off("update-id", this.toUpdateId);
-    this.$bus.$off("update-users", this.toUpdateUsers);
-    this.$bus.$off("update-snippet", this.toUpdateSnippet);
-    this.$bus.$off("update-progress", this.toUpdateProgress);
+    this.$bus.$off("match-update-book", this.toUpdateBook);
+    this.$bus.$off("match-update-id", this.toUpdateId);
+    this.$bus.$off("match-update-users", this.toUpdateUsers);
+    this.$bus.$off("match-update-snippet", this.toUpdateSnippet);
+    this.$bus.$off("match-update-progress", this.toUpdateProgress);
 
-    this.$bus.$off("user-join", this.toJoinUser);
-    this.$bus.$off("user-leave", this.toRemoveUser);
+    this.$bus.$off("match-user-join", this.toJoinUser);
+    this.$bus.$off("match-user-leave", this.toRemoveUser);
   }
 };
 </script>

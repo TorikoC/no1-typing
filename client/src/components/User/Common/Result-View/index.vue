@@ -4,16 +4,16 @@
     <dd>{{ record.speed }}</dd>
     <dt>Time</dt>
     <dd>{{ record.time | formatTime }}</dd>
-    <dt>Snippet</dt>
+    <dt>Snippet you just type from:</dt>
     <dd>
       <div class="source">
         <div class="source__cover">
-          <img :src="record.cover" alt="source cover">
+          <img :src="book.cover" alt="source cover">
         </div>
         <div class="source__name">
-          {{ record.name }}
+          {{ book.name }}
           <br>
-          <small>by {{ record.author }}</small>
+          <small>by {{ book.author }}</small>
         </div>
       </div>
     </dd>
@@ -31,7 +31,12 @@ export default {
       type: Object,
       defulat: {
         speed: 0,
-        time: 0,
+        time: 0
+      }
+    },
+    book: {
+      type: Object,
+      defulat: {
         cover: "default url",
         name: "default name",
         author: "default author"

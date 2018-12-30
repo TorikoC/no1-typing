@@ -7,6 +7,9 @@ const service = {
   getOne(where) {
     return Promise.resolve(Book.findOne(where));
   },
+  findOne(where) {
+    return Promise.resolve(Book.findOne(where));
+  },
   create(body) {
     return Promise.resolve(Book.create(body));
   },

@@ -11,7 +11,7 @@
       @complete="toComplete"
       @match="toMatch"
     />
-    <result-view :show="showRecord" :record="record"/>
+    <result-view :show="showResult" :record="record" :book="book"/>
   </div>
 </template>
 
@@ -47,7 +47,8 @@ export default {
       snippet: {},
 
       record: {},
-      showRecord: false,
+      book: {},
+      showResult: false,
 
       platformDisabled: true,
 
@@ -72,12 +73,6 @@ export default {
       this.$axios.get(`/snippets/random?lang=${this.lang}`).then(result => {
         this.snippet = result.data;
 
-        this.record = {
-          cover: this.snippet.cover,
-          name: this.snippet.name,
-          author: this.snippet.author
-        };
-
         this.loading = false;
         if (!fresh) {
           this.countdown();
@@ -85,7 +80,7 @@ export default {
       });
     },
     toStart() {
-      this.showRecord = false;
+      this.showResult = false;
       this.state = this.ONGOING;
       this.resetUsers(this.users);
 
@@ -111,8 +106,14 @@ export default {
 
       this.state = this.WAITING;
 
-      this.record = Object.assign(this.record, data);
-      this.showRecord = true;
+      this.record = data;
+      this.getBook(this.snippet.bookName);
+    },
+    getBook(bookName) {
+      this.$axios.get(`/books/?name=${bookName}`).then(result => {
+        this.book = result.data[0];
+        this.showResult = true;
+      });
     },
     postRecord(data) {
       const formData = new FormData();

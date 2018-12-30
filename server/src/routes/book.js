@@ -3,11 +3,16 @@ const multer = require('multer');
 const bookService = require('../services/book');
 
 router.get('/api/books', (req, res) => {
+  let { name } = req.query || '';
+
+  const where = {};
+  if (name) {
+    where.name = name;
+  }
   req.log.info();
   bookService
-    .get()
+    .get(where)
     .then(result => {
-      console.log(result);
       res.send(result);
     })
     .catch(error => {

@@ -33,7 +33,10 @@ router.get('/api/snippets/random', async (req, res) => {
     lang,
   };
 
-  let snippet = await snippetService.getOneRandomWithSource(where);
+  let snippet = await snippetService.findOneRandom(where);
+  if (snippet instanceof Array && snippet[0]) {
+    snippet = snippet[0];
+  }
   res.send(snippet);
 });
 

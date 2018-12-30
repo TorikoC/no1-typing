@@ -13,7 +13,7 @@
       @complete="toComplete"
       @match="toMatch"
     />
-    <result-view :show="showRecord && !first" :record="record"/>
+    <result-view :show="showResult && !first" :book="book" :record="record"/>
   </div>
 </template>
 
@@ -58,10 +58,12 @@ export default {
 
       snippet: {},
 
+      book: {},
+      record: {},
+
       users: [],
 
-      record: {},
-      showRecord: true,
+      showResult: true,
 
       platformDisabled: true,
 
@@ -74,20 +76,32 @@ export default {
     };
   },
   mounted() {
-    console.log(this.lang);
     window.onbeforeunload = this.toLeave;
 
-    this.socket.on("update-clock", this.toUpdateClock);
+    this.socket.emit("test");
+    this.$bus.$on("room-update-clock", this.toUpdateClock);
+    this.$bus.$on("room-update-state", this.toUpdateState);
+    this.$bus.$on("room-update-snippet", this.toUpdateSnippet);
+    this.$bus.$on("room-update-book", this.toUpdateBook);
+    this.$bus.$on("room-update-progress", this.toUpdateProgress);
 
-    this.$bus.$on("update-snippet", this.toUpdateSnippet);
-    this.$bus.$on("update-progress", this.toUpdateProgress);
-    this.$bus.$on("update-room-state", this.toUpdateRoomState);
-
-    this.$bus.$on("user-join", this.toJoinUser);
-    this.$bus.$on("user-leave", this.toRemoveUser);
-    this.$bus.$on("user-prepared", this.toPrepare);
+    this.$bus.$on("room-user-join", this.toJoinUser);
+    this.$bus.$on("room-user-leave", this.toRemoveUser);
+    this.$bus.$on("room-user-prepare", this.toPrepare);
 
     this.enterRoom();
+  },
+  destroyed() {
+    this.toLeave();
+
+    this.$bus.$off("room-update-clock", this.toUpdateClock);
+    this.$bus.$off("room-update-snippet", this.toUpdateSnippet);
+    this.$bus.$off("room-update-progress", this.toUpdateProgress);
+    this.$bus.$off("room-update-room-state", this.toUpdateState);
+
+    this.$bus.$off("room-user-join", this.toJoinUser);
+    this.$bus.$off("room-user-leave", this.toRemoveUser);
+    this.$bus.$off("room-user-prepare", this.toPrepareUser);
   },
   methods: {
     /**
@@ -112,7 +126,7 @@ export default {
     toStart() {
       this.emit("room-start", this.id);
     },
-    toUpdateRoomState(state) {
+    toUpdateState(state) {
       this.state = state;
       switch (state) {
         case this.$roomState.WAITING: {
@@ -128,10 +142,13 @@ export default {
             this.first = false;
           }
           this.resetUsers(this.users);
-          this.toggleShowRecord();
+          this.toggleshowResult();
           break;
         }
       }
+    },
+    toUpdateBook(b) {
+      this.book = b;
     },
     toPrepare(username) {
       this.users.forEach(user => {
@@ -143,7 +160,7 @@ export default {
       let self = this.username === username;
       if (self) {
         this.prepared = true;
-        this.emit("room-prepared", this.id, this.username);
+        this.emit("room-prepare", this.id, this.username);
       } else {
         this.updateAllPrepared();
       }
@@ -151,12 +168,6 @@ export default {
     },
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
-
-      this.record = {
-        cover: this.snippet.cover,
-        author: this.snippet.author,
-        name: this.snippet.name
-      };
 
       this.emit("room-snippet-updated", this.id, this.username);
       console.log("snippet loaded: ", snippet);
@@ -173,15 +184,15 @@ export default {
       }
     },
 
-    toUpdateProgress(progress) {
-      let self = progress.username === this.username;
+    toUpdateProgress(username, progress) {
+      let self = username === this.username;
       this.users.forEach(user => {
-        if (user.username === progress.username) {
+        if (user.username === username) {
           Object.assign(user, progress);
         }
       });
       if (self) {
-        this.emit("room-update-progress", this.id, progress);
+        this.emit("room-update-progress", this.id, username, progress);
       }
       console.log("update progress", progress);
     },
@@ -199,9 +210,9 @@ export default {
       console.log("user leave: ", username);
     },
     toComplete(data) {
-      Object.assign(this.record, data);
-      console.log(data);
-      this.toggleShowRecord();
+      this.record = data;
+
+      this.toggleshowResult();
 
       this.togglePlatformDisabled();
 
@@ -214,13 +225,11 @@ export default {
         snippetId: this.snippet._id
       });
 
-      this.emit("room-done", this.id, this.username, record);
+      this.emit("room-complete", this.id, this.username, record);
+      this.emit("room-fetch-book", this.snippet.bookName);
     },
     toMatch(progress) {
-      const progressWithUsername = Object.assign(progress, {
-        username: this.username
-      });
-      this.toUpdateProgress(progressWithUsername);
+      this.toUpdateProgress(this.username, progress);
     },
     toLeave() {
       this.emit("room-leave", this.id, this.username);
@@ -237,8 +246,8 @@ export default {
     togglePlatformDisabled() {
       this.platformDisabled = !this.platformDisabled;
     },
-    toggleShowRecord() {
-      this.showRecord = !this.showRecord;
+    toggleshowResult() {
+      this.showResult = !this.showResult;
     },
     getPlainUser(username) {
       return {
@@ -255,17 +264,6 @@ export default {
     emit(eventName, ...payload) {
       this.socket.emit(eventName, ...payload);
     }
-  },
-  destroyed() {
-    this.toLeave();
-
-    this.$bus.$off("update-snippet", this.toUpdateSnippet);
-    this.$bus.$off("update-progress", this.toUpdateProgress);
-    this.$bus.$off("update-room-state", this.toUpdateRoomState);
-
-    this.$bus.$off("user-join", this.toJoinUser);
-    this.$bus.$off("user-leave", this.toRemoveUser);
-    this.$bus.$off("user-prepared", this.toPrepareUser);
   }
 };
 </script>

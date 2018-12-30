@@ -24,19 +24,32 @@ const service = {
     ];
     return Promise.resolve(Snippet.aggregate(option));
   },
-  async getOneRandomWithSource(where) {
-    let snippet = await this.getOneRandom(where);
-    if (!snippet || snippet.length < 1) {
-      logger.error('no snippet matched: ', where);
-      return;
-    }
-    snippet = snippet[0];
-    const source = await Book.findOne({ name: snippet.bookName });
-    snippet.cover = source.cover;
-    snippet.name = source.name;
-    snippet.author = source.author;
-    return snippet;
+  findOneRandom(where) {
+    const pipeline = [
+      {
+        $match: where,
+      },
+      {
+        $sample: {
+          size: 1,
+        },
+      },
+    ];
+    return Promise.resolve(Snippet.aggregate(pipeline));
   },
+  // async getOneRandomWithSource(where) {
+  //   let snippet = await this.getOneRandom(where);
+  //   if (!snippet || snippet.length < 1) {
+  //     logger.error('no snippet matched: ', where);
+  //     return;
+  //   }
+  //   snippet = snippet[0];
+  //   const source = await Book.findOne({ name: snippet.bookName });
+  //   snippet.cover = source.cover;
+  //   snippet.name = source.name;
+  //   snippet.author = source.author;
+  //   return snippet;
+  // },
   create(body) {
     return Promise.resolve(Snippet.create(body));
   },
