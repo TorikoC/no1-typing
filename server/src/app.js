@@ -22,6 +22,15 @@ app.use(router);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500);
+  res.send({
+    error: err.message,
+  });
+});
 
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
