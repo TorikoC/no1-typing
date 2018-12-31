@@ -70,8 +70,8 @@ export default {
   },
   methods: {
     getSnippet(fresh) {
-      this.$axios.get(`/snippets/random?lang=${this.lang}`).then(result => {
-        this.snippet = result.data;
+      this.$axios.get(`/random-snippet?lang=${this.lang}`).then(result => {
+        this.snippet = result.data[0];
 
         this.loading = false;
         if (!fresh) {
@@ -107,10 +107,10 @@ export default {
       this.state = this.WAITING;
 
       this.record = data;
-      this.getBook(this.snippet.bookName);
+      this.getBook(this.snippet.bookId);
     },
-    getBook(bookName) {
-      this.$axios.get(`/books/?name=${bookName}`).then(result => {
+    getBook(id) {
+      this.$axios.get(`/books/${id}`).then(result => {
         this.book = result.data[0];
         this.showResult = true;
       });

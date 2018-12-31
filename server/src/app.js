@@ -22,6 +22,7 @@ app.use(router);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
+
 app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
@@ -39,6 +40,10 @@ handleSocket(io);
 
 mongoose.connect(
   config.get('dbHost'),
+  {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+  },
   err => {
     if (err) {
       logger.error(err);

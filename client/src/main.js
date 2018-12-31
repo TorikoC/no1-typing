@@ -3,24 +3,22 @@ import VueRouter from 'vue-router';
 import axios from 'axios';
 
 import App from './App.vue';
+import socket from './socket';
 import router from './routes';
 import config from './config';
-import filters from './filters/index';
-import components from './components/Common/index';
-import socket from './socket';
+import filters from './filters';
+import components from './components/Common';
 
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
-
 Vue.prototype.$axios = axios.create({
   baseURL: config.apiServer,
 });
 
-let bus = new Vue();
-Vue.prototype.$bus = bus;
+Vue.prototype.$bus = new Vue();
 Vue.prototype.$config = config;
-Vue.prototype.$socket = socket(bus);
+Vue.prototype.$socket = socket;
 
 Vue.prototype.$roomState = {
   WAITING: 0,

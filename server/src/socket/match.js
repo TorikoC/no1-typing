@@ -1,7 +1,4 @@
-const MatchService = require('../services/match');
-const SnippetService = require('../services/snippet');
-const RecordService = require('../services/record');
-const db = require('../services');
+const db = require('../models');
 
 const logger = console;
 
@@ -14,22 +11,27 @@ module.exports = (io, socket) => {
     console.log(progress);
     io.to(id).emit('match-update-progress', progress);
   });
-  socket.on('match-fetch-book', async bookName => {
-    const where = {
-      name: bookName,
-    };
-    let result = await db.book.findOne(where);
+  socket.on('match-fetch-book', async bookId => {
+    let result = await db.Book.findOne({ _id: bookId });
     socket.emit('match-update-book', result);
   });
   socket.on('match-done', record => {
-    RecordService.create(record);
+    db.Record.create(record);
   });
 };
 
 function tick(io, id, clock) {
   clock -= 1;
   if (clock === 5) {
-    MatchService.banOne({ _id: id });
+    db.Match.findOneAndUpdate(
+      { _id: id },
+      { $set: { canJoin: false } },
+      (err, result) => {
+        if (err) {
+          console.log(err);
+        }
+      },
+    );
   }
   logger.info(`match ${id} start at ${clock}`);
   io.to(id).emit('match-update-clock', clock);
@@ -42,8 +44,10 @@ function tick(io, id, clock) {
 
 function toJoin(io, socket, lang, username) {
   username = username || socket.request.connection.remoteAddress;
+
   socket.emit('ip', socket.request.connection.remoteAddress);
-  MatchService.getOne({ canJoin: true, lang: lang }).then(result => {
+
+  db.Match.findOne({ canJoin: true, lang: lang }).then(result => {
     if (result) {
       result.users.push(username);
       if (result.users.length >= result.usersLimit) {
@@ -62,7 +66,19 @@ function toJoin(io, socket, lang, username) {
         users: [username],
         lang: lang,
       };
-      SnippetService.findOneRandom({ lang }).then(result => {
+      const pipeline = [
+        {
+          $match: {
+            lang: lang,
+          },
+        },
+        {
+          $sample: {
+            size: 1,
+          },
+        },
+      ];
+      db.Snippet.aggregate(pipeline).then(result => {
         if (!result) {
           return;
         }
@@ -70,7 +86,7 @@ function toJoin(io, socket, lang, username) {
           result = result[0];
         }
         match.snippet = result;
-        MatchService.createOne(match).then(result => {
+        db.Match.create(match).then(result => {
           socket.join(result._id);
           socket.emit('match-update-id', result._id);
           socket.emit('match-update-users', result.users);
@@ -88,7 +104,23 @@ function toLeave(socket, id, username) {
 
   socket.leave(id, () => {
     socket.broadcast.to(id).emit('match-user-leave', username);
-    MatchService.removeUser(id, username);
+    db.Match.findOneAndUpdate(
+      { _id: id },
+      {
+        $pull: {
+          users: username,
+        },
+      },
+      { new: true },
+      (err, result) => {
+        if (err || !result) {
+          return;
+        }
+        if (result.users.length === 0) {
+          result.remove();
+        }
+      },
+    );
     logger.info(`${username} leave match ${id}`);
   });
 }

@@ -62,17 +62,14 @@ export default {
     window.onbeforeunload = this.toLeave;
 
     this.socket.emit("match-join", this.lang, this.username);
-
     this.socket.on("match-update-clock", this.toUpdateClock);
-
-    this.$bus.$on("match-update-id", this.toUpdateId);
-    this.$bus.$on("match-update-book", this.toUpdateBook);
-    this.$bus.$on("match-update-users", this.toUpdateUsers);
-    this.$bus.$on("match-update-snippet", this.toUpdateSnippet);
-    this.$bus.$on("match-update-progress", this.toUpdateProgress);
-
-    this.$bus.$on("match-user-join", this.toJoinUser);
-    this.$bus.$on("match-user-leave", this.toRemoveUser);
+    this.socket.on("match-update-id", this.toUpdateId);
+    this.socket.on("match-update-book", this.toUpdateBook);
+    this.socket.on("match-update-users", this.toUpdateUsers);
+    this.socket.on("match-update-snippet", this.toUpdateSnippet);
+    this.socket.on("match-update-progress", this.toUpdateProgress);
+    this.socket.on("match-user-join", this.toJoinUser);
+    this.socket.on("match-user-leave", this.toRemoveUser);
   },
   methods: {
     toUpdateId(id) {
@@ -130,7 +127,7 @@ export default {
       this.record = data;
       this.showResult = true;
       this.socket.emit("match-done", record);
-      this.socket.emit("match-fetch-book", this.snippet.bookName);
+      this.socket.emit("match-fetch-book", this.snippet.bookId);
     },
     toMatch(data) {
       this.$socket.emit(
@@ -161,15 +158,14 @@ export default {
   },
   destroyed() {
     this.toLeave();
-
-    this.$bus.$off("match-update-book", this.toUpdateBook);
-    this.$bus.$off("match-update-id", this.toUpdateId);
-    this.$bus.$off("match-update-users", this.toUpdateUsers);
-    this.$bus.$off("match-update-snippet", this.toUpdateSnippet);
-    this.$bus.$off("match-update-progress", this.toUpdateProgress);
-
-    this.$bus.$off("match-user-join", this.toJoinUser);
-    this.$bus.$off("match-user-leave", this.toRemoveUser);
+    this.socket.off("match-update-clock", this.toUpdateClock);
+    this.socket.off("match-update-id", this.toUpdateId);
+    this.socket.off("match-update-book", this.toUpdateBook);
+    this.socket.off("match-update-users", this.toUpdateUsers);
+    this.socket.off("match-update-snippet", this.toUpdateSnippet);
+    this.socket.off("match-update-progress", this.toUpdateProgress);
+    this.socket.off("match-user-join", this.toJoinUser);
+    this.socket.off("match-user-leave", this.toRemoveUser);
   }
 };
 </script>

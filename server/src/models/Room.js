@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const roomState = require('config').get('roomState');
 
-const UserSchema = mongoose.Schema({
+const RoomUserSchema = mongoose.Schema({
   username: {
     type: String,
   },
@@ -18,6 +18,7 @@ const UserSchema = mongoose.Schema({
     default: false,
   },
 });
+
 const RoomSchema = mongoose.Schema({
   name: {
     type: String,
@@ -49,7 +50,7 @@ const RoomSchema = mongoose.Schema({
     type: String,
     default: 'en',
   },
-  users: [UserSchema],
+  users: [RoomUserSchema],
   state: {
     type: Number,
     default: roomState.WAITTING,

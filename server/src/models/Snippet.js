@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const SnippetSchema = mongoose.Schema({
-  bookName: {
-    type: String,
-    default: '',
+  bookId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Book',
   },
   content: {
     type: String,

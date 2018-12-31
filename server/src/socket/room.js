@@ -1,4 +1,4 @@
-const db = require('../services/index');
+const db = require('../models');
 const config = require('config');
 const logger = require('../logger/socket');
 
@@ -17,9 +17,24 @@ module.exports = (io, socket) => {
 
 function onJoin(socket, id, username) {
   socket.join(id, () => {
-    logger.info(`${username} user join ${id}`);
+    logger.info(`${username} join room ${id}`);
     socket.broadcast.to(id).emit('room-user-join', username);
   });
+  db.Room.findOneAndUpdate(
+    {
+      _id: id,
+      'users.username': {
+        $ne: username,
+      },
+    },
+    {
+      $push: {
+        users: {
+          username,
+        },
+      },
+    },
+  ).exec();
 }
 
 async function onLeave(socket, id, username) {
@@ -38,12 +53,12 @@ async function onLeave(socket, id, username) {
   const update = {
     $pull: {
       users: {
-        username: username,
+        username,
       },
     },
   };
 
-  let result = await db.room.findOneAndUpdate(where, update);
+  let result = await db.Room.findOneAndUpdate(where, update, { new: true });
   logger.info(`remove ${username} from room ${id}.`);
 
   if (!result) {
@@ -78,14 +93,24 @@ async function onStart(io, id) {
     },
   };
 
-  let result = await db.room.findOneAndUpdate(where, update);
+  let result = await db.Room.findOneAndUpdate(where, update);
   if (!result) {
     return;
   }
+  const pipeline = [
+    {
+      $match: {
+        lang: result.lang,
+      },
+    },
+    {
+      $sample: {
+        size: 1,
+      },
+    },
+  ];
 
-  let snippet = await db.snippet.findOneRandom({
-    lang: result.lang,
-  });
+  let snippet = await db.Snippet.aggregate(pipeline);
 
   if (snippet instanceof Array && snippet[0]) {
     snippet = snippet[0];
@@ -103,65 +128,62 @@ function onPrepare(socket, id, username) {
 }
 
 function onSnippetUpdated(io, id, username) {
-  db.room
-    .findOneAndUpdate(
-      { _id: id, 'users.username': username },
-      { $set: { 'users.$.snippetReceived': true } },
-    )
-    .then(result => {
-      if (!result) {
-        return;
-      }
-      logger.info(`${username} receive snippet , ${id}.`);
-      const distributing = result.users.some(user => !user.snippetReceived);
-      if (!distributing) {
-        logger.info(`${id} clock start.`);
-        tick(io, id, 5);
-      }
-    });
+  db.Room.findOneAndUpdate(
+    { _id: id, 'users.username': username },
+    { $set: { 'users.$.snippetReceived': true } },
+    { new: true },
+  ).then(result => {
+    if (!result) {
+      return;
+    }
+    logger.info(`${username} receive snippet , ${id}.`);
+    const distributing = result.users.some(user => !user.snippetReceived);
+    if (!distributing) {
+      logger.info(`${id} clock start.`);
+      tick(io, id, 5);
+    }
+  });
 }
 
 function onComplete(io, socket, id, username, record) {
   logger.info(`${username} done, ${id}.`);
   socket.broadcast.to(id).emit('room-user-complete', username);
-  db.record.create(record);
-  db.room
-    .findOneAndUpdate(
-      { _id: id, 'users.username': username },
-      {
-        $set: {
-          'users.$.done': true,
-        },
+  db.Record.create(record);
+  db.Room.findOneAndUpdate(
+    { _id: id, 'users.username': username },
+    {
+      $set: {
+        'users.$.done': true,
       },
-    )
-    .then(result => {
-      if (!result) {
-        return;
-      }
-      let ongoing = result.users.some(user => !user.done);
-      if (!ongoing) {
-        logger.info(`all done ${id}`);
-        io.to(id).emit('room-all-complete');
+    },
+    {
+      new: true,
+    },
+  ).then(result => {
+    if (!result) {
+      return;
+    }
+    let ongoing = result.users.some(user => !user.done);
+    if (!ongoing) {
+      logger.info(`all done ${id}`);
+      io.to(id).emit('room-all-complete');
 
-        result.state = config.get('roomState').WAITING;
-        io.to(id).emit('room-update-state', config.get('roomState').WAITING);
+      result.state = config.get('roomState').WAITING;
+      io.to(id).emit('room-update-state', config.get('roomState').WAITING);
 
-        if (result.users.length < result.userLimit) {
-          result.canJoin = true;
-        }
-        result.users.forEach(user => {
-          user.snippetReceived = false;
-          user.done = false;
-        });
-        result.save();
+      if (result.users.length < result.userLimit) {
+        result.canJoin = true;
       }
-    });
+      result.users.forEach(user => {
+        user.snippetReceived = false;
+        user.done = false;
+      });
+      result.save();
+    }
+  });
 }
-async function onFetchBook(socket, bookName) {
-  const where = {
-    name: bookName,
-  };
-  let result = await db.book.findOne(where);
+async function onFetchBook(socket, bookId) {
+  let result = await db.Book.findOne({ _id: bookId });
   socket.emit('room-update-book', result);
 }
 

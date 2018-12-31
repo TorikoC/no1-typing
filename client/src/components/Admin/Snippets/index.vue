@@ -6,8 +6,8 @@
     <form @submit.prevent="submit" class="snippet-form">
       <div class="form-group">
         <label for="book-name">书名:</label>
-        <select name="bookName" id="book-name" required>
-          <option v-for="book in books" :key="book._id" :value="book.name">{{ book.name }}</option>
+        <select name="bookId" id="book-name" required>
+          <option v-for="book in books" :key="book._id" :value="book._id">{{ book.name }}</option>
         </select>
       </div>
       <div class="form-group">
@@ -30,7 +30,7 @@
     <table>
       <thead>
         <tr>
-          <th>书名</th>
+          <th>Book Id</th>
           <th>语言</th>
           <th>内容</th>
           <th>长度</th>
@@ -40,8 +40,8 @@
       </thead>
       <tbody>
         <tr v-for="(snippet, index) in snippets" :key="snippet._id">
-          <td>{{ snippet.bookName }}</td>
-          <td>{{ snippet.language }}</td>
+          <td>{{ snippet.bookId }}</td>
+          <td>{{ snippet.lang }}</td>
           <td :title="snippet.content">{{ snippet.content }}</td>
           <td>{{ snippet.length }}</td>
           <td>{{ snippet.createdAt | formatDate }}</td>
@@ -100,6 +100,7 @@ export default {
     },
     getBooks() {
       this.$axios.get(`/books`).then(resp => {
+        console.log(resp);
         this.books = resp.data;
       });
     },

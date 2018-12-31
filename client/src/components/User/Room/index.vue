@@ -79,29 +79,28 @@ export default {
     window.onbeforeunload = this.toLeave;
 
     this.socket.emit("test");
-    this.$bus.$on("room-update-clock", this.toUpdateClock);
-    this.$bus.$on("room-update-state", this.toUpdateState);
-    this.$bus.$on("room-update-snippet", this.toUpdateSnippet);
-    this.$bus.$on("room-update-book", this.toUpdateBook);
-    this.$bus.$on("room-update-progress", this.toUpdateProgress);
-
-    this.$bus.$on("room-user-join", this.toJoinUser);
-    this.$bus.$on("room-user-leave", this.toRemoveUser);
-    this.$bus.$on("room-user-prepare", this.toPrepare);
+    this.socket.on("room-update-clock", this.toUpdateClock);
+    this.socket.on("room-update-state", this.toUpdateState);
+    this.socket.on("room-update-snippet", this.toUpdateSnippet);
+    this.socket.on("room-update-book", this.toUpdateBook);
+    this.socket.on("room-update-progress", this.toUpdateProgress);
+    this.socket.on("room-user-join", this.toJoinUser);
+    this.socket.on("room-user-leave", this.toRemoveUser);
+    this.socket.on("room-user-prepare", this.toPrepare);
 
     this.enterRoom();
   },
   destroyed() {
     this.toLeave();
 
-    this.$bus.$off("room-update-clock", this.toUpdateClock);
-    this.$bus.$off("room-update-snippet", this.toUpdateSnippet);
-    this.$bus.$off("room-update-progress", this.toUpdateProgress);
-    this.$bus.$off("room-update-room-state", this.toUpdateState);
-
-    this.$bus.$off("room-user-join", this.toJoinUser);
-    this.$bus.$off("room-user-leave", this.toRemoveUser);
-    this.$bus.$off("room-user-prepare", this.toPrepareUser);
+    this.socket.off("room-update-clock", this.toUpdateClock);
+    this.socket.off("room-update-state", this.toUpdateState);
+    this.socket.off("room-update-snippet", this.toUpdateSnippet);
+    this.socket.off("room-update-book", this.toUpdateBook);
+    this.socket.off("room-update-progress", this.toUpdateProgress);
+    this.socket.off("room-user-join", this.toJoinUser);
+    this.socket.off("room-user-leave", this.toRemoveUser);
+    this.socket.off("room-user-prepare", this.toPrepare);
   },
   methods: {
     /**
@@ -114,8 +113,13 @@ export default {
         .get(`/rooms/${this.id}`)
         .then(result => {
           // success
+          if (
+            !result.data.users.some(user => user.username === this.username)
+          ) {
+            result.data.users.push({ username: this.username });
+          }
           this.resetUsers(result.data.users);
-          this.emit("room-join", this.id, this.username);
+          this.socket.emit("room-join", this.id, this.username);
         })
         .catch(error => {
           // fail
@@ -124,7 +128,7 @@ export default {
         });
     },
     toStart() {
-      this.emit("room-start", this.id);
+      this.socket.emit("room-start", this.id);
     },
     toUpdateState(state) {
       this.state = state;
@@ -160,7 +164,7 @@ export default {
       let self = this.username === username;
       if (self) {
         this.prepared = true;
-        this.emit("room-prepare", this.id, this.username);
+        this.socket.emit("room-prepare", this.id, this.username);
       } else {
         this.updateAllPrepared();
       }
@@ -169,7 +173,7 @@ export default {
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
 
-      this.emit("room-snippet-updated", this.id, this.username);
+      this.socket.emit("room-snippet-updated", this.id, this.username);
       console.log("snippet loaded: ", snippet);
     },
 
@@ -192,7 +196,7 @@ export default {
         }
       });
       if (self) {
-        this.emit("room-update-progress", this.id, username, progress);
+        this.socket.emit("room-update-progress", this.id, username, progress);
       }
       console.log("update progress", progress);
     },
@@ -225,14 +229,14 @@ export default {
         snippetId: this.snippet._id
       });
 
-      this.emit("room-complete", this.id, this.username, record);
-      this.emit("room-fetch-book", this.snippet.bookName);
+      this.socket.emit("room-complete", this.id, this.username, record);
+      this.socket.emit("room-fetch-book", this.snippet.bookId);
     },
     toMatch(progress) {
       this.toUpdateProgress(this.username, progress);
     },
     toLeave() {
-      this.emit("room-leave", this.id, this.username);
+      this.socket.emit("room-leave", this.id, this.username);
     },
 
     /**
@@ -260,9 +264,6 @@ export default {
     },
     updateAllPrepared() {
       this.allPrepared = !this.users.slice(1).some(user => !user.prepared);
-    },
-    emit(eventName, ...payload) {
-      this.socket.emit(eventName, ...payload);
     }
   }
 };
