@@ -49,7 +49,6 @@ export default {
         (result.data.bestMatchRecord && result.data.bestMatchRecord.speed) ||
         "no record";
       this.latestRecords = result.data.latestRecords;
-      console.log(result);
     });
   }
 };

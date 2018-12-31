@@ -35,7 +35,6 @@ export default {
   methods: {
     getRecords() {
       this.$axios.get(`/records`).then(resp => {
-        console.log(this.records);
         this.records = resp.data;
       });
     }

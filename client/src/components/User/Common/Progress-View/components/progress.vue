@@ -11,11 +11,9 @@
 export default {
   watch: {
     percent(value) {
-      console.log(value);
       if (!this.body) {
         return;
       }
-      console.log(value);
       this.body.style.width = value + "%";
       if (value < 25) {
         this.body.classList.add("progress__body--low");

@@ -111,7 +111,7 @@ export default {
     },
     getBook(id) {
       this.$axios.get(`/books/${id}`).then(result => {
-        this.book = result.data[0];
+        this.book = result.data;
         this.showResult = true;
       });
     },

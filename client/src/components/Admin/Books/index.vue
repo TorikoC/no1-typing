@@ -64,7 +64,6 @@ export default {
     submit(evt) {
       const formData = new FormData(evt.target);
       this.$axios.post(`/books`, formData).then(resp => {
-        console.log(resp);
         this.books.push(resp.data);
       });
     },

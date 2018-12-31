@@ -23,9 +23,7 @@ const RoomSchema = mongoose.Schema({
   name: {
     type: String,
   },
-  creator: {
-    type: String,
-  },
+  users: [RoomUserSchema],
   userLimit: {
     type: Number,
     default: 7,
@@ -34,23 +32,10 @@ const RoomSchema = mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  snippetReceivedCounter: {
-    type: Number,
-    default: 0,
-  },
-  preparedUserCounter: {
-    type: Number,
-    default: 0,
-  },
-  doneUserCounter: {
-    type: Number,
-    default: 0,
-  },
   lang: {
     type: String,
     default: 'en',
   },
-  users: [RoomUserSchema],
   state: {
     type: Number,
     default: roomState.WAITTING,

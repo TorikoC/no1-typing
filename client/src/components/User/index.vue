@@ -67,7 +67,8 @@
 </template>
 
 <script>
-import jwtDecode from "@/tools/jwt-decode";
+import jwtDecode from "jwt-decode";
+
 export default {
   data() {
     return {
@@ -95,7 +96,6 @@ export default {
       window.login = true;
       window.$user = this.jwtData;
       this.$axios.defaults.headers.common["Authorization"] = `Bearer ${jwt}`;
-      console.log("yes");
     },
     toLogout() {
       this.login = false;

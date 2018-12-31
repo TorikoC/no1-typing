@@ -2,8 +2,9 @@ const router = require('express').Router();
 const multer = require('multer');
 const jwt = require('express-jwt');
 const jwtSecret = require('config').get('jwtSecret');
-const validator = jwt({ secret: jwtSecret });
-const formdataParser = multer().none();
+
+const validate = jwt({ secret: jwtSecret });
+const parseFormdata = multer().none();
 
 const userCtrl = require('../controllers/user');
 const bookCtrl = require('../controllers/book');
@@ -14,7 +15,7 @@ const roomCtrl = require('../controllers/room');
 // login
 router.post(
   '/login',
-  formdataParser,
+  parseFormdata,
   userCtrl.authUser,
   userCtrl.createJwt,
   userCtrl.loginUser,
@@ -23,28 +24,28 @@ router.post(
 // users
 router.get('/users/:id', userCtrl.getUser);
 router.get('/users', userCtrl.getUsers);
-router.post('/users', formdataParser, userCtrl.createUser);
+router.post('/users', parseFormdata, userCtrl.createUser);
 
 // books
 router.get('/books/:id', bookCtrl.getBook);
 router.get('/books', bookCtrl.getBooks);
-router.post('/books', formdataParser, bookCtrl.createBook);
+router.post('/books', parseFormdata, bookCtrl.createBook);
 
 // snippets
 router.get('/snippets/:id', snippetCtrl.getSnippet);
 router.get('/random-snippet', snippetCtrl.getRandomSnippet);
 router.get('/snippets', snippetCtrl.getSnippets);
-router.post('/snippets', formdataParser, snippetCtrl.createSnippet);
+router.post('/snippets', parseFormdata, snippetCtrl.createSnippet);
 router.delete('/snippets/:id', snippetCtrl.deleteSnippet);
 
 // records
 router.get('/records/:id', recordCtrl.getRecord);
 router.get('/records', recordCtrl.getRecords);
-router.post('/records', formdataParser, recordCtrl.createRecord);
+router.post('/records', parseFormdata, recordCtrl.createRecord);
 
 // rooms
-router.get('/rooms/:id', validator, roomCtrl.getRoom);
-router.get('/rooms', validator, roomCtrl.getRooms);
-router.post('/rooms', validator, formdataParser, roomCtrl.createRoom);
+router.get('/rooms/:id', validate, roomCtrl.getRoom);
+router.get('/rooms', validate, roomCtrl.getRooms);
+router.post('/rooms', validate, parseFormdata, roomCtrl.createRoom);
 
 module.exports = router;

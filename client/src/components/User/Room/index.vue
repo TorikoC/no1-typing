@@ -199,7 +199,6 @@ export default {
       console.log("user join: ", username);
     },
     toRemoveUser(username) {
-      console.log("user leave start.");
       removeFromArray(this.users, user => user.username === username);
       this.updateAllPrepared();
       console.log("user leave: ", username);

@@ -39,9 +39,7 @@ export default {
         alert("password did not match.");
         return;
       }
-      this.$axios.post("/users", formData).then(result => {
-        console.log(result);
-      });
+      this.$axios.post("/users", formData);
     }
   }
 };

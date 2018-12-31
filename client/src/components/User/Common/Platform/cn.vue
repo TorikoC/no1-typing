@@ -28,11 +28,6 @@
 </template>
 
 <script>
-import commonSubstrLength from "@/tools/common-substr-length";
-import computePercent from "@/tools/compute-percent";
-import computeSpeed from "@/tools/compute-speed";
-import focusEditable from "@/tools/focus-editable.js";
-
 export default {
   props: {
     disabled: {
@@ -59,7 +54,7 @@ export default {
 
         this.watch(this.elInput);
         this.elInput.setAttribute("contenteditable", true);
-        focusEditable(this.elInput);
+        this.focusEditable(this.elInput);
       }
     }
   },
@@ -98,7 +93,7 @@ export default {
       const handler = (mutationList, observer) => {
         let s1 = this.text;
         let s2 = el.textContent;
-        let len = commonSubstrLength(s1, s2);
+        let len = this.getMatchLen(s1, s2);
 
         let match = s2.substr(0, len);
         el.setAttribute("data-highlight", match);
@@ -107,12 +102,11 @@ export default {
         this.currentInputLength = s2.length;
 
         this.progress.time = Date.now() - this.startTime;
-        this.progress.percent = computePercent(match.length, s1.length);
-        this.progress.speed = computeSpeed(
-          match.length,
-          this.progress.time / 1000
-        );
-        console.log(this.progress.time, this.progress.speed);
+        this.progress.percent = ((len / s1.length) * 100).toFixed(0);
+        this.progress.speed = (
+          (len / (this.progress.time / 1000)) *
+          60
+        ).toFixed(0);
 
         this.updateProgress(match.length === s1.length);
         if (match.length === s1.length) {
@@ -135,6 +129,22 @@ export default {
         };
         this.$emit("complete", record);
       }
+    },
+    getMatchLen(s1, s2) {
+      let i = 0;
+      while (i < s1.length && i < s2.length && s1[i] === s2[i]) {
+        i += 1;
+      }
+      return i;
+    },
+    focusEditable(el) {
+      let s = window.getSelection();
+      let r = document.createRange();
+      el.innerHTML = "\u00a0";
+      r.selectNodeContents(el);
+      s.removeAllRanges();
+      s.addRange(r);
+      document.execCommand("delete", false, null);
     },
     reset() {
       this.progress = {

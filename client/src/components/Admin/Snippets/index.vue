@@ -100,7 +100,6 @@ export default {
     },
     getBooks() {
       this.$axios.get(`/books`).then(resp => {
-        console.log(resp);
         this.books = resp.data;
       });
     },
