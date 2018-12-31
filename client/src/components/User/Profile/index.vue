@@ -39,9 +39,8 @@ export default {
     };
   },
   created() {
-    this.$axios.get(`/users/${this.username}`).then(result => {
-      // this.user = result.data;
-      this.user = result.data.user;
+    this.$axios.get(`/users?username=${this.username}`).then(result => {
+      this.user = result.data[0];
       this.bestPraticeRecord =
         (result.data.bestPraticeRecord &&
           result.data.bestPraticeRecord.speed) ||

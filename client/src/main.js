@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import axios from 'axios';
 
 import App from './App.vue';
+import axios from './axios';
 import socket from './socket';
 import router from './routes';
 import config from './config';
@@ -12,9 +12,8 @@ import components from './components/Common';
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);
-Vue.prototype.$axios = axios.create({
-  baseURL: config.apiServer,
-});
+
+Vue.prototype.$axios = axios;
 
 Vue.prototype.$bus = new Vue();
 Vue.prototype.$config = config;

@@ -19,18 +19,49 @@ app.use(expressPino);
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(cors());
 app.use(router);
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/index.html'));
+
+/**
+ * format success response
+ * {
+ *  data: data
+ * }
+ */
+app.use((req, res, next) => {
+  if (req.result) {
+    res.status(200);
+    res.send({
+      data: req.result,
+    });
+  } else {
+    next();
+  }
 });
 
+/**
+ * format error response
+ * {
+ *  error: 'message'
+ * }
+ */
 app.use((err, req, res, next) => {
   if (res.headersSent) {
     return next(err);
   }
-  res.status(500);
-  res.send({
-    error: err.message,
-  });
+  if (req.error) {
+    res.status(req.error.code);
+    res.send({
+      error: req.error.message,
+    });
+  } else {
+    res.status(500);
+    res.send({
+      error: err.message,
+    });
+  }
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
 const server = require('http').Server(app);

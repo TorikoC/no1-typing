@@ -1,22 +1,22 @@
 const db = require('../models');
 
-async function getRooms(req, res) {
+async function getRooms(req, res, next) {
   let result = await db.Room.find();
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
-async function getRoom(req, res) {
+async function getRoom(req, res, next) {
   const { id } = req.params;
 
   let result = await db.Room.findOne({ _id: id });
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
-async function createRoom(req, res) {
+async function createRoom(req, res, next) {
   const { body, user } = req;
 
   let room = Object.assign(body, {
@@ -29,8 +29,8 @@ async function createRoom(req, res) {
 
   let result = await db.Room.create(room);
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
 module.exports = {

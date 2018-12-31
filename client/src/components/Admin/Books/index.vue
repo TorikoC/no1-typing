@@ -75,14 +75,9 @@ export default {
       });
     },
     del(id, index) {
-      this.$axios
-        .delete(`/books/${id}`)
-        .then(result => {
-          this.books.splice(index, 1);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      this.$axios.delete(`/books/${id}`).then(result => {
+        this.books.splice(index, 1);
+      });
     }
   }
 };

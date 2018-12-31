@@ -109,23 +109,14 @@ export default {
 
     // no more http request after this function
     enterRoom() {
-      this.$axios
-        .get(`/rooms/${this.id}`)
-        .then(result => {
-          // success
-          if (
-            !result.data.users.some(user => user.username === this.username)
-          ) {
-            result.data.users.push({ username: this.username });
-          }
-          this.resetUsers(result.data.users);
-          this.socket.emit("room-join", this.id, this.username);
-        })
-        .catch(error => {
-          // fail
-          console.log("error", error);
-          this.$router.replace("/rooms");
-        });
+      this.$axios.get(`/rooms/${this.id}`).then(result => {
+        // success
+        if (!result.data.users.some(user => user.username === this.username)) {
+          result.data.users.push({ username: this.username });
+        }
+        this.resetUsers(result.data.users);
+        this.socket.emit("room-join", this.id, this.username);
+      });
     },
     toStart() {
       this.socket.emit("room-start", this.id);

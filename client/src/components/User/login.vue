@@ -24,12 +24,8 @@ export default {
     toSubmit(evt) {
       const formData = new FormData(evt.target);
       this.$axios.post("/login", formData).then(result => {
-        if (result.status === 200) {
-          this.$bus.$emit("login", result.data);
-          this.$router.push("/");
-        } else {
-          alert(result.data);
-        }
+        this.$bus.$emit("login", result.data);
+        this.$router.push("/");
       });
     }
   }

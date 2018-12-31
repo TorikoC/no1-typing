@@ -2,37 +2,51 @@ const db = require('../models');
 const jwt = require('jsonwebtoken');
 const jwtSecret = require('config').get('jwtSecret');
 
-async function getUser(req, res) {
+async function getUser(req, res, next) {
   let { id } = req.params;
 
   let result = await db.User.findOne({ _id: id });
-
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
-async function getUsers(req, res) {
-  let result = await db.User.find();
+async function getUsers(req, res, next) {
+  let { username } = req.query;
 
-  res.status(200);
-  res.send(result);
+  const where = {};
+
+  if (username) {
+    where.username = username;
+  }
+
+  let result = await db.User.find(where);
+  req.result = result;
+  next();
 }
 
-async function createUser(req, res) {
+async function createUser(req, res, next) {
   const { body } = req;
   let result = await db.User.create(body);
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
 async function authUser(req, res, next) {
   const { email, password } = req.body;
   if (!email || !password) {
+    req.error = {
+      code: 400,
+      message: 'miss necessary paramters.',
+    };
     next(new Error('miss necessary parameters.'));
   }
   let result = await db.User.findOne({ email });
 
   if (!result) {
+    req.error = {
+      code: 404,
+      message: 'user not found.',
+    };
     next(new Error('user not found.'));
   }
   // santify password
@@ -51,9 +65,6 @@ async function authUser(req, res, next) {
 }
 async function createJwt(req, res, next) {
   let user = req.user;
-  if (!user) {
-    next(new Error('user not found.'));
-  }
   req.token = jwt.sign(
     {
       email: user.email,
@@ -66,11 +77,9 @@ async function createJwt(req, res, next) {
 }
 async function loginUser(req, res, next) {
   let { token } = req;
-  if (!token) {
-    next(new Error('token not created.'));
-  }
-  res.status(200);
-  res.send(token);
+
+  req.result = token;
+  next();
 }
 
 module.exports = {

@@ -1,27 +1,27 @@
 const db = require('../models');
 
-async function getRecord(req, res) {
+async function getRecord(req, res, next) {
   let { id } = req.params;
 
   let result = await db.Record.findOne({ _id: id });
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
-async function getRecords(req, res) {
+async function getRecords(req, res, next) {
   let result = await db.Record.find();
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
-async function createRecord(req, res) {
+async function createRecord(req, res, next) {
   const { body } = req;
   let result = await db.Record.create(body);
 
-  res.status(200);
-  res.send(result);
+  req.result = result;
+  next();
 }
 
 module.exports = {
