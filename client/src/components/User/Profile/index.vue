@@ -22,7 +22,7 @@
           <li
             v-for="record in latestRecords"
             :key="record._id"
-          >{{ record.speed | formatSpeed }} - {{ record.lang }} - {{ record.mode }}- {{ record.createdAt | formatDate }}</li>
+          >{{ record.speed }}WPM - {{ record.lang }} - {{ record.mode }}- {{ record.createdAt | formatDate }}</li>
         </ul>
       </dd>
     </dl>

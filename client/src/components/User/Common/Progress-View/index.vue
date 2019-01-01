@@ -25,9 +25,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.psview {
-  list-style: url("../../../../assets/user-secret-solid.svg");
-}
-</style>

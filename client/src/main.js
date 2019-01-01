@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import jwtDecode from 'jwt-decode';
 
 import App from './App.vue';
 import axios from './axios';
@@ -9,7 +10,6 @@ import config from './config';
 import filters from './filters';
 import components from './components/Common';
 
-import jwtDecode from 'jwt-decode';
 if (localStorage.getItem('jwt')) {
   let jwt = localStorage.getItem('jwt');
   let data = jwtDecode(jwt);

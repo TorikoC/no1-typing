@@ -1,5 +1,5 @@
 <template>
-  <div class="pratice" v-if="!loading">
+  <div class="pratice">
     <cs-back/>
     <div class="pratice__header">
       <h1>练习模式</h1>
@@ -24,9 +24,8 @@
 <script>
 import PlatformCn from "@/components/User/Common/Platform/cn";
 import PlatformEn from "@/components/User/Common/Platform/en";
-
-import ProgressView from "@/components/User/Common/Progress-View/index";
 import ResultView from "@/components/User/Common/Result-View/index";
+import ProgressView from "@/components/User/Common/Progress-View/index";
 
 export default {
   props: {
@@ -38,8 +37,8 @@ export default {
   components: {
     PlatformEn,
     PlatformCn,
-    ProgressView,
-    ResultView
+    ResultView,
+    ProgressView
   },
   data() {
     return {
@@ -163,6 +162,7 @@ export default {
   width: 50%;
   margin: 1em auto;
   position: relative;
+
   .pratice__control {
     display: flex;
     flex-direction: row;

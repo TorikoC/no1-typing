@@ -10,6 +10,7 @@ export default {};
 $color: blue;
 .prev-link {
   font-size: 0.8em;
+  transition: background 0.3s;
   color: lighten($color: $color, $amount: 10%);
 }
 .prev-link:visited {
@@ -21,6 +22,7 @@ $color: blue;
 }
 .prev-link:active {
   cursor: pointer;
-  color: darken($color: $color, $amount: 20%);
+  background: #eee;
+  color: darken($color: $color, $amount: 10%);
 }
 </style>

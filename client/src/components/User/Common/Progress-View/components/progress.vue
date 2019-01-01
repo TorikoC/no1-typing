@@ -4,7 +4,7 @@
     <div class="progress__body-wrapper">
       <div class="progress__body" ref="body">{{ percent }}%</div>
     </div>
-    <span class="progress__speed">{{ speed | formatSpeed(lang) }}</span>
+    <span class="progress__speed">{{ speed }}WPM</span>
   </div>
 </template>
 
@@ -61,6 +61,11 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+$lowColor: crimson;
+$middleColor: orange;
+$highColor: orange;
+$completeColor: green;
+
 .progress__body {
   border-left: 1px solid silver;
   width: 0%;
@@ -68,18 +73,18 @@ export default {
   transition: all 0.3s;
   color: snow;
   font-size: 0.8em;
-}
-.progress__body--low {
-  background: crimson;
-}
-.progress__body--middle {
-  background: orange;
-}
-.progress__body--high {
-  background: orange;
-}
-.progress__body--complete {
-  background: green;
+  &--low {
+    background: $lowColor;
+  }
+  &--middle {
+    background: $middleColor;
+  }
+  &--high {
+    background: $highColor;
+  }
+  &--complete {
+    background: $completeColor;
+  }
 }
 
 @media screen and (min-width: 640px) {
@@ -87,21 +92,21 @@ export default {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    color: #333;
-  }
-  .progress__name {
-    width: 6em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .progress__body-wrapper {
-    flex: 1;
-  }
-  .progress__speed {
-    width: 6em;
-    color: #777;
-    margin-left: auto;
-    text-align: right;
+
+    &__name {
+      width: 6em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &__body-wrapper {
+      flex: 1;
+    }
+    &__speed {
+      width: 6em;
+      color: #777;
+      margin-left: auto;
+      text-align: right;
+    }
   }
 }
 </style>

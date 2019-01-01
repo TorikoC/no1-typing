@@ -17,5 +17,7 @@ export default {
 .no-data {
   position: absolute;
   margin: 2em auto;
+  text-align: center;
+  color: inherit;
 }
 </style>

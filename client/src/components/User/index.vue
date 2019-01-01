@@ -1,44 +1,45 @@
 <template>
   <div @click="hideDropdown">
     <nav class="nav">
-      <ul>
-        <li>
-          <router-link to="/">练习</router-link>
+      <ul class="nav__list">
+        <li class="nav__list-item">
+          <router-link class="nav__link" to="/">练习</router-link>
         </li>
-        <li>
-          <router-link to="/rooms">房间</router-link>
+        <li class="nav__list-item">
+          <router-link class="nav__link" to="/rooms">房间</router-link>
         </li>
-        <li>
-          <router-link to="/rank">排行榜</router-link>
+        <li class="nav__list-item">
+          <router-link class="nav__link" to="/rank">排行榜</router-link>
         </li>
-        <li class="dropdown" @click="toggleDropdown">帮助
+        <li class="dropdown nav__list-item" @click="toggleDropdown">
+          <span class="nav__link">帮助</span>
           <ul class="dropdown__menu">
             <li class="dropdown__item">
-              <router-link to="/feedback">反馈</router-link>
+              <router-link class="dropdown__link" to="/feedback">反馈</router-link>
             </li>
             <li class="dropdown__item">
-              <router-link to="/about">关于</router-link>
+              <router-link class="dropdown__link" to="/about">关于</router-link>
             </li>
           </ul>
         </li>
       </ul>
-      <ul v-if="user" class="nav__right">
-        <li>
-          <router-link :to="'/profile/' + user.username">{{ user.username }}</router-link>
+      <ul v-if="user" class="nav__list nav__list--right">
+        <li class="nav__list-item">
+          <router-link class="nav__link" :to="'/profile/' + user.username">{{ user.username }}</router-link>
         </li>
-        <li>
-          <a href="#" @click="toLogout">退出</a>
+        <li class="nav__list-item">
+          <a href="#" class="nav__link" @click="toLogout">退出</a>
         </li>
       </ul>
-      <ul v-else class="nav__right">
-        <li>
-          <router-link to="/login">登录</router-link>
+      <ul v-else class="nav__list nav__list--right">
+        <li class="nav__list-item">
+          <router-link class="nav__link" to="/login">登录</router-link>
         </li>
       </ul>
     </nav>
     <router-view></router-view>
-    <div v-if="$route.fullPath === '/'" class="entry">
-      <div class="entry__mode">
+    <div v-if="$route.fullPath === '/'" class="menu">
+      <div class="menu__mode">
         <fieldset>
           <legend>语言</legend>
           <label for="radio-cn">简体中文</label>
@@ -47,7 +48,7 @@
           <input type="radio" id="radio-en" name="lang" v-model="lang" value="en">
         </fieldset>
       </div>
-      <div class="entry__select">
+      <div>
         <router-link :to="'/pratice/' + lang">练习</router-link>
         <router-link :to="'/match/' + lang">匹配</router-link>
       </div>
@@ -62,7 +63,6 @@ export default {
   data() {
     return {
       lang: "en",
-
       user: window.$user ? window.$user : ""
     };
   },
@@ -116,14 +116,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.entry {
-  $linkColor: orange;
-  position: relative;
-  display: block;
+.menu {
+  $defaultColor: #ffa500;
+  $hoverColor: #e59400;
+  $activeColor: #cc8400;
+
   width: 30%;
+  display: block;
+  position: relative;
   margin: 1em auto;
-  .entry__mode {
+
+  .menu__mode {
     margin-bottom: 1em;
+  }
+
+  $triWidth: 8px;
+  @mixin tri {
+    content: "";
+    display: inline-block;
+
+    border-top: $triWidth solid transparent;
+    border-bottom: $triWidth solid transparent;
+
+    // vertical center
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+
+    // animation
+    opacity: 0;
+    transition: all 0.3s;
   }
   a {
     display: block;
@@ -131,74 +153,45 @@ export default {
     padding: 0.2em 0.4em;
     line-height: 2.2;
     text-decoration: none;
-    color: $linkColor;
+    color: $defaultColor;
     transition: color 0.3s;
     text-align: center;
     border-top: 1px solid #fff;
     border-bottom: 1px solid #fff;
     transition: all 0.3s;
-  }
-  a:visited {
-    color: $linkColor;
-  }
-  a:hover {
-    color: darken($color: $linkColor, $amount: 10);
-    border-top: 1px dashed silver;
-    border-bottom: 1px dashed silver;
-  }
-  $triWidth: 8px;
-  a:after {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    right: -$triWidth - 10px;
-    opacity: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    border-left: $triWidth solid transparent;
-    border-right: $triWidth solid black;
-    border-top: $triWidth solid transparent;
-    border-bottom: $triWidth solid transparent;
-    transition: all 0.3s;
-  }
-
-  a:hover::after {
-    opacity: 1;
-    right: -$triWidth;
-  }
-  @keyframes blink {
-    0% {
-      opacity: 1;
+    &:after {
+      @include tri;
+      right: -$triWidth - 10px;
+      border-left: $triWidth solid transparent;
+      border-right: $triWidth solid black;
     }
-    50% {
-      opacity: 0;
+    &::before {
+      @include tri;
+      left: -$triWidth - 10px;
+      border-left: $triWidth solid black;
+      border-right: $triWidth solid transparent;
     }
-    100% {
-      opacity: 1;
+    &:visited {
+      color: $defaultColor;
     }
-  }
-  a::before {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    left: -$triWidth - 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-left: $triWidth solid black;
-    border-right: $triWidth solid transparent;
-    border-top: $triWidth solid transparent;
-    border-bottom: $triWidth solid transparent;
-    transition: all 0.3s;
-    opacity: 0;
-  }
-  a:hover::before {
-    left: -$triWidth;
-    opacity: 1;
-  }
-  a:active {
-    color: darken($color: $linkColor, $amount: 20);
-    border-top: 1px solid silver;
-    border-bottom: 1px solid silver;
+    &:hover {
+      color: $hoverColor;
+      border-top: 1px dashed silver;
+      border-bottom: 1px dashed silver;
+      &::after {
+        opacity: 1;
+        right: -$triWidth;
+      }
+      &::before {
+        left: -$triWidth;
+        opacity: 1;
+      }
+    }
+    &:active {
+      color: $activeColor;
+      border-top: 1px solid silver;
+      border-bottom: 1px solid silver;
+    }
   }
 }
 .nav {
@@ -208,84 +201,72 @@ export default {
   padding: 0.2em 0.6em;
   display: flex;
   flex-direction: row;
-  ul {
+  .nav__list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  li {
+  .nav__list--right {
+    margin-left: auto;
+  }
+  .nav__list-item {
     display: inline-block;
-    a {
+    .nav__link {
       padding: 0.2em 0.4em;
       position: relative;
       text-decoration: none;
       transition: all 0.3s;
       color: $linkColor;
-    }
-    a:visited {
-      color: $linkColor;
-    }
-    a:hover {
-      color: darken($color: $linkColor, $amount: 20);
-    }
-    a:active {
-      color: darken($color: $linkColor, $amount: 30);
-      background: #ccc;
-      border-radius: 2px;
+      &:visited {
+        color: $linkColor;
+      }
+      &:hover {
+        cursor: pointer;
+        color: #555;
+      }
+      &:active {
+        color: #444;
+        background: #ccc;
+        border-radius: 2px;
+      }
     }
   }
-  li + li {
+  .nav__list-item + .nav__list-item {
     margin-left: 1em;
-  }
-  .nav__right {
-    margin-left: auto;
   }
 }
 .dropdown {
   position: relative;
-  color: #666;
-  align-self: flex-end;
-  padding: 0.2em 0.4em;
-  position: relative;
-  text-decoration: none;
-  transition: all 0.3s;
-  &:active {
-    background: #ccc;
-    border-radius: 2px;
-  }
-  &:hover {
-    cursor: pointer;
-  }
-
   .dropdown__menu {
+    list-style: none;
+
+    margin: 0;
+    padding: 0.4em 0;
+
+    width: 6em;
     display: none;
     position: absolute;
-    width: 6em;
-    border: 1px solid silver;
     background: #fefefe;
-    li {
-      margin: 0;
-      padding: 0;
+    border: 1px solid silver;
+
+    .dropdown__link {
+      transition: none;
+      text-decoration: none;
+
+      color: #666;
+      height: 100%;
       display: block;
-      a {
-        height: 100%;
-        display: block;
-        padding: 0 0.4em;
-        text-decoration: none;
-        transition: none;
-        color: #333;
-        &:visited {
-          color: #333;
-        }
-        &:hover {
-          cursor: pointer;
-          color: white;
-          background: goldenrod;
-        }
-        &:active {
-          background: #ccc;
-          border-radius: 2px;
-        }
+      padding: 0 0.4em;
+
+      &:hover {
+        color: #555;
+        cursor: pointer;
+        background: #eee;
+      }
+      &:active {
+        color: #444;
+        background: #ddd;
+        border-radius: 2px;
       }
     }
   }

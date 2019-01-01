@@ -1,5 +1,6 @@
 <template>
   <div class="rooms">
+    <cs-back/>
     <h1>房间列表</h1>
     <p class="room__create">
       <router-link to="/add/room">创建房间</router-link>
@@ -7,12 +8,11 @@
     <table>
       <thead>
         <tr>
-          <th>id</th>
-          <th>Name</th>
-          <th>Lang</th>
-          <th>Creator</th>
-          <th>Users</th>
-          <th>Action</th>
+          <th>名字</th>
+          <th>语言</th>
+          <th>创建者</th>
+          <th>用户</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     getRooms() {
-      this.$axios.get("/rooms").then(result => {
+      this.$axios.get("/rooms?canJoin=true").then(result => {
         this.rooms = result.data;
       });
     },
