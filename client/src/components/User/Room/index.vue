@@ -1,6 +1,6 @@
 <template>
   <div class="room room--en">
-    <div v-if="state === $roomState.WAITING">
+    <div v-if="state === roomState.WAITING">
       <button v-if="isHost" @click="toStart" :disabled="!allPrepared">start</button>
       <button v-else @click="toPrepare(username)" :disabled="prepared">prepare</button>
     </div>
@@ -54,7 +54,11 @@ export default {
       username: window.$user ? window.$user.username : "",
 
       clock: 999,
-      state: this.$roomState.WAITING,
+      state: 0,
+      roomState: {
+        WAITING: 0,
+        ONGOING: 1
+      },
 
       snippet: {},
 
@@ -124,7 +128,7 @@ export default {
     toUpdateState(state) {
       this.state = state;
       switch (state) {
-        case this.$roomState.WAITING: {
+        case this.roomState.WAITING: {
           // if guest
           this.prepared = false;
 
@@ -132,7 +136,7 @@ export default {
           this.updateAllPrepared();
           break;
         }
-        case this.$roomState.ONGOING: {
+        case this.roomState.ONGOING: {
           if (this.first) {
             this.first = false;
           }

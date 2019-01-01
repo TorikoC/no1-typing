@@ -19,20 +19,6 @@ Vue.prototype.$bus = new Vue();
 Vue.prototype.$config = config;
 Vue.prototype.$socket = socket;
 
-Vue.prototype.$roomState = {
-  WAITING: 0,
-  ONGOING: 1,
-};
-Vue.prototype.$platformState = {
-  WAITING: 0,
-  COUNTING: 1,
-  WRITING: 2,
-};
-
-Vue.prototype.$constant = {
-  PRATICE_MODE_CLOCK: 4,
-};
-
 for (let key of Object.keys(filters)) {
   Vue.filter(key, filters[key]);
 }

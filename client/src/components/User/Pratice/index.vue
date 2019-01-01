@@ -42,7 +42,7 @@ export default {
       ONGOING: 2,
       state: 0,
 
-      clock: this.$constant.PRATICE_MODE_CLOCK,
+      clock: 5,
 
       snippet: {},
 
@@ -102,7 +102,7 @@ export default {
         this.fresh = false;
       }
 
-      this.clock = this.$constant.PRATICE_MODE_CLOCK;
+      this.clock = 5;
 
       this.state = this.WAITING;
 

@@ -23,6 +23,9 @@
       <label for></label>
       <button type="submit">Register</button>
     </div>
+    <div class="form__footer">
+      <router-link to="/login">login</router-link>
+    </div>
   </form>
 </template>
 
@@ -36,10 +39,12 @@ export default {
       const pw2 = formData.get("password2");
 
       if (pw1 !== pw2) {
-        alert("password did not match.");
+        alert("password not match.");
         return;
       }
-      this.$axios.post("/users", formData);
+      this.$axios.post("/users", formData).then(result => {
+        this.$router.push("/login");
+      });
     }
   }
 };
@@ -53,6 +58,9 @@ export default {
 .form {
   width: 30%;
   margin: 0 auto;
+  .form__footer {
+    text-align: right;
+  }
 }
 </style>
 

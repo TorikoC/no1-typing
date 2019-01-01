@@ -15,6 +15,9 @@
       <label></label>
       <button type="submit">Login</button>
     </div>
+    <div class="form__footer">
+      <router-link to="/register">register</router-link>
+    </div>
   </form>
 </template>
 
@@ -40,5 +43,8 @@ export default {
 .form {
   width: 30%;
   margin: 0 auto;
+  .form__footer {
+    text-align: right;
+  }
 }
 </style>
