@@ -9,6 +9,16 @@ import config from './config';
 import filters from './filters';
 import components from './components/Common';
 
+import jwtDecode from 'jwt-decode';
+if (localStorage.getItem('jwt')) {
+  let jwt = localStorage.getItem('jwt');
+  let data = jwtDecode(jwt);
+  window.login = true;
+  window.$user = data;
+
+  axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+}
+
 Vue.config.productionTip = false;
 
 Vue.use(VueRouter);

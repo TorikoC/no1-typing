@@ -10,7 +10,23 @@ async function getRecord(req, res, next) {
 }
 
 async function getRecords(req, res, next) {
-  let result = await db.Record.find();
+  let { lang, size, sort } = req.query;
+  lang = lang || 'cn';
+  size = size || 10;
+  sort = sort || 'speed|desc';
+
+  let where = {
+    lang,
+  };
+
+  let sortField = sort.split('|').shift();
+  let sortType = sort.split('|').pop();
+  let sortOption = {};
+  sortOption[sortField] = sortType === 'desc' ? -1 : 1;
+
+  let result = await db.Record.find(where)
+    .sort(sortOption)
+    .limit(size);
 
   req.result = result;
   next();

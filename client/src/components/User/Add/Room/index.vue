@@ -1,37 +1,25 @@
 <template>
   <form class="form" @submit.prevent="toSubmit">
     <legend>
-      <h1>Create Room</h1>
+      <h1>创建房间</h1>
       <div class="form-group">
-        <label for="name">Name</label>
+        <label for="name">名字</label>
         <input type="text" id="name" name="name" required>
       </div>
       <div class="form-group">
-        <label for="lang">Language</label>
+        <label for="lang">语言</label>
         <select name="lang" id="lang" required>
-          <option value="en">English</option>
-          <option value="cn">Chinese</option>
+          <option value="en">英文</option>
+          <option value="cn">中文</option>
         </select>
       </div>
       <div class="form-group">
-        <label for="user-limit">Max User</label>
+        <label for="user-limit">人数限制</label>
         <input type="number" step="1" min="0" max="10" name="userLimit" id="user-limit" required>
       </div>
       <div class="form-group">
-        <label for="public">public</label>
-        <input type="radio" name="public" v-model="pub" :value="true" id="public">
-      </div>
-      <div class="form-group">
-        <label for="private">private</label>
-        <input type="radio" name="public" v-model="pub" :value="false" id="private">
-      </div>
-      <div v-if="!pub" class="form-group">
-        <label for="secret">secret</label>
-        <input type="text" name="secret" id="secret" required>
-      </div>
-      <div class="form-group">
         <label for></label>
-        <button type="submit">Create</button>
+        <button type="submit">创建</button>
       </div>
     </legend>
   </form>
@@ -49,7 +37,7 @@ export default {
     toSubmit(evt) {
       const formData = new FormData(evt.target);
       this.$axios.post("/rooms", formData).then(result => {
-        this.$router.push(`/rooms/${result.data.lang}/${result.data._id}`);
+        this.$router.replace(`/rooms/${result.data.lang}/${result.data._id}`);
       });
     }
   }

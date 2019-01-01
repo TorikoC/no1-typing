@@ -17,7 +17,8 @@ body {
   margin: 0px;
   padding: 0px;
   color: #333;
-  font-family: "Microsoft Yahei";
+  font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial,
+    sans-serif, "Microsoft Yahei";
 }
 #app {
   height: 100vh;

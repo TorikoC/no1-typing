@@ -1,8 +1,8 @@
 <template>
   <div class="rooms">
-    <h1>Rooms</h1>
-    <p>
-      <router-link to="/add/room">Create Room</router-link>
+    <h1>房间列表</h1>
+    <p class="room__create">
+      <router-link to="/add/room">创建房间</router-link>
     </p>
     <table>
       <thead>
@@ -41,6 +41,14 @@ export default {
   created() {
     this.getRooms();
   },
+  beforeRouteEnter(from, to, next) {
+    if (!window.$user) {
+      alert("请先登录");
+      next(false);
+    } else {
+      next();
+    }
+  },
   methods: {
     getRooms() {
       this.$axios.get("/rooms").then(result => {
@@ -58,9 +66,11 @@ export default {
 
 <style lang="scss" scoped>
 .rooms {
+  position: relative;
   width: 50%;
   margin: 1em auto;
   table {
+    width: 100%;
     border-collapse: collapse;
     tr,
     th,
@@ -71,6 +81,9 @@ export default {
     td {
       padding: 0.2em 0.4em;
     }
+  }
+  .room__create {
+    text-align: right;
   }
 }
 </style>

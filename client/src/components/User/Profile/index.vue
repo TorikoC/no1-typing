@@ -1,24 +1,28 @@
 <template>
   <div class="profile">
-    <h1>Profile</h1>
+    <h1>个人信息</h1>
     <dl>
-      <dt>Username</dt>
+      <dt>用户名</dt>
       <dd>{{ user.username }}</dd>
-      <dt>Email</dt>
+      <dt>邮箱</dt>
       <dd>{{ user.email }}</dd>
-      <dt>Join Date</dt>
+      <dt>注册时间</dt>
       <dd>{{ user.createdAt | formatDate }}</dd>
-      <dt>Best Match Record</dt>
-      <dd>{{ bestMatchRecord }}</dd>
-      <dt>Best Pratice Record</dt>
-      <dd>{{ bestPraticeRecord }}</dd>
-      <dt>Latest Records</dt>
+      <dt>最佳比赛记录</dt>
+      <dd>
+        英文: {{ bestEnRecord.speed }}
+        <br>
+        中文: {{ bestCnRecord.speed || 'no record'}}
+      </dd>
+      <dt>最佳练习记录</dt>
+      <dd>暂无</dd>
+      <dt>最近活动</dt>
       <dd>
         <ul>
           <li
             v-for="record in latestRecords"
             :key="record._id"
-          >{{ record.createdAt | formatDate }} - {{ record.speed | formatSpeed }}</li>
+          >{{ record.speed | formatSpeed }} - {{ record.lang }} - {{ record.mode }}- {{ record.createdAt | formatDate }}</li>
         </ul>
       </dd>
     </dl>
@@ -33,21 +37,23 @@ export default {
   data() {
     return {
       user: "",
-      bestPraticeRecord: "",
-      bestMatchRecord: "",
+      bestCnRecord: "",
+      bestEnRecord: "",
       latestRecords: []
     };
   },
   created() {
     this.$axios.get(`/users?username=${this.username}`).then(result => {
-      this.user = result.data[0];
-      this.bestPraticeRecord =
-        (result.data.bestPraticeRecord &&
-          result.data.bestPraticeRecord.speed) ||
-        "no record";
-      this.bestMatchRecord =
-        (result.data.bestMatchRecord && result.data.bestMatchRecord.speed) ||
-        "no record";
+      this.user = result.data.user;
+      this.bestEnRecord = result.data.bestEnRecord;
+      this.bestCnRecord = result.data.bestCnRecord;
+      // this.bestPraticeRecord =
+      //   (result.data.bestPraticeRecord &&
+      //     result.data.bestPraticeRecord.speed) ||
+      //   "no record";
+      // this.bestMatchRecord =
+      //   (result.data.bestMatchRecord && result.data.bestMatchRecord.speed) ||
+      //   "no record";
       this.latestRecords = result.data.latestRecords;
     });
   }
@@ -60,6 +66,10 @@ export default {
   margin: 0 auto;
   dt {
     background: #eee;
+  }
+  dt,
+  dd {
+    padding: 0.2em 0.4em;
   }
 }
 </style>

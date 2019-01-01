@@ -1,5 +1,5 @@
 <template>
-  <ul v-if="show">
+  <ul v-if="show" class="psview">
     <li v-for="user in users" :key="user.username">
       <pv-progress :name="user.username" :percent="user.percent" :speed="user.speed"/>
     </li>
@@ -25,3 +25,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.psview {
+  list-style: url("../../../../assets/user-secret-solid.svg");
+}
+</style>

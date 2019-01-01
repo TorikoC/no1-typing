@@ -11,16 +11,16 @@ function formatDate(timeStamp) {
   let hour = date.getHours();
   let min = date.getMinutes();
   if (month < 10) {
-    month = '0' + 10;
+    month = '0' + month;
   }
   if (day < 10) {
-    day = '0' + 10;
+    day = '0' + day;
   }
   if (hour < 10) {
-    hour = '0' + 10;
+    hour = '0' + hour;
   }
   if (min < 10) {
-    min = '0' + 10;
+    min = '0' + min;
   }
   const result = `${year}-${month}-${day} ${hour}:${min}`;
   return result;

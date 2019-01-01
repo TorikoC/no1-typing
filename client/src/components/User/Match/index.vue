@@ -1,8 +1,12 @@
 <template>
   <div class="match">
-    <button @click="toReload">restart</button>
-
+    <cs-back/>
+    <h1 class="match__header">匹配模式</h1>
     <progress-view :users="users"/>
+    <div class="match__control">
+      <button class="match__restart" @click="toReload">重来</button>
+      <span class="match__clock">倒计时 {{ clock }}</span>
+    </div>
     <component
       :is="'platform-' + lang"
       :disabled="platformDisabled"
@@ -118,7 +122,7 @@ export default {
     },
     toComplete(data) {
       const record = Object.assign(data, {
-        lang: "en",
+        lang: this.lang,
         mode: "match",
         username: this.username || "guest",
         snippetId: this.snippet._id
@@ -174,5 +178,15 @@ export default {
 .match {
   width: 50%;
   margin: 1em auto;
+  .match__control {
+    display: flex;
+    flex-direction: column;
+    .match__restart {
+      align-self: flex-end;
+    }
+    .match__clock {
+      align-self: flex-end;
+    }
+  }
 }
 </style>

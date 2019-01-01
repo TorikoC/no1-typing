@@ -1,8 +1,14 @@
 <template>
-  <div class="pratice-en" v-if="!loading">
-    <h1>Pratice</h1>
-    <p v-if="state === COUNTING">clock {{ clock }}</p>
-    <button v-if="state === WAITING" @click="toStart">start</button>
+  <div class="pratice" v-if="!loading">
+    <cs-back/>
+    <div class="pratice__header">
+      <h1>练习模式</h1>
+    </div>
+    <div class="pratice__control">
+      <button class="pratice__start" v-if="state === WAITING" @click="toStart">Start</button>
+      <span class="pratice__clock" v-else-if="state === COUNTING">倒计时 {{ clock }}</span>
+      <span v-else>进行中</span>
+    </div>
     <progress-view :users="users"/>
     <component
       :is="'platform-' + lang"
@@ -54,7 +60,7 @@ export default {
 
       users: [
         {
-          username: window.$user ? window.$user.username : "annoymous",
+          username: window.$user ? window.$user.username : "游客",
           speed: 0,
           percent: 0
         }
@@ -117,6 +123,7 @@ export default {
     },
     postRecord(data) {
       const formData = new FormData();
+      formData.append("username", "guest");
       formData.append("mode", "pratice");
       formData.append("time", data.time);
       formData.append("speed", data.speed);
@@ -152,8 +159,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.pratice-en {
+.pratice {
   width: 50%;
   margin: 1em auto;
+  position: relative;
+  .pratice__control {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+  }
 }
 </style>

@@ -2,12 +2,12 @@
   <div class="platform platform--en">
     <div class="platform__meta">
       <div class="platform__progress">
-        timer
+        计时器
         <span>{{ timer | formatTime }}</span>
-        speed
-        <span>{{ progress.speed }}</span> wpm
-        percent
-        <span>{{ progress.percent }}</span>
+        速度
+        <span>{{ progress.speed }}WPM</span>
+        进度
+        <span>{{ progress.percent }}%</span>
       </div>
     </div>
     <div class="platform__text">

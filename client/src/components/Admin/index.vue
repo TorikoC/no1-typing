@@ -21,7 +21,15 @@
 </template>
 
 <script>
-export default {};
+export default {
+  beforeRouteEnter(to, from, next) {
+    if (!window.$user || !window.$user.isAdmin) {
+      next(false);
+    } else {
+      next();
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>

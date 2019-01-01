@@ -1,19 +1,32 @@
 <template>
   <div class="room room--en">
-    <div v-if="state === roomState.WAITING">
-      <button v-if="isHost" @click="toStart" :disabled="!allPrepared">start</button>
-      <button v-else @click="toPrepare(username)" :disabled="prepared">prepare</button>
+    <dl class="room__info">
+      <dt>房间名</dt>
+      <dd>{{ room.name }}</dd>
+      <dt>语言:</dt>
+      <dd>{{ room.lang }}</dd>
+      <dt>人数限制:</dt>
+      <dd>{{ room.userLimit }}</dd>
+    </dl>
+    <div class="room__main">
+      <cs-back/>
+      <div class="room__control">
+        <div class="room__button" v-if="state === roomState.WAITING">
+          <button v-if="isHost" @click="toStart" :disabled="!allPrepared">start</button>
+          <button v-else @click="toPrepare(username)" :disabled="prepared">prepare</button>
+        </div>
+        <span v-if="state === roomState.ONGOING && clock > 0" class="room__clock">倒计时{{ clock }}</span>
+      </div>
+      <progress-view :users="users"/>
+      <component
+        :is="'platform-' + lang"
+        :disabled="platformDisabled"
+        :text="snippet.content"
+        @complete="toComplete"
+        @match="toMatch"
+      />
+      <result-view :show="showResult && !first" :book="book" :record="record"/>
     </div>
-    <p>clock: {{ clock }}</p>
-    <progress-view :users="users"/>
-    <component
-      :is="'platform-' + lang"
-      :disabled="platformDisabled"
-      :text="snippet.content"
-      @complete="toComplete"
-      @match="toMatch"
-    />
-    <result-view :show="showResult && !first" :book="book" :record="record"/>
   </div>
 </template>
 
@@ -61,6 +74,7 @@ export default {
       },
 
       snippet: {},
+      room: {},
 
       book: {},
       record: {},
@@ -118,6 +132,7 @@ export default {
         if (!result.data.users.some(user => user.username === this.username)) {
           result.data.users.push({ username: this.username });
         }
+        this.room = result.data;
         this.resetUsers(result.data.users);
         this.socket.emit("room-join", this.id, this.username);
       });
@@ -217,7 +232,7 @@ export default {
       this.updateAllPrepared();
 
       const record = Object.assign(data, {
-        lang: "en",
+        lang: this.lang,
         mode: "match",
         username: this.username || "guest",
         snippetId: this.snippet._id
@@ -265,7 +280,29 @@ export default {
 
 <style lang="scss" scoped>
 .room {
-  width: 50%;
-  margin: 1em auto;
+  display: flex;
+  flex-direction: row;
+  margin: 1em 0;
+  .room__info {
+    align-self: flex-start;
+    width: 20%;
+    background: #eee;
+    margin-left: 2.5%;
+    margin-right: 2.5%;
+    dt {
+      padding: 0.2em 0.4em;
+    }
+  }
+  .room__main {
+    width: 50%;
+    .room__control {
+      display: flex;
+      flex-direction: column;
+      .room__button,
+      .room__clock {
+        margin-left: auto;
+      }
+    }
+  }
 }
 </style>

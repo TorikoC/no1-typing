@@ -191,9 +191,11 @@ export default {
   .platform__word--not-match {
     color: crimson !important;
   }
-
+  .platform__input[contenteditable="false"] {
+    background: #eee;
+  }
   .platform__input {
-    font-family: "Noto Sans SC Sliced", sans-serif;
+    font-family: inherit;
     box-sizing: border-box;
     padding: 0.2em 0.4em;
     min-height: 1.8em;
@@ -215,6 +217,7 @@ export default {
     &:focus {
       outline-style: solid;
       outline-width: medium;
+      outline-color: #4d90fe;
     }
   }
   .platform__next-word {
