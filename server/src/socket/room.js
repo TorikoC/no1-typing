@@ -2,17 +2,17 @@ const db = require('../models');
 const config = require('config');
 const logger = require('../logger/socket');
 
+const ONE_SECOND = 1000;
+
 module.exports = (io, socket) => {
   socket.on('room-join', onJoin.bind(null, socket));
   socket.on('room-leave', onLeave.bind(null, socket));
   socket.on('room-start', onStart.bind(null, io));
   socket.on('room-prepare', onPrepare.bind(null, socket));
   socket.on('room-complete', onComplete.bind(null, io, socket));
-
+  socket.on('room-fetch-book', onFetchBook.bind(null, socket));
   socket.on('room-update-progress', onUpdateProgress.bind(null, socket));
   socket.on('room-snippet-updated', onSnippetUpdated.bind(null, io));
-
-  socket.on('room-fetch-book', onFetchBook.bind(null, socket));
 };
 
 function onJoin(socket, id, username) {
@@ -119,30 +119,10 @@ async function onStart(io, id) {
   io.to(id).emit('room-update-state', config.get('roomState').ONGOING);
   io.to(id).emit('room-update-snippet', snippet);
 }
-function onUpdateProgress(socket, id, username, progress) {
-  socket.broadcast.to(id).emit('room-update-progress', username, progress);
-}
+
 function onPrepare(socket, id, username) {
   logger.info(`${username} prepare, ${id}.`);
   socket.broadcast.to(id).emit('room-user-prepare', username);
-}
-
-function onSnippetUpdated(io, id, username) {
-  db.Room.findOneAndUpdate(
-    { _id: id, 'users.username': username },
-    { $set: { 'users.$.snippetReceived': true } },
-    { new: true },
-  ).then(result => {
-    if (!result) {
-      return;
-    }
-    logger.info(`${username} receive snippet , ${id}.`);
-    const distributing = result.users.some(user => !user.snippetReceived);
-    if (!distributing) {
-      logger.info(`${id} clock start.`);
-      tick(io, id, 5);
-    }
-  });
 }
 
 function onComplete(io, socket, id, username, record) {
@@ -182,9 +162,32 @@ function onComplete(io, socket, id, username, record) {
     }
   });
 }
+
 async function onFetchBook(socket, bookId) {
   let result = await db.Book.findOne({ _id: bookId });
   socket.emit('room-update-book', result);
+}
+
+function onUpdateProgress(socket, id, username, progress) {
+  socket.broadcast.to(id).emit('room-update-progress', username, progress);
+}
+
+function onSnippetUpdated(io, id, username) {
+  db.Room.findOneAndUpdate(
+    { _id: id, 'users.username': username },
+    { $set: { 'users.$.snippetReceived': true } },
+    { new: true },
+  ).then(result => {
+    if (!result) {
+      return;
+    }
+    logger.info(`${username} receive snippet , ${id}.`);
+    const distributing = result.users.some(user => !user.snippetReceived);
+    if (!distributing) {
+      logger.info(`${id} clock start.`);
+      tick(io, id, 5);
+    }
+  });
 }
 
 function tick(io, id, clock) {
@@ -193,6 +196,6 @@ function tick(io, id, clock) {
   if (clock > 0) {
     setTimeout(() => {
       tick(io, id, clock);
-    }, 1000);
+    }, ONE_SECOND);
   }
 }

@@ -1,46 +1,17 @@
 const db = require('../models');
-
-const logger = console;
+const logger = require('../logger/socket');
 
 const CLOCK = 10;
+const TIME_TO_BAN = 5;
+const ONE_SECOND = 1000;
 
 module.exports = (io, socket) => {
   socket.on('match-join', toJoin.bind(null, io, socket));
   socket.on('match-leave', toLeave.bind(null, socket));
-  socket.on('match-update-progress', (id, progress) => {
-    console.log(progress);
-    io.to(id).emit('match-update-progress', progress);
-  });
-  socket.on('match-fetch-book', async bookId => {
-    let result = await db.Book.findOne({ _id: bookId });
-    socket.emit('match-update-book', result);
-  });
-  socket.on('match-done', record => {
-    db.Record.create(record);
-  });
+  socket.on('match-update-progress', toUpdateProgress.bind(null, io));
+  socket.on('match-fetch-book', toFetchBook.bind(null, socket));
+  socket.on('match-done', toComplete);
 };
-
-function tick(io, id, clock) {
-  clock -= 1;
-  if (clock === 5) {
-    db.Match.findOneAndUpdate(
-      { _id: id },
-      { $set: { canJoin: false } },
-      (err, result) => {
-        if (err) {
-          console.log(err);
-        }
-      },
-    );
-  }
-  logger.info(`match ${id} start at ${clock}`);
-  io.to(id).emit('match-update-clock', clock);
-  if (clock > 0) {
-    setTimeout(() => {
-      tick(io, id, clock);
-    }, 1000);
-  }
-}
 
 function toJoin(io, socket, lang, username) {
   username = username || socket.request.connection.remoteAddress;
@@ -123,4 +94,29 @@ function toLeave(socket, id, username) {
     );
     logger.info(`${username} leave match ${id}`);
   });
+}
+
+function toUpdateProgress(io, matchId, progress) {
+  io.to(matchId).emit('match-update-progress', progress);
+}
+async function toFetchBook(socket, bookId) {
+  let result = await db.Book.findOne({ _id: bookId });
+  socket.emit('match-update-book', result);
+}
+function toComplete(record) {
+  db.Record.create(record);
+}
+
+function tick(io, id, clock) {
+  clock -= 1;
+  if (clock === TIME_TO_BAN) {
+    logger.info(`update match ${id}: canJoin: false.`);
+    db.Match.findOneAndUpdate({ _id: id }, { $set: { canJoin: false } }).exec();
+  }
+  io.to(id).emit('match-update-clock', clock);
+  if (clock > 0) {
+    setTimeout(() => {
+      tick(io, id, clock);
+    }, ONE_SECOND);
+  }
 }
