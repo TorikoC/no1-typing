@@ -37,8 +37,7 @@ export default {};
 
     top: -3.44em;
     left: -50%;
-    color: 333;
-
+    color: #333;
     border-radius: 2px;
     background: #ddd;
     padding: 0.4em;
@@ -56,6 +55,14 @@ export default {};
       border-left: 0.4em solid transparent;
       border-bottom: 0.4em solid transparent;
       border-right: 0.4em solid transparent;
+    }
+  }
+}
+.dark-theme {
+  .wpm {
+    &__tooltip {
+      background: #333;
+      color: #ddd;
     }
   }
 }

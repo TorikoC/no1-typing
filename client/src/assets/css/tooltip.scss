@@ -36,3 +36,11 @@
     z-index: 999;
   }
 }
+.dark-theme {
+  .tooltip {
+    font-size: 2em;
+    &:hover &__text {
+      background: #222;
+    }
+  }
+}

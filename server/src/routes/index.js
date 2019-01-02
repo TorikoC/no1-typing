@@ -25,6 +25,7 @@ router.post(
 router.get('/users/:id', userCtrl.getUser);
 router.get('/users', userCtrl.getUsers);
 router.post('/users', parseFormdata, userCtrl.createUser);
+router.delete('/users/:id', validate, userCtrl.delelteUser);
 
 // books
 router.get('/books/:id', bookCtrl.getBook);

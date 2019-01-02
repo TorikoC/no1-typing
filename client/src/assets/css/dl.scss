@@ -1,9 +1,13 @@
 .dl {
   dt {
+    color: #333;
     background: #eee;
   }
   dt,
   dd {
     padding: 0.2em 0.4em;
   }
+}
+.dl--sm {
+  font-size: 0.8em;
 }

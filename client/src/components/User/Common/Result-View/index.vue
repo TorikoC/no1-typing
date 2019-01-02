@@ -1,5 +1,5 @@
 <template>
-  <dl class="result-view">
+  <dl class="result-view dl dl--sm">
     <dt>速度</dt>
     <dd>
       {{ record.speed }}
@@ -70,16 +70,6 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.result-view {
-  dt {
-    font-size: 0.8em;
-    background: #eee;
-  }
-  dt,
-  dd {
-    padding: 0.2em 0.4em;
-  }
-}
 .source {
   display: flex;
   flex-direction: row;

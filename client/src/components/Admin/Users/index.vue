@@ -1,33 +1,29 @@
 <template>
   <div class="admin-users">
     <h1>Users</h1>
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>Username</th>
           <th>Email</th>
           <th>Join Date</th>
-          <th>Pratice Count</th>
-          <th>Match Count</th>
-          <th>Best Pratice Speed</th>
-          <th>Best Match Speed</th>
+          <th>Play Count</th>
           <th>Last login</th>
           <th>Last login ip</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in users" :key="user.username">
-          <td>{{ user.username }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.createdAt | formatDate}}</td>
+        <tr v-for="u in users" :key="u.username">
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.createdAt | formatDate}}</td>
           <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td>{{ u.lastLoginTime | formatDate }}</td>
+          <td>{{ u.lastLoginIp }}</td>
+          <td>
+            <button class="button button--danger" @click.prevent="toDel(u._id)">Del</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -38,7 +34,8 @@
 export default {
   data() {
     return {
-      users: []
+      users: [],
+      deleting: false
     };
   },
   created() {
@@ -48,6 +45,19 @@ export default {
     getUsers() {
       this.$axios.get("/users").then(result => {
         this.users = result.data;
+      });
+    },
+    toDel(id) {
+      if (this.deleting) {
+        return;
+      }
+      this.deleting = true;
+      this.$axios.delete(`/users/${id}`).then(resp => {
+        this.deleting = false;
+        let idx = this.users.findIndex(user => user._id === id);
+        if (~idx) {
+          this.users.splice(idx, 1);
+        }
       });
     }
   }

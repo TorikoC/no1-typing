@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="dark-theme">
     <router-view></router-view>
   </div>
 </template>
@@ -21,15 +21,22 @@ html,
 body {
   margin: 0px;
   padding: 0px;
-
-  color: #333;
   font-size: 16px;
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial,
     sans-serif, "Noto Sans SC", "Microsoft Yahei", sans-serif;
+
+  color: #333;
 }
+
 #app {
   height: 100vh;
+  overflow: auto;
   position: relative;
 }
+.dark-theme {
+  color: #bbb;
+  background: #222;
+}
 </style>
+
 

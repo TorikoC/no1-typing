@@ -320,8 +320,8 @@ export default {
   flex-direction: row;
   margin: 1em 0;
   .room__info {
-    align-self: flex-start;
     width: 20%;
+    align-self: flex-start;
     color: #555;
     font-size: 0.8em;
     box-shadow: 1px 1px 6px 0px silver;

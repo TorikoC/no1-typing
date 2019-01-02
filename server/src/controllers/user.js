@@ -20,41 +20,8 @@ async function getUsers(req, res, next) {
   if (username) {
     where.username = username;
   }
-  let p1 = db.Record.find(where);
 
-  let p2 = db.User.find(where);
-  let rawResult = await Promise.all([p1, p2]);
-
-  if (!rawResult) {
-    next(new Error('data required not found.'));
-  }
-  let records = rawResult[0];
-  let user = rawResult[1][0];
-  let bestEnRecord = records.sort((r1, r2) => {
-    if (r1.lang === 'en') {
-      if (r2.lang === 'en') {
-        return r2.speed - r1.speed;
-      } else {
-        return 1;
-      }
-    }
-  })[0];
-  let bestCnRecord = records.sort((r1, r2) => {
-    if (r1.lang === 'cn') {
-      if (r2.lang === 'cn') {
-        return r2.speed - r1.speed;
-      } else {
-        return 1;
-      }
-    }
-  })[0];
-  let latestRecords = records.sort((r1, r2) => r2.createdAt - r1.createdAt);
-  let result = {
-    user: user,
-    bestCnRecord: bestCnRecord.lang === 'cn' ? bestCnRecord : '',
-    bestEnRecord: bestEnRecord.lang === 'en' ? bestEnRecord : '',
-    latestRecords: latestRecords.slice(0, 10),
-  };
+  let result = await db.User.find(where);
 
   req.result = result;
   next();
@@ -64,6 +31,20 @@ async function createUser(req, res, next) {
   const { body } = req;
   body.password = await encryptPassword(body.password);
   let result = await db.User.create(body);
+  req.result = result;
+  next();
+}
+async function delelteUser(req, res, next) {
+  const { id } = req.params;
+  if (!req.user || !req.user.isAdmin) {
+    req.error = {
+      code: 401,
+      message: 'No permisson.',
+    };
+    next(new Error());
+  }
+
+  let result = await db.User.deleteOne({ _id: id });
   req.result = result;
   next();
 }
@@ -151,4 +132,5 @@ module.exports = {
   authUser,
   createJwt,
   loginUser,
+  delelteUser,
 };

@@ -12,4 +12,7 @@
     background: #eee;
     color: darken($color: blue, $amount: 20);
   }
+  &--lg {
+    font-size: 1em;
+  }
 }

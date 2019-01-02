@@ -182,6 +182,7 @@ export default {
   }
   .platform__text {
     position: relative;
+    color: #333;
     background: #eee;
     border-radius: 2px;
     padding: 0.2em 0.4em;
@@ -202,7 +203,7 @@ export default {
     color: crimson !important;
   }
   .platform__input[contenteditable="false"] {
-    background: #eee;
+    background: #ccc;
   }
   .platform__input {
     font-family: inherit;
@@ -212,6 +213,7 @@ export default {
     height: auto;
     position: relative;
     border: 1px solid silver;
+    background: #eee;
     font-size: 1.2em;
     font-weight: bold;
     color: crimson;

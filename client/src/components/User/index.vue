@@ -155,8 +155,8 @@ export default {
     color: $defaultColor;
     transition: color 0.3s;
     text-align: center;
-    border-top: 1px solid #fff;
-    border-bottom: 1px solid #fff;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
     transition: all 0.3s;
     &:after {
       @include tri;
