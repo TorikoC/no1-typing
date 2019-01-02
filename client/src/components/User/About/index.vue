@@ -1,10 +1,9 @@
 <template>
   <div class="about">
+    <cs-back/>
     <h1>关于本站</h1>
-    <p>通过竞赛来提高自己的打字技能。</p>
-    <p>持续开发中。</p>
-    <p>欢迎提出意见和建议。</p>
-    <a href="mailto:breakthroughtgw@gmail.com">发送邮件</a>
+    <p>happy-typer.com</p>
+    <p>v0.1-beta</p>
   </div>
 </template>
 

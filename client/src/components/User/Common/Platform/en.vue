@@ -5,22 +5,28 @@
         计时器
         <span>{{ timer | formatTime }}</span>
         速度
-        <span>{{ progress.speed }}WPM</span>
+        <span>
+          {{ progress.speed }}
+          <cs-wpm/>
+        </span>
         进度
         <span>{{ progress.percent }}%</span>
       </div>
     </div>
     <div class="platform__text">
-      <span
-        v-for="(char,index) in text"
-        class="platform__char"
-        :key="index"
-        :class="{
+      <cs-loading v-if="loading"/>
+      <template v-else>
+        <span
+          v-for="(char,index) in text"
+          class="platform__char"
+          :key="index"
+          :class="{
           'platform__word--match': index < currentMatchLength, 
           'platform__word--not-match': index >= currentMatchLength && index < currentInputLength,
           'platform__next-word': index === currentMatchLength
           }"
-      >{{ char }}</span>
+        >{{ char }}</span>
+      </template>
     </div>
     <textarea
       v-model="input"
@@ -44,6 +50,10 @@ export default {
     text: {
       type: String,
       default: ""
+    },
+    loading: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -208,6 +218,7 @@ export default {
     padding: 0.2em 0.4em;
     font-size: 1.2em;
     font-weight: bold;
+    min-height: 1.2em;
   }
   .platform__record:nth-child(odd) {
     background: #eee;
@@ -237,6 +248,7 @@ export default {
     &:focus {
       outline-style: solid;
       outline-width: medium;
+      outline-color: #4d90fe;
     }
   }
   .platform__next-word {

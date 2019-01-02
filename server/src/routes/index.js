@@ -30,6 +30,7 @@ router.post('/users', parseFormdata, userCtrl.createUser);
 router.get('/books/:id', bookCtrl.getBook);
 router.get('/books', bookCtrl.getBooks);
 router.post('/books', parseFormdata, bookCtrl.createBook);
+router.delete('/books/:id', validate, bookCtrl.deleteBook);
 
 // snippets
 router.get('/snippets/:id', snippetCtrl.getSnippet);

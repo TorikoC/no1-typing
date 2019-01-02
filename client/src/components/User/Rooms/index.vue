@@ -3,7 +3,7 @@
     <cs-back/>
     <h1>房间列表</h1>
     <p class="room__create">
-      <router-link to="/add/room">创建房间</router-link>
+      <router-link class="link" to="/add/room">创建房间</router-link>
     </p>
     <table>
       <thead>
@@ -17,13 +17,12 @@
       </thead>
       <tbody>
         <tr v-for="room in rooms" :key="room._id">
-          <td>{{ room._id }}</td>
           <td>{{ room.name }}</td>
           <td>{{ room.lang }}</td>
           <td>{{ room.creator }}</td>
           <td>{{ `${room.users.length}/${room.userLimit}` }}</td>
           <td>
-            <button @click="toJoin(room)">Join</button>
+            <button class="button button--sm" @click="toJoin(room)">Join</button>
           </td>
         </tr>
       </tbody>
@@ -80,6 +79,7 @@ export default {
     th,
     td {
       padding: 0.2em 0.4em;
+      text-align: center;
     }
   }
   .room__create {

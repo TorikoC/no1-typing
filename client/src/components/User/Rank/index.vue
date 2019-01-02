@@ -1,8 +1,7 @@
 <template>
   <div class="rank">
     <h1>排行榜</h1>
-    <p>只显示前10位</p>
-    <p>只显示匹配记录</p>
+    <p>Top 10</p>
     <div class="rank__control">
       <select name="rank-lang" id="rank-lang" v-model="lang">
         <option value="cn">中文</option>
@@ -13,12 +12,15 @@
       <thead>
         <tr>
           <th>用户</th>
-          <th>速度(WPM)</th>
+          <th>速度
+            <cs-wpm/>
+          </th>
           <th>时间</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="record in records" :key="record._id">
+        <cs-loading v-if="loading"/>
+        <tr v-else v-for="record in records" :key="record._id">
           <td>{{ record.username }}</td>
           <td>{{ record.speed }}</td>
           <td>{{ record.createdAt | formatDate }}</td>
@@ -38,7 +40,9 @@ export default {
   data() {
     return {
       lang: "cn",
-      records: []
+      records: [],
+
+      loading: false
     };
   },
   mounted() {
@@ -46,8 +50,13 @@ export default {
   },
   methods: {
     getRecords() {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
       this.$axios.get(`/records?lang=${this.lang}`).then(resp => {
         this.records = resp.data;
+        this.loading = false;
       });
     }
   }
@@ -59,21 +68,23 @@ export default {
   width: 50%;
   margin: 1em auto;
   .table {
+    font-family: inherit;
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
+    position: relative;
 
     tbody tr:nth-child(1) {
       border: 1px solid crimson;
       color: red;
     }
     tbody tr:nth-child(2) {
-      border: 1px solid orange;
-      color: orange;
+      border: 1px solid darkorange;
+      color: darkorange;
     }
     tbody tr:nth-child(3) {
-      border: 1px solid purple;
-      color: purple;
+      border: 1px solid darkmagenta;
+      color: darkmagenta;
     }
     td {
       text-align: center;

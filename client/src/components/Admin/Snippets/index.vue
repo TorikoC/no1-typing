@@ -55,10 +55,10 @@
     <h2>段落详情</h2>
     <div v-if="snippets[detailIndex]">
       <dl>
-        <dt>书名</dt>
-        <dd>{{ snippets[detailIndex].bookName }}</dd>
+        <dt>书ID</dt>
+        <dd>{{ snippets[detailIndex].bookId }}</dd>
         <dt>语言</dt>
-        <dd>{{ snippets[detailIndex].language }}</dd>
+        <dd>{{ snippets[detailIndex].lang }}</dd>
         <dt>内容</dt>
         <dd>{{ snippets[detailIndex].content }}</dd>
         <dt>长度</dt>

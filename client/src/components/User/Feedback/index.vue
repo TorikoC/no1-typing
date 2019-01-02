@@ -1,7 +1,7 @@
 <template>
   <div class="feedback">
+    <cs-back/>
     <h1>反馈</h1>
-    <p>有你的反馈, 本站会得更好。</p>
     <a href="mailto:breakthroughtgw@gmail.com">发送邮件</a>
   </div>
 </template>

@@ -4,17 +4,19 @@
     <h1 class="match__header">匹配模式</h1>
     <progress-view :users="users"/>
     <div class="match__control">
-      <button class="match__restart" @click="toReload">重来</button>
-      <span class="match__clock">倒计时 {{ clock }}</span>
+      <button class="match__restart button" @click="toReload">重新匹配</button>
+      <span v-if="clock > 0" class="match__clock">倒计时 {{ clock }}</span>
     </div>
     <component
       :is="'platform-' + lang"
       :disabled="platformDisabled"
       :text="snippet.content"
+      :loading="loadingSnippet"
       @complete="toComplete"
       @match="toMatch"
     />
-    <result-view :show="showResult" :record="record" :book="book"/>
+    <cs-loading v-if="loadingBook || loadingRecords"/>
+    <result-view v-else-if="showResult" :record="record" :book="book" :bestRecords="bestRecords"/>
   </div>
 </template>
 
@@ -43,7 +45,7 @@ export default {
   data() {
     return {
       id: "",
-      username: window.$user ? window.$user.username : "",
+      username: window.$user ? window.$user.username : "游客",
       socket: this.$socket,
 
       clock: 999,
@@ -51,6 +53,7 @@ export default {
       snippet: {},
 
       record: {},
+      bestRecords: [],
       book: {},
       showResult: false,
 
@@ -58,8 +61,12 @@ export default {
 
       platformDisabled: true,
 
+      loadingBook: false,
       loadingUsers: true,
-      loadingSnippet: true
+      loadingSnippet: true,
+      loadingRecords: false,
+
+      debug: process.env.NODE_ENV !== "production"
     };
   },
   mounted() {
@@ -74,6 +81,8 @@ export default {
     this.socket.on("match-update-progress", this.toUpdateProgress);
     this.socket.on("match-user-join", this.toJoinUser);
     this.socket.on("match-user-leave", this.toRemoveUser);
+
+    this.socket.on("update-best-records", this.toUpdateBestRecords);
   },
   methods: {
     toUpdateId(id) {
@@ -92,10 +101,6 @@ export default {
 
       console.log("snippet loaded: ", snippet);
     },
-    toUpdateBook(b) {
-      this.book = b;
-    },
-
     toUpdateClock(clock) {
       this.clock = clock;
       console.log("clock", clock);
@@ -124,15 +129,28 @@ export default {
       const record = Object.assign(data, {
         lang: this.lang,
         mode: "match",
-        username: this.username || "guest",
+        username: this.username,
         snippetId: this.snippet._id
       });
       this.platformDisabled = true;
       this.record = data;
       this.showResult = true;
       this.socket.emit("match-done", record);
+
+      this.loadingBook = true;
       this.socket.emit("match-fetch-book", this.snippet.bookId);
+      this.loadingRecords = true;
+      this.socket.emit("fetch-best-records", this.snippet._id, this.lang);
     },
+    toUpdateBook(b) {
+      this.loadingBook = false;
+      this.book = b;
+    },
+    toUpdateBestRecords(r) {
+      this.loadingRecords = false;
+      this.bestRecords = r;
+    },
+
     toMatch(data) {
       this.$socket.emit(
         "match-update-progress",
@@ -149,9 +167,6 @@ export default {
       window.location.reload();
     },
 
-    /**
-     * helper functions
-     */
     getPlainUser(username) {
       return {
         username: username,
@@ -170,6 +185,7 @@ export default {
     this.socket.off("match-update-progress", this.toUpdateProgress);
     this.socket.off("match-user-join", this.toJoinUser);
     this.socket.off("match-user-leave", this.toRemoveUser);
+    this.socket.off("update-best-records", this.toUpdateBestRecords);
   }
 };
 </script>
@@ -178,15 +194,16 @@ export default {
 .match {
   width: 50%;
   margin: 1em auto;
-  .match__control {
+
+  &__control {
     display: flex;
     flex-direction: column;
-    .match__restart {
-      align-self: flex-end;
-    }
-    .match__clock {
-      align-self: flex-end;
-    }
+  }
+  &__restart {
+    align-self: flex-end;
+  }
+  &__clock {
+    align-self: flex-end;
   }
 }
 </style>

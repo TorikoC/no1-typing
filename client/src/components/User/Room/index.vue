@@ -3,17 +3,35 @@
     <dl class="room__info">
       <dt>房间名</dt>
       <dd>{{ room.name }}</dd>
-      <dt>语言:</dt>
+      <dt>语言</dt>
       <dd>{{ room.lang }}</dd>
       <dt>人数限制:</dt>
       <dd>{{ room.userLimit }}</dd>
+      <dt>状态</dt>
+      <dd>
+        <ul class="room__user-state">
+          <li
+            v-for="user in users"
+            :key="user.username"
+            :title="user.prepared ? 'prepared':  'not prepread'"
+            :class="user.prepared ? 'room__user-state--prepared' : ''"
+          >{{ user.username }}</li>
+        </ul>
+      </dd>
+      <dt>说明</dt>
+      <dd>所有人准备好之后, 房主可以开始.</dd>
     </dl>
     <div class="room__main">
       <cs-back/>
       <div class="room__control">
         <div class="room__button" v-if="state === roomState.WAITING">
-          <button v-if="isHost" @click="toStart" :disabled="!allPrepared">start</button>
-          <button v-else @click="toPrepare(username)" :disabled="prepared">prepare</button>
+          <button class="button" v-if="isHost" @click="toStart" :disabled="!allPrepared">start</button>
+          <button
+            class="button"
+            v-else
+            @click="toPrepare(username)"
+            :disabled="prepared"
+          >{{ prepared ? "prepared" : 'prepare' }}</button>
         </div>
         <span v-if="state === roomState.ONGOING && clock > 0" class="room__clock">倒计时{{ clock }}</span>
       </div>
@@ -22,10 +40,12 @@
         :is="'platform-' + lang"
         :disabled="platformDisabled"
         :text="snippet.content"
+        :loading="loadingSnippet"
         @complete="toComplete"
         @match="toMatch"
       />
-      <result-view :show="showResult && !first" :book="book" :record="record"/>
+      <cs-loading v-if="loadingBook || loadingRecords"/>
+      <result-view v-else-if="showResult" :book="book" :record="record" :bestRecords="bestRecords"/>
     </div>
   </div>
 </template>
@@ -78,10 +98,11 @@ export default {
 
       book: {},
       record: {},
+      bestRecords: [],
 
       users: [],
 
-      showResult: true,
+      showResult: false,
 
       platformDisabled: true,
 
@@ -90,7 +111,10 @@ export default {
 
       first: true,
 
-      loading: true
+      loading: true,
+      loadingBook: false,
+      loadingSnippet: false,
+      loadingRecords: false
     };
   },
   mounted() {
@@ -106,6 +130,8 @@ export default {
     this.socket.on("room-user-leave", this.toRemoveUser);
     this.socket.on("room-user-prepare", this.toPrepare);
 
+    this.socket.on("update-best-records", this.toUpdateBestRecords);
+
     this.enterRoom();
   },
   destroyed() {
@@ -119,6 +145,8 @@ export default {
     this.socket.off("room-user-join", this.toJoinUser);
     this.socket.off("room-user-leave", this.toRemoveUser);
     this.socket.off("room-user-prepare", this.toPrepare);
+
+    this.socket.off("update-best-records", this.toUpdateBestRecords);
   },
   methods: {
     /**
@@ -139,6 +167,7 @@ export default {
     },
     toStart() {
       this.socket.emit("room-start", this.id);
+      this.loadingSnippet = true;
     },
     toUpdateState(state) {
       this.state = state;
@@ -156,12 +185,13 @@ export default {
             this.first = false;
           }
           this.resetUsers(this.users);
-          this.toggleshowResult();
+          this.showResult = false;
           break;
         }
       }
     },
     toUpdateBook(b) {
+      this.loadingBook = false;
       this.book = b;
     },
     toPrepare(username) {
@@ -183,6 +213,7 @@ export default {
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
 
+      this.loadingSnippet = false;
       this.socket.emit("room-snippet-updated", this.id, this.username);
       console.log("snippet loaded: ", snippet);
     },
@@ -225,7 +256,7 @@ export default {
     toComplete(data) {
       this.record = data;
 
-      this.toggleshowResult();
+      this.showResult = true;
 
       this.togglePlatformDisabled();
 
@@ -239,7 +270,15 @@ export default {
       });
 
       this.socket.emit("room-complete", this.id, this.username, record);
+
+      this.loadingBook = true;
       this.socket.emit("room-fetch-book", this.snippet.bookId);
+      this.loadingRecords = true;
+      this.socket.emit("fetch-best-records", this.snippet._id, this.lang);
+    },
+    toUpdateBestRecords(r) {
+      this.loadingRecords = false;
+      this.bestRecords = r;
     },
     toMatch(progress) {
       this.toUpdateProgress(this.username, progress);
@@ -258,9 +297,6 @@ export default {
     },
     togglePlatformDisabled() {
       this.platformDisabled = !this.platformDisabled;
-    },
-    toggleshowResult() {
-      this.showResult = !this.showResult;
     },
     getPlainUser(username) {
       return {
@@ -286,12 +322,43 @@ export default {
   .room__info {
     align-self: flex-start;
     width: 20%;
+    color: #555;
+    font-size: 0.8em;
+    box-shadow: 1px 1px 6px 0px silver;
     background: #eee;
     margin-left: 2.5%;
     margin-right: 2.5%;
-    dt {
+    dt,
+    dd {
       padding: 0.2em 0.4em;
     }
+    dt {
+      background: #dddddd;
+    }
+  }
+  &__user-state {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    &--prepared {
+      position: relative;
+      &::before {
+        content: url("../../../assets/icons/hand-paper-solid.svg");
+        position: absolute;
+        display: inline-block;
+        top: 50%;
+        transform: translateY(-50%);
+        left: -1.2em;
+        width: 0.8em;
+        height: 0.8em;
+      }
+    }
+    li + li {
+      margin-top: 0.6em;
+    }
+  }
+  &__message {
+    margin: 1em 0;
   }
   .room__main {
     width: 50%;

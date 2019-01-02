@@ -1,0 +1,34 @@
+.table {
+  width: 100%;
+  position: relative;
+  table-layout: fixed;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: center;
+    padding: 0.2em 0.4em;
+  }
+  tbody {
+    tr {
+      transition: background 0.3s;
+    }
+    tr:hover {
+      background: #eee;
+    }
+  }
+  &--ranked {
+    tbody tr:nth-child(1) {
+      border: 1px solid crimson;
+      color: red;
+    }
+    tbody tr:nth-child(2) {
+      border: 1px solid darkorange;
+      color: darkorange;
+    }
+    tbody tr:nth-child(3) {
+      border: 1px solid darkmagenta;
+      color: darkmagenta;
+    }
+  }
+}

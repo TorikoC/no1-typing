@@ -2,27 +2,32 @@
   <div class="platform platform--cn">
     <div class="platform__meta">
       <div class="platform__progress">
-        timer
+        计时器
         <span>{{ timer | formatTime }}</span>
-        speed
-        <span>{{ progress.speed }}</span> wpm
-        percent
-        <span>{{ progress.percent }}</span>
+        速度
+        <span>
+          {{ progress.speed }}
+          <cs-wpm/>
+        </span>
+        进度
+        <span>{{ progress.percent }}%</span>
       </div>
     </div>
     <div class="platform__text">
-      <span
-        v-for="(char,index) in text"
-        class="platform__char"
-        :key="index"
-        :class="{
+      <cs-loading v-if="loading"/>
+      <template v-else>
+        <span
+          v-for="(char,index) in text"
+          class="platform__char"
+          :key="index"
+          :class="{
           'platform__word--match': index < currentMatchLength, 
           'platform__word--not-match': index >= currentMatchLength && index < currentInputLength,
           'platform__next-word': index === currentMatchLength
           }"
-      >{{ char }}</span>
+        >{{ char }}</span>
+      </template>
     </div>
-
     <div class="platform__input" contenteditable="false" spellcheck="false"></div>
   </div>
 </template>
@@ -37,6 +42,10 @@ export default {
     text: {
       type: String,
       default: ""
+    },
+    loading: {
+      type: Boolean,
+      default: true
     }
   },
   watch: {
@@ -165,20 +174,21 @@ export default {
 <style lang="scss" scoped>
 .platform--cn {
   margin: 1em auto;
-  font-family: Consolas, monospace, "Microsoft Yahei";
-
+  font-family: "Microsoft Yahei", "Noto Sans SC", sans-serif;
   .platform__meta {
     color: #777;
     text-align: right;
     margin: 0.2em;
   }
   .platform__text {
-    color: #333;
+    position: relative;
     background: #eee;
     border-radius: 2px;
     padding: 0.2em 0.4em;
     font-size: 1.2em;
+    line-height: 1.6;
     font-weight: bold;
+    min-height: 1.2em;
   }
   .platform__record:nth-child(odd) {
     background: #eee;

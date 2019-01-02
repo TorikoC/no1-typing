@@ -10,14 +10,21 @@ async function getRecord(req, res, next) {
 }
 
 async function getRecords(req, res, next) {
-  let { lang, size, sort } = req.query;
+  let { lang, size, sort, snippetId } = req.query;
   lang = lang || 'cn';
   size = size || 10;
   sort = sort || 'speed|desc';
+  snippetId = snippetId || '';
 
   let where = {
     lang,
   };
+
+  if (snippetId) {
+    where.snippetId = snippetId;
+  }
+
+  console.log(lang, size, sort, snippetId);
 
   let sortField = sort.split('|').shift();
   let sortType = sort.split('|').pop();
@@ -34,6 +41,7 @@ async function getRecords(req, res, next) {
 
 async function createRecord(req, res, next) {
   const { body } = req;
+  console.log(body);
   let result = await db.Record.create(body);
 
   req.result = result;

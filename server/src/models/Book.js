@@ -15,10 +15,6 @@ const BookSchema = mongoose.Schema({
     type: String,
     default: '',
   },
-  publishedAt: {
-    type: String,
-    default: '',
-  },
   createdAt: {
     type: Number,
     default: Date.now(),

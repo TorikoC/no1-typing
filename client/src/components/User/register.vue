@@ -21,7 +21,7 @@
     </div>
     <div class="form-group">
       <label for></label>
-      <button type="submit">注册</button>
+      <button class="button button--success" type="submit">注册</button>
     </div>
     <div class="form__footer">
       <router-link to="/login">登录</router-link>
@@ -78,6 +78,24 @@ export default {
   .form__footer {
     margin-top: 1em;
     text-align: right;
+    $color: blue;
+    a {
+      font-size: 0.8em;
+      transition: background 0.3s;
+      color: lighten($color: $color, $amount: 10%);
+    }
+    a:visited {
+      color: lighten($color: $color, $amount: 10%);
+    }
+    a:hover {
+      cursor: pointer;
+      color: $color;
+    }
+    a:active {
+      cursor: pointer;
+      background: #eee;
+      color: darken($color: $color, $amount: 10%);
+    }
   }
 }
 </style>

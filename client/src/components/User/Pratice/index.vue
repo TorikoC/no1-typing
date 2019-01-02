@@ -5,19 +5,30 @@
       <h1>练习模式</h1>
     </div>
     <div class="pratice__control">
-      <button class="pratice__start" v-if="state === WAITING" @click="toStart">Start</button>
-      <span class="pratice__clock" v-else-if="state === COUNTING">倒计时 {{ clock }}</span>
-      <span v-else>进行中</span>
+      <button
+        class="pratice__start button"
+        v-if="state === WAITING && !loadingSnippet"
+        @click="toStart"
+      >Start</button>
+      <span class="pratice__clock" v-if="state === COUNTING">倒计时 {{ clock }}</span>
+      <span v-if="state === ONGOING">进行中</span>
     </div>
     <progress-view :users="users"/>
     <component
       :is="'platform-' + lang"
       :disabled="platformDisabled"
       :text="snippet.content"
+      :loading="loadingSnippet"
       @complete="toComplete"
       @match="toMatch"
     />
-    <result-view :show="showResult" :record="record" :book="book"/>
+    <cs-loading v-if="loadingBook || loadingRecords"/>
+    <result-view
+      v-else-if="state === WAITING && !fresh"
+      :record="record"
+      :book="book"
+      :bestRecords="bestRecords"
+    />
   </div>
 </template>
 
@@ -52,10 +63,8 @@ export default {
       snippet: {},
 
       record: {},
+      bestRecords: [],
       book: {},
-      showResult: false,
-
-      platformDisabled: true,
 
       users: [
         {
@@ -67,7 +76,11 @@ export default {
 
       fresh: true,
 
-      loading: true
+      platformDisabled: true,
+
+      loadingBook: false,
+      loadingRecords: false,
+      loadingSnippet: false
     };
   },
   mounted() {
@@ -75,24 +88,26 @@ export default {
   },
   methods: {
     getSnippet(fresh) {
+      if (this.loadingSnippet) {
+        return;
+      }
+      this.loadingSnippet = true;
       this.$axios.get(`/random-snippet?lang=${this.lang}`).then(result => {
         this.snippet = result.data[0];
-
-        this.loading = false;
+        this.loadingSnippet = false;
         if (!fresh) {
+          this.state = this.COUNTING;
           this.countdown();
         }
       });
     },
     toStart() {
-      this.showResult = false;
-      this.state = this.ONGOING;
       this.resetUsers(this.users);
 
       if (this.fresh) {
+        this.state = this.COUNTING;
         this.countdown();
       } else {
-        this.loading = true;
         this.getSnippet(this.fresh);
       }
     },
@@ -113,17 +128,38 @@ export default {
 
       this.record = data;
       this.getBook(this.snippet.bookId);
+      this.getRecords(this.snippet._id);
     },
     getBook(id) {
+      if (this.loadingBook) {
+        return;
+      }
+      this.loadingBook = true;
       this.$axios.get(`/books/${id}`).then(result => {
         this.book = result.data;
-        this.showResult = true;
+        this.loadingBook = false;
       });
+    },
+    getRecords(id) {
+      if (this.loadingRecords) {
+        return;
+      }
+      this.loadingRecords = true;
+      this.$axios
+        .get(`/records?snippetId=${id}&lang=${this.lang}`)
+        .then(resp => {
+          this.bestRecords = resp.data;
+          this.loadingRecords = false;
+        });
     },
     postRecord(data) {
       const formData = new FormData();
-      formData.append("username", "guest");
+      formData.append(
+        "username",
+        window.$user ? window.$user.username : "guest"
+      );
       formData.append("mode", "pratice");
+      formData.append("lang", this.lang);
       formData.append("time", data.time);
       formData.append("speed", data.speed);
       formData.append("snippetId", this.snippet._id);
@@ -140,9 +176,6 @@ export default {
       });
     },
     countdown() {
-      if (this.state !== this.COUNTING) {
-        this.state = this.COUNTING;
-      }
       this.clock -= 1;
       if (this.clock > 0) {
         setTimeout(() => {
@@ -163,10 +196,13 @@ export default {
   margin: 1em auto;
   position: relative;
 
-  .pratice__control {
+  &__control {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+  }
+  &__clock {
+    font-size: 2em;
   }
 }
 </style>

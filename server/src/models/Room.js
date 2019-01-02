@@ -40,6 +40,10 @@ const RoomSchema = mongoose.Schema({
     type: Number,
     default: roomState.WAITTING,
   },
+  creator: {
+    type: String,
+    default: '',
+  },
   public: {
     type: Boolean,
     default: true,

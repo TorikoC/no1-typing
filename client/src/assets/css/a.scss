@@ -1,0 +1,15 @@
+.link {
+  display: inline-block;
+  color: blue;
+  font-size: 0.8em;
+  transition: all 0.3s;
+
+  &:hover {
+    cursor: pointer;
+    color: darken($color: blue, $amount: 10);
+  }
+  &:active {
+    background: #eee;
+    color: darken($color: blue, $amount: 20);
+  }
+}

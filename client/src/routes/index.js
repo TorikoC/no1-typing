@@ -6,6 +6,7 @@ import Match from '../components/User/Match/index';
 import Rank from '../components/User/Rank/index';
 import Feedback from '../components/User/Feedback/index';
 import About from '../components/User/About/index';
+import Intro from '../components/User/Intro/index';
 import Register from '../components/User/register.vue';
 import Login from '../components/User/login.vue';
 import Profile from '../components/User/Profile/index.vue';
@@ -80,6 +81,10 @@ const router = new VueRouter({
         {
           path: 'login',
           component: Login,
+        },
+        {
+          path: 'intro',
+          component: Intro,
         },
       ],
     },

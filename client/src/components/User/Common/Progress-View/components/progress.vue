@@ -4,7 +4,10 @@
     <div class="progress__body-wrapper">
       <div class="progress__body" ref="body">{{ percent }}%</div>
     </div>
-    <span class="progress__speed">{{ speed }}WPM</span>
+    <span class="progress__speed">
+      {{ speed }}
+      <cs-wpm/>
+    </span>
   </div>
 </template>
 

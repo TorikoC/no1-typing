@@ -15,7 +15,10 @@
         <label for="cover">封面</label>
         <input type="text" name="cover" id="cover">
       </div>
-
+      <div class="form-group">
+        <label for="isbn">isbn(optional)</label>
+        <input type="text" name="isbn" id="isbn">
+      </div>
       <div class="form-group">
         <label for></label>
         <button type="submit">提交</button>

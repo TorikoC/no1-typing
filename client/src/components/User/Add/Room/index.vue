@@ -1,5 +1,6 @@
 <template>
-  <form class="form" @submit.prevent="toSubmit">
+  <form class="add-room" @submit.prevent="toSubmit">
+    <cs-back></cs-back>
     <legend>
       <h1>创建房间</h1>
       <div class="form-group">
@@ -15,11 +16,13 @@
       </div>
       <div class="form-group">
         <label for="user-limit">人数限制</label>
-        <input type="number" step="1" min="0" max="10" name="userLimit" id="user-limit" required>
+        <select name="userLimit" id="user-limit">
+          <option v-for="i in 10" :value="i" :key="i">{{ i }}</option>
+        </select>
       </div>
       <div class="form-group">
         <label for></label>
-        <button type="submit">创建</button>
+        <button class="button" type="submit">创建</button>
       </div>
     </legend>
   </form>
@@ -27,12 +30,6 @@
 
 <script>
 export default {
-  data() {
-    return {
-      // public is reserved, use pub instead.
-      pub: true
-    };
-  },
   methods: {
     toSubmit(evt) {
       const formData = new FormData(evt.target);
@@ -45,7 +42,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form {
+.add-room {
   width: 50%;
   margin: 1em auto;
 }
