@@ -203,7 +203,7 @@ export default {
 
 <style lang="scss" scoped>
 .platform--en {
-  margin: 1em auto;
+  
   font-family: Consolas, monospace, "Microsoft Yahei";
 
   .platform__meta {
@@ -232,6 +232,9 @@ export default {
     color: crimson !important;
   }
   .platform__input {
+    &:disabled {
+      background: #ccc;
+    }
     font-family: inherit;
     resize: none;
     width: 100%;

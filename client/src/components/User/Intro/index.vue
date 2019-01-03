@@ -1,5 +1,6 @@
 <template>
   <div class="intro">
+    <cs-back/>
     <h1>介绍</h1>
     <dl class="dl">
       <dt>WPM</dt>
@@ -19,6 +20,8 @@
       </dd>
       <dt>房间(需要登录)</dt>
       <dd>用户可以创建和加入房间。</dd>
+      <dt>主题</dt>
+      <dd>目前有 light 和 dark 两种主题。</dd>
     </dl>
   </div>
 </template>
@@ -30,6 +33,5 @@ export default {};
 <style lang="scss" scoped>
 .intro {
   width: 50%;
-  margin: 1em auto;
 }
 </style>

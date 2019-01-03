@@ -1,5 +1,6 @@
 <template>
   <div class="rank">
+    <cs-back/>
     <h1>排行榜</h1>
     <p>Top 10</p>
     <div class="rank__control">
@@ -66,7 +67,7 @@ export default {
 <style lang="scss" scoped>
 .rank {
   width: 50%;
-  margin: 1em auto;
+
   .table {
     font-family: inherit;
     table-layout: fixed;

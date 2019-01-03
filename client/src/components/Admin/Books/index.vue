@@ -88,7 +88,7 @@ export default {
 <style lang="scss" scoped>
 .admin-books {
   width: 50%;
-  margin: 1em auto;
+
   .form-group {
     display: flex;
     flex-direction: row;

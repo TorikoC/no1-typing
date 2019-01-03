@@ -1,3 +1,5 @@
+window.$debug = process.env.NODE_ENV !== 'production';
+
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import jwtDecode from 'jwt-decode';

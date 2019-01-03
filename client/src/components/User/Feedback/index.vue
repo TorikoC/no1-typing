@@ -14,6 +14,6 @@ export default {};
 <style lang="scss" scoped>
 .feedback {
   width: 50%;
-  margin: 1em auto;
+  
 }
 </style>

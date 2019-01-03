@@ -1,8 +1,8 @@
 <template>
   <div class="profile">
     <h1>个人信息</h1>
-    <cs-loading v-if="loading"/>
-    <dl v-else>
+    <cs-loading v-if="loadingProfile"/>
+    <dl v-else class="dl">
       <dt>用户名</dt>
       <dd>{{ user.username }}</dd>
       <dt>邮箱</dt>
@@ -37,11 +37,11 @@
       </dd>
       <dt>最近记录</dt>
       <dd>
-        <table class="table">
+        <cs-loading v-if="loadingRecentRecords"/>
+        <table v-else class="table">
           <thead>
             <tr>
               <th>时间</th>
-              <th>模式</th>
               <th>语言</th>
               <th>速度
                 <cs-wpm/>
@@ -49,9 +49,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="r in latestRecords" :key="r._id">
+            <tr v-for="r in recentRecords" :key="r._id">
               <td>{{ r.createdAt | formatDate }}</td>
-              <td>{{ r.mode }}</td>
               <td>{{ r.lang }}</td>
               <td>{{ r.speed }}</td>
             </tr>
@@ -75,17 +74,19 @@ export default {
   data() {
     return {
       lang: "cn",
-      user: "",
+      user: {},
       bestRecord: {},
-      latestRecords: [],
+      recentRecords: [],
 
-      loading: false,
-      loadingBestRecord: false
+      loadingProfile: false,
+      loadingBestRecord: false,
+      loadingRecentRecords: false
     };
   },
   mounted() {
     this.getProfile();
     this.getBestRecord();
+    this.getRecentRecords();
   },
   methods: {
     getBestRecord() {
@@ -104,16 +105,26 @@ export default {
           this.bestRecord = result.data[0];
         });
     },
-
-    getProfile() {
-      if (this.loading) {
+    getRecentRecords() {
+      if (this.loadingRecentRecords) {
         return;
       }
-      this.loading = true;
+      this.loadingRecentRecords = true;
+      this.$axios
+        .get(`/records/?sort=createdAt|desc&limit=10&username=${this.username}`)
+        .then(resp => {
+          this.recentRecords = resp.data;
+          this.loadingRecentRecords = false;
+        });
+    },
+    getProfile() {
+      if (this.loadingProfile) {
+        return;
+      }
+      this.loadingProfile;
       this.$axios.get(`/users?username=${this.username}`).then(result => {
-        this.user = result.data.user;
-        this.latestRecords = result.data.latestRecords;
-        this.loading = false;
+        this.user = result.data[0];
+        this.loadingProfile = false;
       });
     }
   }

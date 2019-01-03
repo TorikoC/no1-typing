@@ -3,13 +3,7 @@
 </template>
 
 <script>
-export default {
-  mounted() {
-    this.$axios.get("/users").then(resp => {
-      console.log(resp);
-    });
-  }
-};
+export default {};
 </script>
 
 <style>

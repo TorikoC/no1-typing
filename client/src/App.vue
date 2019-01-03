@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="dark-theme">
+  <div id="app">
     <router-view></router-view>
   </div>
 </template>
@@ -7,12 +7,25 @@
 <script>
 export default {
   name: "app",
-  components: {}
+  data() {
+    return {
+      theme: "theme--light"
+    };
+  },
+  mounted() {
+    this.$bus.$on("theme-change", this.changeTheme);
+  },
+  methods: {
+    changeTheme(t) {
+      this.theme = t;
+    }
+  }
 };
 </script>
 
 <style lang="scss">
 @import "@/assets/css/button.scss";
+@import "@/assets/css/form.scss";
 @import "@/assets/css/table.scss";
 @import "@/assets/css/dl.scss";
 @import "@/assets/css/a.scss";
@@ -22,6 +35,7 @@ body {
   margin: 0px;
   padding: 0px;
   font-size: 16px;
+  height: 100%;
   font-family: "Open Sans", "Clear Sans", "Helvetica Neue", Helvetica, Arial,
     sans-serif, "Noto Sans SC", "Microsoft Yahei", sans-serif;
 
@@ -29,13 +43,8 @@ body {
 }
 
 #app {
-  height: 100vh;
-  overflow: auto;
+  height: 100%;
   position: relative;
-}
-.dark-theme {
-  color: #bbb;
-  background: #222;
 }
 </style>
 

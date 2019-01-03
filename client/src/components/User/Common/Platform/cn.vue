@@ -173,7 +173,6 @@ export default {
 
 <style lang="scss" scoped>
 .platform--cn {
-  margin: 1em auto;
   font-family: "Microsoft Yahei", "Noto Sans SC", sans-serif;
   .platform__meta {
     color: #777;

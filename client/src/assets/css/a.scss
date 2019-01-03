@@ -1,16 +1,17 @@
+$baseColor: #1766aa;
 .link {
   display: inline-block;
-  color: blue;
+  color: $baseColor;
   font-size: 0.8em;
   transition: all 0.3s;
 
   &:hover {
     cursor: pointer;
-    color: darken($color: blue, $amount: 10);
+    color: darken($baseColor, $amount: 5);
   }
   &:active {
     background: #eee;
-    color: darken($color: blue, $amount: 20);
+    color: darken($baseColor, $amount: 10);
   }
   &--lg {
     font-size: 1em;

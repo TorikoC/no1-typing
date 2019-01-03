@@ -7,7 +7,6 @@ async function getRooms(req, res, next) {
   let where = {
     canJoin,
   };
-  console.log(where);
 
   let result = await db.Room.find(where);
 
@@ -26,7 +25,6 @@ async function getRoom(req, res, next) {
 
 async function createRoom(req, res, next) {
   const { body, user } = req;
-  console.log(body);
 
   let room = Object.assign(body, {
     creator: user.username,

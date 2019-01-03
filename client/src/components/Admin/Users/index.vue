@@ -67,7 +67,7 @@ export default {
 <style lang="scss" scoped>
 .admin-users {
   width: 80%;
-  margin: 1em auto;
+  
   table {
     border-collapse: collapse;
     tr,

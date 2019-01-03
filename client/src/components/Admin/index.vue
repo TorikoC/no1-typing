@@ -16,7 +16,7 @@
         </li>
       </ul>
     </nav>
-    <router-view></router-view>
+    <router-view class="content"></router-view>
   </div>
 </template>
 
@@ -33,6 +33,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.content {
+  margin: 1em auto;
+}
 .nav {
   $linkColor: #666;
   line-height: 2.2;

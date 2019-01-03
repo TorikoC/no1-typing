@@ -29,6 +29,31 @@ async function getUsers(req, res, next) {
 
 async function createUser(req, res, next) {
   const { body } = req;
+  body.email = body.email.toLowerCase();
+  let { username, email } = body;
+  let con1 = {
+    username,
+  };
+  let con2 = {
+    email,
+  };
+  let p1 = db.User.findOne(con1);
+  let p2 = db.User.findOne(con2);
+  let dupUsers = await Promise.all([p1, p2]);
+  if (dupUsers[0]) {
+    req.error = {
+      code: 400,
+      message: '该用户名已经被注册, 请重新尝试.',
+    };
+    next(new Error());
+  }
+  if (dupUsers[1]) {
+    req.error = {
+      code: 400,
+      message: '该邮箱已经被注册, 请重新尝试.',
+    };
+    next(new Error());
+  }
   body.password = await encryptPassword(body.password);
   let result = await db.User.create(body);
   req.result = result;
@@ -50,7 +75,7 @@ async function delelteUser(req, res, next) {
 }
 
 async function authUser(req, res, next) {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
   if (!email || !password) {
     req.error = {
       code: 400,
@@ -58,19 +83,20 @@ async function authUser(req, res, next) {
     };
     next(new Error('miss necessary parameters.'));
   }
+  email = email.toLowerCase();
   let result = await db.User.findOne({ email });
 
   if (!result) {
     req.error = {
       code: 404,
-      message: 'user not found.',
+      message: '找不到用户.',
     };
     next(new Error('user not found.'));
   }
   // compare password
   let match = await comparePassword(password, result.password);
   if (!match) {
-    next(new Error('password not match.'));
+    next(new Error('密码错误.'));
   }
 
   // login

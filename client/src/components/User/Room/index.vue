@@ -1,5 +1,5 @@
 <template>
-  <div class="room room--en">
+  <div class="room">
     <dl class="room__info">
       <dt>房间名</dt>
       <dd>{{ room.name }}</dd>
@@ -208,14 +208,18 @@ export default {
       } else {
         this.updateAllPrepared();
       }
-      console.log(this.username, "prepared");
+      if (window.$debug) {
+        console.log(this.username, "prepared");
+      }
     },
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
 
       this.loadingSnippet = false;
       this.socket.emit("room-snippet-updated", this.id, this.username);
-      console.log("snippet loaded: ", snippet);
+      if (window.$debug) {
+        console.log("snippet loaded: ", snippet);
+      }
     },
 
     toUpdateClock(clock) {
@@ -239,19 +243,24 @@ export default {
       if (self) {
         this.socket.emit("room-update-progress", this.id, username, progress);
       }
-      console.log("update progress", progress);
+      if (window.$debug) {
+        console.log("update progress", progress);
+      }
     },
 
     toJoinUser(username) {
       this.users.push(this.getPlainUser(username));
       this.updateAllPrepared();
-
-      console.log("user join: ", username);
+      if (window.$debug) {
+        console.log("user join: ", username);
+      }
     },
     toRemoveUser(username) {
       removeFromArray(this.users, user => user.username === username);
       this.updateAllPrepared();
-      console.log("user leave: ", username);
+      if (window.$debug) {
+        console.log("user leave: ", username);
+      }
     },
     toComplete(data) {
       this.record = data;
@@ -318,7 +327,10 @@ export default {
 .room {
   display: flex;
   flex-direction: row;
-  margin: 1em 0;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 1em;
   .room__info {
     width: 20%;
     align-self: flex-start;

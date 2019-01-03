@@ -13,11 +13,9 @@
     </div>
     <div class="form-group">
       <label></label>
-      <button class="button button--success" type="submit">登录</button>
+      <button class="button button--success login-btn" type="submit">登录</button>
     </div>
-    <div class="form__footer">
-      <router-link to="/register">注册</router-link>
-    </div>
+    <router-link class="link footer-link" to="/register">注册</router-link>
   </form>
 </template>
 
@@ -35,54 +33,12 @@ export default {
 };
 </script>
 
-<<style lang="scss">
-@import "@/assets/css/form.scss";
-</style>
-
 <style lang="scss" scoped>
-.form {
-  width: 30%;
-  margin: 0 auto;
-
-  input {
-    outline: none;
-    border-style: none;
-    padding: 0.4em 0em;
-    border-bottom: 1px dashed silver;
-    font-family: Consolas, monospace;
-  }
-  input:invalid {
-    border-color: crimson;
-  }
-  input:valid {
-    border-color: green;
-  }
-
-  button {
-    margin-left: auto;
-  }
-  .form__footer {
-    margin-top: 1em;
-    text-align: right;
-
-    $color: blue;
-    a {
-      font-size: 0.8em;
-      transition: background 0.3s;
-      color: lighten($color: $color, $amount: 10%);
-    }
-    a:visited {
-      color: lighten($color: $color, $amount: 10%);
-    }
-    a:hover {
-      cursor: pointer;
-      color: $color;
-    }
-    a:active {
-      cursor: pointer;
-      background: #eee;
-      color: darken($color: $color, $amount: 10%);
-    }
-  }
+.login-btn,
+.footer-link {
+  margin-left: auto;
+}
+.footer-link {
+  margin-top: 1em;
 }
 </style>

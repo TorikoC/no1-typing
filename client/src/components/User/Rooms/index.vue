@@ -67,7 +67,7 @@ export default {
 .rooms {
   position: relative;
   width: 50%;
-  margin: 1em auto;
+
   table {
     width: 100%;
     border-collapse: collapse;

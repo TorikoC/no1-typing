@@ -58,7 +58,7 @@ export default {};
     }
   }
 }
-.dark-theme {
+.theme--dark {
   .wpm {
     &__tooltip {
       background: #333;

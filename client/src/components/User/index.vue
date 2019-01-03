@@ -1,5 +1,5 @@
 <template>
-  <div @click="hideDropdown">
+  <div class="app" :class="theme" @click="hideDropdown">
     <nav class="nav">
       <ul class="nav__list">
         <li class="nav__list-item">
@@ -41,8 +41,8 @@
         </li>
       </ul>
     </nav>
-    <router-view></router-view>
-    <div v-if="$route.fullPath === '/'" class="menu">
+    <router-view class="content"></router-view>
+    <div class="menu content" v-if="$route.fullPath === '/'">
       <div class="menu__mode">
         <fieldset>
           <legend>语言</legend>
@@ -57,6 +57,15 @@
         <router-link :to="'/match/' + lang">匹配</router-link>
       </div>
     </div>
+    <div class="footer">
+      <div class="footer__theme-selector">
+        <label for="theme">主题</label>
+        <select name="theme" id="theme" v-model="theme">
+          <option value="theme--light">light</option>
+          <option value="theme--dark">dark</option>
+        </select>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -64,10 +73,14 @@
 import jwtDecode from "jwt-decode";
 
 export default {
+  watch: {
+    theme(value) {}
+  },
   data() {
     return {
       lang: "en",
-      user: window.$user ? window.$user : ""
+      user: window.$user ? window.$user : "",
+      theme: "theme--light"
     };
   },
   created() {
@@ -115,6 +128,51 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.theme--dark {
+  color: #bbb;
+  background: #222;
+}
+.app {
+  min-height: 100%;
+  position: relative;
+}
+.content {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  margin-top: 1em;
+  padding-bottom: 3em;
+}
+.footer {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  height: 3em;
+  box-sizing: border-box;
+  background: #f1f1f1;
+  padding: 0.8em 1.6em;
+
+  font-size: small;
+  display: flex;
+  flex-direction: column;
+  &__theme-selector {
+    align-self: flex-end;
+    label {
+      display: inline-block;
+      vertical-align: top;
+      margin-right: 0.4em;
+    }
+  }
+}
+.theme--dark {
+  .footer {
+    background: #333;
+    color: #aaa;
+  }
+}
+$triWidth: 8px;
+$triColor: #333;
 .menu {
   $defaultColor: #ffa500;
   $hoverColor: #e59400;
@@ -123,13 +181,11 @@ export default {
   width: 30%;
   display: block;
   position: relative;
-  margin: 1em auto;
 
   .menu__mode {
     margin-bottom: 1em;
   }
 
-  $triWidth: 8px;
   @mixin tri {
     content: "";
     display: inline-block;
@@ -146,6 +202,7 @@ export default {
     opacity: 0;
     transition: all 0.3s;
   }
+
   a {
     display: block;
     position: relative;
@@ -162,12 +219,12 @@ export default {
       @include tri;
       right: -$triWidth - 10px;
       border-left: $triWidth solid transparent;
-      border-right: $triWidth solid black;
+      border-right: $triWidth solid $triColor;
     }
     &::before {
       @include tri;
       left: -$triWidth - 10px;
-      border-left: $triWidth solid black;
+      border-left: $triWidth solid $triColor;
       border-right: $triWidth solid transparent;
     }
     &:visited {
@@ -190,6 +247,18 @@ export default {
       color: $activeColor;
       border-top: 1px solid silver;
       border-bottom: 1px solid silver;
+    }
+  }
+}
+.theme--dark {
+  .menu {
+    a {
+      &::after {
+        border-right: $triWidth solid #ccc;
+      }
+      &::before {
+        border-left: $triWidth solid #ccc;
+      }
     }
   }
 }
@@ -246,7 +315,7 @@ export default {
 
   &__entry {
     &::after {
-      content: "▼";
+      content: "▲";
       line-height: 1;
       font-size: 0.8em;
 
@@ -262,8 +331,8 @@ export default {
   }
 
   .dropdown__menu {
+    z-index: 999;
     list-style: none;
-
     margin: 0;
     padding: 0.4em 0;
 

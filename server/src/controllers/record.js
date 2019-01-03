@@ -24,8 +24,6 @@ async function getRecords(req, res, next) {
     where.snippetId = snippetId;
   }
 
-  console.log(lang, size, sort, snippetId);
-
   let sortField = sort.split('|').shift();
   let sortType = sort.split('|').pop();
   let sortOption = {};
@@ -41,7 +39,6 @@ async function getRecords(req, res, next) {
 
 async function createRecord(req, res, next) {
   const { body } = req;
-  console.log(body);
   let result = await db.Record.create(body);
 
   req.result = result;

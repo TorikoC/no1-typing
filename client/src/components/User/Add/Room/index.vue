@@ -1,5 +1,5 @@
 <template>
-  <form class="add-room" @submit.prevent="toSubmit">
+  <form class="add-room form" @submit.prevent="toSubmit">
     <cs-back></cs-back>
     <legend>
       <h1>创建房间</h1>
@@ -44,6 +44,5 @@ export default {
 <style lang="scss" scoped>
 .add-room {
   width: 50%;
-  margin: 1em auto;
 }
 </style>

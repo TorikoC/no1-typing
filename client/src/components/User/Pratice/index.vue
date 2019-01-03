@@ -193,7 +193,7 @@ export default {
 <style lang="scss" scoped>
 .pratice {
   width: 50%;
-  margin: 1em auto;
+  
   position: relative;
 
   &__control {

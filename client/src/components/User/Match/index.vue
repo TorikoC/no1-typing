@@ -93,24 +93,31 @@ export default {
         return this.getPlainUser(username);
       });
       this.loadingUsers = false;
-      console.log("users loaded: ", users);
+      if (window.$debug) {
+        console.log("users loaded: ", users);
+      }
     },
     toUpdateSnippet(snippet) {
       this.snippet = snippet;
       this.loadingSnippet = false;
-
-      console.log("snippet loaded: ", snippet);
+      if (window.$debug) {
+        console.log("snippet loaded: ", snippet);
+      }
     },
     toUpdateClock(clock) {
       this.clock = clock;
-      console.log("clock", clock);
+      if (window.$debug) {
+        console.log("clock", clock);
+      }
 
       if (this.clock === 0) {
         this.platformDisabled = false;
       }
     },
     toUpdateProgress(progress) {
-      console.log("update progress", progress);
+      if (window.$debug) {
+        console.log("update progress", progress);
+      }
       this.users.forEach(user => {
         if (user.username === progress.username) {
           Object.assign(user, progress);
@@ -119,11 +126,15 @@ export default {
     },
     toJoinUser(username) {
       this.users.push(this.getPlainUser(username));
-      console.log("user join: ", username);
+      if (window.$debug) {
+        console.log("user join: ", username);
+      }
     },
     toRemoveUser(username) {
       removeFromArray(this.users, user => user.username === username);
-      console.log("user leave: ", username);
+      if (window.$debug) {
+        console.log("user leave: ", username);
+      }
     },
     toComplete(data) {
       const record = Object.assign(data, {
@@ -193,7 +204,6 @@ export default {
 <style lang="scss" scoped>
 .match {
   width: 50%;
-  margin: 1em auto;
 
   &__control {
     display: flex;

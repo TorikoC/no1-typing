@@ -121,7 +121,7 @@ export default {
 <style lang="scss" scoped>
 .admin-snippet {
   width: 90%;
-  margin: 1em auto;
+  
   .form-group {
     display: flex;
     flex-direction: row;
