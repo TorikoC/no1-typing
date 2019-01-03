@@ -1,7 +1,6 @@
 const config = {
   serverPort: 3000,
-  dbName: 'happytyper',
-  dbHost: `mongodb://127.0.0.1:27017/${this.dbName}`,
+  dbHost: 'mongodb://127.0.0.1:27017/happytyper',
   jwtSecret: 'winterfox',
   roomState: {
     WAITING: 0,
