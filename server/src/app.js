@@ -17,6 +17,7 @@ const app = express();
 
 app.use(expressPino);
 app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use(router);
 
