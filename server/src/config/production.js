@@ -1,4 +1,4 @@
 const config = {
-  serverPort: 80,
+  serverPort: 3000,
 };
 module.exports = config;
