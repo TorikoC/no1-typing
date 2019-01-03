@@ -39,6 +39,7 @@ async function getRandomSnippet(req, res, next) {
 
 async function createSnippet(req, res, next) {
   const { body } = req;
+
   let result = await db.Snippet.create(body);
 
   req.result = result;
@@ -47,6 +48,7 @@ async function createSnippet(req, res, next) {
 
 async function deleteSnippet(req, res, next) {
   const { id } = req.params;
+
   let result = await db.Snippet.findByIdAndDelete(id);
 
   req.result = result;

@@ -5,6 +5,16 @@ const jwtSecret = require('config').get('jwtSecret');
 
 const validate = jwt({ secret: jwtSecret });
 const parseFormdata = multer().none();
+const isAdmin = async function(req, res, next) {
+  if (!req.user || !req.user.isAdmin) {
+    req.error = {
+      code: 401,
+      message: 'no permission.',
+    };
+    next(new Error());
+  }
+  next();
+};
 
 const userCtrl = require('../controllers/user');
 const bookCtrl = require('../controllers/book');
@@ -25,20 +35,20 @@ router.post(
 router.get('/users/:id', userCtrl.getUser);
 router.get('/users', userCtrl.getUsers);
 router.post('/users', parseFormdata, userCtrl.createUser);
-router.delete('/users/:id', validate, userCtrl.delelteUser);
+router.delete('/users/:id', validate, isAdmin, userCtrl.delelteUser);
 
 // books
 router.get('/books/:id', bookCtrl.getBook);
 router.get('/books', bookCtrl.getBooks);
-router.post('/books', parseFormdata, bookCtrl.createBook);
-router.delete('/books/:id', validate, bookCtrl.deleteBook);
+router.post('/books', validate, parseFormdata, bookCtrl.createBook);
+router.delete('/books/:id', validate, isAdmin, bookCtrl.deleteBook);
 
 // snippets
 router.get('/snippets/:id', snippetCtrl.getSnippet);
 router.get('/random-snippet', snippetCtrl.getRandomSnippet);
 router.get('/snippets', snippetCtrl.getSnippets);
-router.post('/snippets', parseFormdata, snippetCtrl.createSnippet);
-router.delete('/snippets/:id', snippetCtrl.deleteSnippet);
+router.post('/snippets', validate, parseFormdata, snippetCtrl.createSnippet);
+router.delete('/snippets/:id', validate, isAdmin, snippetCtrl.deleteSnippet);
 
 // records
 router.get('/records/:id', recordCtrl.getRecord);

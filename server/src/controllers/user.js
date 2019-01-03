@@ -61,13 +61,6 @@ async function createUser(req, res, next) {
 }
 async function delelteUser(req, res, next) {
   const { id } = req.params;
-  if (!req.user || !req.user.isAdmin) {
-    req.error = {
-      code: 401,
-      message: 'No permisson.',
-    };
-    next(new Error());
-  }
 
   let result = await db.User.deleteOne({ _id: id });
   req.result = result;
