@@ -4,8 +4,8 @@ const devConfig = {
 };
 
 const prodConfig = {
-  server: 'https://35.234.15.82',
-  apiServer: 'https://35.234.15.82',
+  server: 'https://dazi.online',
+  apiServer: 'https://dazi.online',
 };
 
 export default (process.env.NODE_ENV === 'production' ? prodConfig : devConfig);
