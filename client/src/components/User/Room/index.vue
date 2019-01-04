@@ -33,7 +33,11 @@
             :disabled="prepared"
           >{{ prepared ? "prepared" : 'prepare' }}</button>
         </div>
-        <span v-if="state === roomState.ONGOING && clock > 0" class="room__clock">倒计时{{ clock }}</span>
+        <cs-clock
+          v-if="state === roomState.ONGOING && clock > 0"
+          :clock="clock"
+          class="room__clock"
+        />
       </div>
       <progress-view :users="users"/>
       <component
@@ -155,15 +159,22 @@ export default {
 
     // no more http request after this function
     enterRoom() {
-      this.$axios.get(`/rooms/${this.id}`).then(result => {
-        // success
-        if (!result.data.users.some(user => user.username === this.username)) {
-          result.data.users.push({ username: this.username });
-        }
-        this.room = result.data;
-        this.resetUsers(result.data.users);
-        this.socket.emit("room-join", this.id, this.username);
-      });
+      this.$axios
+        .get(`/rooms/${this.id}`)
+        .then(result => {
+          // success
+          if (
+            !result.data.users.some(user => user.username === this.username)
+          ) {
+            result.data.users.push({ username: this.username });
+          }
+          this.room = result.data;
+          this.resetUsers(result.data.users);
+          this.socket.emit("room-join", this.id, this.username);
+        })
+        .catch(error => {
+          this.$router.replace("/rooms");
+        });
     },
     toStart() {
       this.socket.emit("room-start", this.id);

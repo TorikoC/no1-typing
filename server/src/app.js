@@ -50,9 +50,7 @@ app.use((err, req, res, next) => {
   }
   if (req.error) {
     res.status(req.error.code);
-    res.send({
-      error: req.error.message,
-    });
+    res.send(req.error);
   } else {
     res.status(500);
     res.send({

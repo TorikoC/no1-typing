@@ -5,7 +5,7 @@
     <progress-view :users="users"/>
     <div class="match__control">
       <button class="match__restart button" @click="toReload">重新匹配</button>
-      <span v-if="clock > 0" class="match__clock">倒计时 {{ clock }}</span>
+      <cs-clock v-if="clock > 0" :clock="clock" class="match__clock"/>
     </div>
     <component
       :is="'platform-' + lang"

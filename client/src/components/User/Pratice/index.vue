@@ -10,7 +10,7 @@
         v-if="state === WAITING && !loadingSnippet"
         @click="toStart"
       >Start</button>
-      <span class="pratice__clock" v-if="state === COUNTING">倒计时 {{ clock }}</span>
+      <cs-clock class="pratice__clock" :clock="clock" v-if="state === COUNTING"/>
       <span v-if="state === ONGOING">进行中</span>
     </div>
     <progress-view :users="users"/>
@@ -193,16 +193,13 @@ export default {
 <style lang="scss" scoped>
 .pratice {
   width: 50%;
-  
+
   position: relative;
 
   &__control {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-  }
-  &__clock {
-    font-size: 2em;
   }
 }
 </style>

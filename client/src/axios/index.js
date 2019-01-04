@@ -13,7 +13,10 @@ axios.interceptors.response.use(
   function(error) {
     // TODO:
     // add global error handler here
-    window.alert(error.response.data.error);
+    console.log(error.response.data);
+    if (!error.response.data.hide) {
+      window.alert(error.response.data.message);
+    }
     return Promise.reject(error.response.data);
   },
 );

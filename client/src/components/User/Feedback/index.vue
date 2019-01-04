@@ -12,8 +12,3 @@
 export default {};
 </script>
 
-<style lang="scss" scoped>
-.feedback {
-  width: 50%;
-}
-</style>

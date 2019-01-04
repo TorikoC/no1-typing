@@ -19,6 +19,15 @@ async function getRoom(req, res, next) {
 
   let result = await db.Room.findOne({ _id: id });
 
+  if (!result) {
+    req.error = {
+      code: 404,
+      hide: true,
+      message: 'room not found.',
+    };
+    next(new Error());
+  }
+
   req.result = result;
   next();
 }

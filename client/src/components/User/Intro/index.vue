@@ -29,9 +29,3 @@
 <script>
 export default {};
 </script>
-
-<style lang="scss" scoped>
-.intro {
-  width: 50%;
-}
-</style>

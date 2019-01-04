@@ -1,6 +1,6 @@
-import User from '../components/User/index';
 import Test from '../components/Test.vue';
 
+import Home from '../components/User/Home/index';
 import Pratice from '../components/User/Pratice/index';
 import Match from '../components/User/Match/index';
 import Rank from '../components/User/Rank/index';
@@ -26,7 +26,7 @@ const router = new VueRouter({
   routes: [
     {
       path: '/',
-      component: User,
+      component: Home,
       children: [
         {
           path: 'test',
