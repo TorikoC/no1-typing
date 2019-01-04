@@ -56,7 +56,7 @@ export default {
       }
       this.loading = true;
       this.$axios.get(`/records?lang=${this.lang}`).then(resp => {
-        this.records = resp.data;
+        this.records = resp.data.records;
         this.loading = false;
       });
     }

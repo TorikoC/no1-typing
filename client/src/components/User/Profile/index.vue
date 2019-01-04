@@ -18,6 +18,7 @@
       </dt>
       <dd class="profile__loading-field">
         <cs-loading v-if="loadingBestRecord"/>
+        <cs-no-data v-else-if="noBestRecord"/>
         <table v-else class="table">
           <thead>
             <tr>
@@ -36,8 +37,9 @@
         </table>
       </dd>
       <dt>最近记录</dt>
-      <dd>
+      <dd class="profile__loading-field">
         <cs-loading v-if="loadingRecentRecords"/>
+        <cs-no-data v-else-if="noRecentRecords"/>
         <table v-else class="table">
           <thead>
             <tr>
@@ -56,13 +58,19 @@
             </tr>
           </tbody>
         </table>
+        <pager :active="page" :total="totalPage" @change="toPage"/>
       </dd>
     </dl>
   </div>
 </template>
 
 <script>
+import Pager from "@/components/User/Common/Pager";
+
 export default {
+  components: {
+    Pager
+  },
   watch: {
     lang(value) {
       this.getBestRecord();
@@ -75,8 +83,16 @@ export default {
     return {
       lang: "cn",
       user: {},
+
+      pageSize: 10,
+      totalPage: 0,
+      page: 1,
+
       bestRecord: {},
       recentRecords: [],
+
+      noBestRecord: false,
+      noRecentRecords: false,
 
       loadingProfile: false,
       loadingBestRecord: false,
@@ -101,8 +117,9 @@ export default {
           }`
         )
         .then(result => {
+          this.noBestRecord = result.data.records[0] ? false : true;
+          this.bestRecord = result.data.records[0];
           this.loadingBestRecord = false;
-          this.bestRecord = result.data[0];
         });
     },
     getRecentRecords() {
@@ -110,11 +127,21 @@ export default {
         return;
       }
       this.loadingRecentRecords = true;
+      let skip = (this.page - 1) * this.pageSize;
       this.$axios
-        .get(`/records/?sort=createdAt|desc&limit=10&username=${this.username}`)
+        .get(
+          `/records?sort=createdAt|desc&limit=10&username=${
+            this.username
+          }&skip=${skip}`
+        )
         .then(resp => {
-          this.recentRecords = resp.data;
+          this.noRecentRecords = resp.data.records.length === 0;
+          this.recentRecords = resp.data.records;
           this.loadingRecentRecords = false;
+          this.totalPage = Math.floor(resp.data.total / this.pageSize);
+          if (resp.data.total % this.pageSize) {
+            this.totalPage += 1;
+          }
         });
     },
     getProfile() {
@@ -126,6 +153,10 @@ export default {
         this.user = result.data[0];
         this.loadingProfile = false;
       });
+    },
+    toPage(page) {
+      this.page = page;
+      this.getRecentRecords();
     }
   }
 };

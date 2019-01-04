@@ -19,7 +19,10 @@
         <p>与任意的在线用户进行匹配，自动开始。</p>
       </dd>
       <dt>房间(需要登录)</dt>
-      <dd>用户可以创建和加入房间。</dd>
+      <dd>
+        <p>用户可以创建和加入房间。</p>
+        <p>最后一名用户离开房间后，房间会自动删除。</p>
+      </dd>
       <dt>主题</dt>
       <dd>目前有 light 和 dark 两种主题。</dd>
     </dl>
@@ -27,5 +30,21 @@
 </template>
 
 <script>
-export default {};
+import Pager from "@/components/User/Common/Pager";
+export default {
+  data() {
+    return {
+      total: 10,
+      page: 1
+    };
+  },
+  components: {
+    Pager
+  },
+  methods: {
+    toChange(index) {
+      this.page = index;
+    }
+  }
+};
 </script>

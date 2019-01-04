@@ -1,6 +1,7 @@
 import Test from '../components/Test.vue';
 
 import Home from '../components/User/Home/index';
+import C404 from '../components/User/404/index';
 import Pratice from '../components/User/Pratice/index';
 import Match from '../components/User/Match/index';
 import Rank from '../components/User/Rank/index';
@@ -86,6 +87,10 @@ const router = new VueRouter({
           path: 'intro',
           component: Intro,
         },
+        {
+          path: '404',
+          component: C404,
+        },
       ],
     },
     {
@@ -106,6 +111,10 @@ const router = new VueRouter({
           component: AdminUsers,
         },
       ],
+    },
+    {
+      path: '*',
+      redirect: '/404',
     },
   ],
 });

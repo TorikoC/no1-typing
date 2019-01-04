@@ -148,7 +148,7 @@ export default {
       this.$axios
         .get(`/records?snippetId=${id}&lang=${this.lang}`)
         .then(resp => {
-          this.bestRecords = resp.data;
+          this.bestRecords = resp.data.records;
           this.loadingRecords = false;
         });
     },

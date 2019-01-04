@@ -1,5 +1,5 @@
 <template>
-  <div class="no-data">{{ msg }}</div>
+  <span class="no-data">{{ msg }}</span>
 </template>
 
 <script>
@@ -15,9 +15,7 @@ export default {
 
 <style lang="scss" scoped>
 .no-data {
-  position: absolute;
-  margin: 2em auto;
-  text-align: center;
-  color: inherit;
+  position: relative;
+  display: inline-block;
 }
 </style>
