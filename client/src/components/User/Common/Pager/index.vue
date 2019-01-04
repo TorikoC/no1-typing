@@ -59,6 +59,9 @@ export default {
   methods: {
     toPage(evt) {
       let index = +evt.target.getAttribute("data-index");
+      if (index === this.active) {
+        return;
+      }
       this.$emit("change", index);
     }
   }
