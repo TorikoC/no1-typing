@@ -97,4 +97,16 @@ export default {
     }
   }
 }
+.theme--dark {
+  .pager__info {
+    color: #bbb;
+  }
+  .pager {
+    &__item {
+      &:hover {
+        color: #bbb;
+      }
+    }
+  }
+}
 </style>
