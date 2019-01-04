@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const compression = require('compression');
 const cors = require('cors');
 const pino = require('pino');
 const expressPino = require('express-pino-logger')({
@@ -19,6 +20,7 @@ app.use(expressPino);
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
+app.use(compression());
 app.use(router);
 
 /**
