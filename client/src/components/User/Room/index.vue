@@ -90,7 +90,7 @@ export default {
       socket: this.$socket,
       username: window.$user ? window.$user.username : "",
 
-      clock: 999,
+      clock: -1,
       state: 0,
       roomState: {
         WAITING: 0,
