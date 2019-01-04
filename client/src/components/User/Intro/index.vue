@@ -5,7 +5,7 @@
     <dl class="dl">
       <dt>WPM</dt>
       <dd>
-        <p>Word Per Minute</p>
+        <p>Words Per Minute</p>
         <p>中文以字符为单位计算，英文以单词为单位计算。</p>
       </dd>
       <dt>练习模式</dt>

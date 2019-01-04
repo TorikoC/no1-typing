@@ -3,7 +3,7 @@
     <nav class="nav">
       <ul class="nav__list">
         <li class="nav__list-item">
-          <router-link class="nav__link" to="/">练习</router-link>
+          <router-link class="nav__link" to="/">主页</router-link>
         </li>
         <li class="nav__list-item">
           <router-link class="nav__link" to="/rooms">房间</router-link>
