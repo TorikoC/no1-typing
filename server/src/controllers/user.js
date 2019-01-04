@@ -89,6 +89,10 @@ async function authUser(req, res, next) {
   // compare password
   let match = await comparePassword(password, result.password);
   if (!match) {
+    req.error = {
+      code: 401,
+      message: '密码错误.',
+    };
     next(new Error('密码错误.'));
   }
 

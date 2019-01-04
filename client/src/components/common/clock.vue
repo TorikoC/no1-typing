@@ -17,7 +17,9 @@ export default {
   font-weight: bold;
   color: #333;
 }
-.dark--theme {
-  color: #fafafa;
+.theme--dark {
+  .clock {
+    color: #bbb;
+  }
 }
 </style>

@@ -145,6 +145,9 @@ export default {
   methods: {
     init() {
       this.elInput = document.getElementsByClassName("platform__input")[0];
+      this.elInput.onpaste = function(e) {
+        e.preventDefault();
+      };
     },
 
     tick() {
@@ -203,7 +206,6 @@ export default {
 
 <style lang="scss" scoped>
 .platform--en {
-  
   font-family: Consolas, monospace, "Microsoft Yahei";
 
   .platform__meta {

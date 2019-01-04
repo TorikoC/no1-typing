@@ -21,7 +21,7 @@
     </div>
     <div class="form-group">
       <label for></label>
-      <button class="button button--success reg-btn" type="submit">注册</button>
+      <button class="button button--success reg-btn" type="submit" :disabled="flag">注册</button>
     </div>
     <router-link class="link footer-link" to="/login">登录</router-link>
   </form>
@@ -29,8 +29,16 @@
 
 <script>
 export default {
+  data() {
+    return {
+      flag: false
+    };
+  },
   methods: {
     toSubmit(evt) {
+      if (this.flag) {
+        return;
+      }
       const form = evt.target;
       const formData = new FormData(form);
       const pw1 = formData.get("password");
@@ -40,9 +48,17 @@ export default {
         alert("password not match.");
         return;
       }
-      this.$axios.post("/users", formData).then(result => {
-        this.$router.push("/login");
-      });
+
+      this.flag = true;
+      this.$axios
+        .post("/users", formData)
+        .then(result => {
+          this.flag = false;
+          this.$router.push("/login");
+        })
+        .catch(error => {
+          this.flag = false;
+        });
     }
   }
 };

@@ -90,6 +90,9 @@ export default {
   methods: {
     init() {
       this.elInput = document.getElementsByClassName("platform__input")[0];
+      this.elInput.onpaste = function(e) {
+        e.preventDefault();
+      };
     },
     watch(el) {
       const config = {

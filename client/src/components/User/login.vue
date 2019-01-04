@@ -13,7 +13,7 @@
     </div>
     <div class="form-group">
       <label></label>
-      <button class="button button--success login-btn" type="submit">登录</button>
+      <button class="button button--success login-btn" type="submit" :disabled="flag">登录</button>
     </div>
     <router-link class="link footer-link" to="/register">注册</router-link>
   </form>
@@ -21,13 +21,28 @@
 
 <script>
 export default {
+  data() {
+    return {
+      flag: false
+    };
+  },
   methods: {
     toSubmit(evt) {
+      if (this.flag) {
+        return;
+      }
+      this.flag = true;
       const formData = new FormData(evt.target);
-      this.$axios.post("/login", formData).then(result => {
-        this.$bus.$emit("login", result.data);
-        this.$router.push("/");
-      });
+      this.$axios
+        .post("/login", formData)
+        .then(result => {
+          this.$bus.$emit("login", result.data);
+          this.$router.push("/");
+          this.flag = false;
+        })
+        .catch(error => {
+          this.flag = false;
+        });
     }
   }
 };

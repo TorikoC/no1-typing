@@ -38,13 +38,8 @@
 .theme--dark {
   .form {
     input {
-      &:invalid {
-        &:focus {
-          outline: none;
-          color: #333;
-          background: lightcoral;
-        }
-      }
+      background: #333;
+      color: #bbb;
     }
   }
 }
