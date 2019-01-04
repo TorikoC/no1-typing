@@ -10,17 +10,21 @@ async function getRecord(req, res, next) {
 }
 
 async function getRecords(req, res, next) {
-  let { lang, size, sort, snippetId, skip } = req.query;
+  let { lang, size, sort, snippetId, skip, username } = req.query;
   lang = lang || '';
   skip = +skip || 0;
   size = size || 10;
   sort = sort || 'speed|desc';
   snippetId = snippetId || '';
+  username = username || '';
 
   let where = {};
 
   if (lang) {
     where.lang = lang;
+  }
+  if (username) {
+    where.username = username;
   }
   if (snippetId) {
     where.snippetId = snippetId;
